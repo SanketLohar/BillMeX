@@ -175,10 +175,32 @@ function processDashboardData(transactions, revenueList) {
     const revValues = (revenueList || []).map(r => r.amount);
 
     (transactions || []).forEach(tx => {
-        const date = tx.createdAt ? new Date(tx.createdAt).toISOString().split('T')[0] : 'Unknown';
-        volumeByDate[date] = (volumeByDate[date] || 0) + 1;
-        const method = tx.transactionType || 'OTHER';
-        if (methods.hasOwnProperty(method)) methods[method]++;
+        // 1. Safe Date Parsing (Backward compatible: timestamp -> createdAt)
+        const rawDate = tx.timestamp || tx.createdAt;
+        let dateKey = null;
+
+        if (rawDate && rawDate !== 'N/A') {
+            const d = new Date(rawDate);
+            if (!isNaN(d.getTime())) {
+                dateKey = d.toISOString().split('T')[0];
+            }
+        }
+
+        if (dateKey) {
+            volumeByDate[dateKey] = (volumeByDate[dateKey] || 0) + 1;
+        }
+
+        // 2. Safe Method Normalization (Backward compatible: mechanism -> transactionType)
+        const rawMethod = tx.mechanism || tx.transactionType || 'OTHER';
+        
+        // Normalize backend enums to frontend chart keys
+        let method = rawMethod;
+        if (rawMethod === 'UPI_PAY') method = 'UPI';
+        else if (rawMethod === 'INVOICE_PAYMENT') method = 'INVOICE';
+        
+        if (methods.hasOwnProperty(method)) {
+            methods[method]++;
+        }
     });
 
     const volLabels = Object.keys(volumeByDate).sort();
@@ -293,7 +315,17 @@ function renderActivity(transactions) {
         return;
     }
 
-    body.innerHTML = transactions.map(t => `
+    body.innerHTML = transactions.map(t => {
+        // Safe Date Parsing
+        let dateStr = 'Recently';
+        if (t.timestamp && t.timestamp !== 'N/A') {
+            const d = new Date(t.timestamp);
+            if (!isNaN(d.getTime())) {
+                dateStr = d.toLocaleString();
+            }
+        }
+
+        return `
         <tr>
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -308,9 +340,9 @@ function renderActivity(transactions) {
             </td>
             <td>Action: <span class="badge badge-info">${t.mechanism || 'SYSTEM'}</span></td>
             <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'warning'}">${t.status || 'UNKNOWN'}</span></td>
-            <td style="color:var(--text-muted); font-size:12px;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : 'N/A'}</td>
+            <td style="color:var(--text-muted); font-size:12px;">${dateStr}</td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 /* ===========================================================
@@ -372,14 +404,24 @@ function renderTransactions(transactions) {
         return;
     }
 
-    body.innerHTML = filtered.map(t => `
+    body.innerHTML = filtered.map(t => {
+        // Safe Date Parsing
+        let dateStr = 'N/A';
+        if (t.timestamp && t.timestamp !== 'N/A') {
+            const d = new Date(t.timestamp);
+            if (!isNaN(d.getTime())) {
+                dateStr = d.toLocaleString();
+            }
+        }
+
+        return `
         <tr>
             <td><code style="font-size:12px; font-weight:700;">#${t.id || t.transactionId}</code></td>
             <td><div style="font-weight:700; color:var(--primary);">₹${(t.amount || 0).toLocaleString()}</div></td>
             <td>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <i class="fas ${t.method === 'CARD' ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
-                    ${t.method || 'UPI'}
+                    ${t.method || t.mechanism || 'UPI'}
                 </div>
             </td>
             <td>
@@ -391,9 +433,9 @@ function renderTransactions(transactions) {
                 <div style="font-size:11px; color:var(--text-muted);">${t.customerEmail || ''}</div>
             </td>
             <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'warning'}">${t.status || 'UNKNOWN'}</span></td>
-            <td style="color:var(--text-muted); font-size:12px;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : 'N/A'}</td>
+            <td style="color:var(--text-muted); font-size:12px;">${dateStr}</td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 /* ===========================================================
