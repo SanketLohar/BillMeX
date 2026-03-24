@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillMe | Contact</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="global.css">
+    <!-- <!-- <script src="translations.js" defer></script> --> -->
+<script src="i18n.js" defer></script>    <style>
+        /* Contact Specific Styles */
+        .hero {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 100px 28px 60px;
+            text-align: center;
+        }
+        .hero h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: #202124; margin-bottom: 20px; }
+        .hero p { font-size: 18px; color: #5f6368; max-width: 700px; margin: 0 auto; }
+
+        .contact-grid {
+            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; margin-top: 60px;
+        }
+        @media (max-width: 992px) { .contact-grid { grid-template-columns: 1fr; } }
+
+        .info-cards { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; 
+        }
+        .info-card {
+            background: white; border-radius: 20px; padding: 32px; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 1px solid #e8eaed;
+        }
+        .info-icon { width: 50px; height: 50px; background: #1a73e8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 20px; }
+        .info-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .info-card p { font-size: 14px; color: #5f6368; line-height: 1.6; }
+        .info-card .detail { font-weight: 600; color: #1a73e8; margin-top: 8px; display: block; }
+
+        .form-card {
+            background: white; border-radius: 24px; padding: 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e8eaed;
+        }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #202124; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #e8eaed;
+            font-size: 15px; transition: all 0.2s; background: #f8f9fa;
+        }
+        .form-group input:focus, .form-group textarea:focus { 
+            border-color: #1a73e8; background: white; outline: none; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); 
+        }
+
+        .emergency-banner {
+            background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+            border-radius: 24px; padding: 48px; color: white; text-align: center; margin: 80px 0;
+        }
+        .emergency-banner h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+        .emergency-number { font-size: 42px; font-weight: 900; margin: 24px 0; letter-spacing: 2px; }
+
+        .map-section { margin-bottom: 80px; }
+        .map-container { 
+            border-radius: 24px; overflow: hidden; height: 450px; border: 1px solid #e8eaed;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06); margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAV ── -->
+    <nav class="lp-nav">
+        <div class="lp-nav__inner">
+            <a href="../index.html" class="lp-logo">
+                <div class="lp-logo__icon"><i class="fas fa-bolt"></i></div>
+                <span data-i18n="nav_home">BillMe</span>
+            </a>
+            <ul class="lp-nav-links">
+                <li><a href="../index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="products.html" data-i18n="nav_products">Products</a></li>
+                <li><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
+                <li><a href="resources.html" data-i18n="nav_resources">Resources</a></li>
+                <li><a href="company.html" data-i18n="nav_company">Company</a></li>
+                <li class="active"><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+            </ul>
+            <div class="lp-nav-cta">
+                <div class="language-dropdown-container">
+                    <div class="language-switcher" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="language-dropdown" id="lang-menu">
+                        <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                        <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                        <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                    </div>
+                </div>
+                <a href="login.html" class="lp-nav-cta-btn" data-i18n="nav_signin">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <div class="container">
+            <h1 data-i18n="con_hero_t">Get in Touch</h1>
+            <p data-i18n="con_hero_d">Have questions about BillMe? Our team is here to help you scale your business with modern billing infrastructure.</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="contact-grid">
+            <!-- Left: Info -->
+            <div class="info-side">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-headset"></i></div>
+                        <h3 data-i18n="con_c1_t">Customer Support</h3>
+                        <p data-i18n="con_c1_d">Need help with your account or technical issues?</p>
+                        <span class="detail">support@billme.com</span>
+                        <span class="detail">+91 22 4567 8900</span>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-briefcase"></i></div>
+                        <h3 data-i18n="con_c2_t">Sales Inquiries</h3>
+                        <p data-i18n="con_c2_d">Interested in our enterprise solutions or a custom demo?</p>
+                        <span class="detail">sales@billme.com</span>
+                        <span class="detail">+91 22 4567 8901</span>
+                    </div>
+                </div>
+
+                <div class="info-card" style="margin-top:24px;">
+                    <h3 data-i18n="con_hours_t">Office Hours</h3>
+                    <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f0f0f0;">
+                        <span data-i18n="con_day_mf">Monday - Friday</span>
+                        <span style="font-weight:600;color:#1a73e8;">9:00 AM - 7:00 PM</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:12px 0;">
+                        <span data-i18n="con_day_sat">Saturday</span>
+                        <span style="font-weight:600;color:#1a73e8;">10:00 AM - 4:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Form -->
+            <div class="form-card">
+                <h2 style="font-size:24px;margin-bottom:32px;" data-i18n="con_form_t">Send us a Message</h2>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label data-i18n="con_lbl_name">Full Name</label>
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="con_lbl_email">Email Address</label>
+                        <input type="email" placeholder="email@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="con_lbl_msg">Your Message</label>
+                        <textarea rows="5" placeholder="How can we help you?" required></textarea>
+                    </div>
+                    <button type="submit" class="lp-nav-cta-btn" style="width:100%;border:none;padding:16px;font-size:16px;" data-i18n="con_btn_send">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Emergency -->
+        <div class="emergency-banner">
+            <h2 data-i18n="con_help_t">Need Immediate Help?</h2>
+            <p data-i18n="con_help_d">Our merchant support hotline is available 24/7 for urgent payment issues.</p>
+            <div class="emergency-number">1800-BILL-ME</div>
+            <p data-i18n="con_help_s">(Toll-free across India)</p>
+        </div>
+
+        <!-- Map -->
+        <section class="map-section">
+            <div class="section-label" data-i18n="con_loc_t">Our Headquarters</div>
+            <h2 class="section-title">Visit Our Pune Office</h2>
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.222052750328!2d73.7987224!3d18.4840293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf40b5bb75a3%3A0x93c2e9a67c9a13c7!2sSPCL%20Infotech%20Services%20Pvt.%20Ltd.!5e0!3m2!1sen!2sin!4v1710941234567!5m2!1sen!2sin" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+            <p style="margin-top: 20px; color: #5f6368; font-size:14px;">
+                <i class="fas fa-map-pin" style="color: #1a73e8; margin-right:8px;"></i> 
+                Office No-7, 2nd Floor, Mumbai Banglore Highway, near Church, Warje, Pune, Maharashtra 411058
+            </p>
+        </section>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="lp-footer">
+        <span class="lp-footer-logo"><i class="fas fa-bolt"></i> BillMe</span>
+        <div style="margin-bottom:16px;">
+            <a href="#" data-i18n="link_privacy">Privacy Policy</a>
+            <a href="#" data-i18n="link_terms">Terms of Service</a>
+            <a href="contact.html" data-i18n="nav_contact">Contact</a>
+            <a href="register.html" data-i18n="nav_getstarted">Sign Up</a>
+        </div>
+        <p data-i18n="footer_copy">© 2026 BillMe · Fintech Merchant Infrastructure · Built for India</p>
+    </footer>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("Thank you! Your message has been sent. Our team will respond shortly.");
+            this.reset();
+        });
+    </script>
+</body>
+</html>

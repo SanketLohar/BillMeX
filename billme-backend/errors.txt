@@ -1,0 +1,78 @@
+﻿
+[ERROR] COMPILATION ERROR : 
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[75,38] 
+cannot find symbol
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[115,9] 
+cannot find symbol
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[121,111]
+ cannot find symbol
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[140,13] 
+cannot find symbol
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[194,9] 
+cannot find symbol
+[ERROR] Failed to execute goal org.apach
+e.maven.plugins:maven-compiler-plugin:3.
+14.1:compile (default-compile) on 
+project billme-backend: Compilation 
+failure: Compilation failure: 
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[75,38] 
+cannot find symbol
+[ERROR]   symbol:   method getFullName()
+[ERROR]   location: class 
+com.billme.customer.CustomerProfile
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[115,9] 
+cannot find symbol
+[ERROR]   symbol:   class Wallet
+[ERROR]   location: class 
+com.billme.payment.RefundService
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[121,111]
+ cannot find symbol
+[ERROR]   symbol:   variable CARD
+[ERROR]   location: class 
+com.billme.invoice.PaymentMethod
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[140,13] 
+cannot find symbol
+[ERROR]   symbol:   class Wallet
+[ERROR]   location: class 
+com.billme.payment.RefundService
+[ERROR] /C:/Users/hp/Desktop/billme-back
+end/billme-backend/src/main/java/com/bil
+lme/payment/RefundService.java:[194,9] 
+cannot find symbol
+[ERROR]   symbol:   class Wallet
+[ERROR]   location: class 
+com.billme.payment.RefundService
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of 
+the errors, re-run Maven with the -e 
+switch.
+[ERROR] Re-run Maven using the -X 
+switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the 
+errors and possible solutions, please 
+read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org
+/confluence/display/MAVEN/MojoFailureExc
+eption
+
+

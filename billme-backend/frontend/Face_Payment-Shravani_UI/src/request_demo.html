@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Demo · Product Tour</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* customer dashboard button — exactly like "home" button (clean, subtle, top left) */
+        .dashboard-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .dashboard-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-link:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-link svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+            opacity: 0.9;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        /* Left Side - Info Section */
+        .info-section {
+            color: white;
+            padding-right: 40px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-section h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .info-section p {
+            font-size: 18px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .feature-item span {
+            background: rgba(255,255,255,0.2);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Right Side - Form Section */
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header h2 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .demo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input.error,
+        .form-group select.error {
+            border-color: #f56565;
+            background-color: #fff5f5;
+        }
+
+        .error-message {
+            color: #f56565;
+            font-size: 12px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-direction: row;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checkbox-group label {
+            font-weight: normal;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .checkbox-group a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-demo:active {
+            transform: translateY(0);
+        }
+
+        .btn-demo:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-tour {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-tour:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn-tour:active {
+            transform: translateY(0);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f3ff 100%);
+            border-radius: 16px;
+            color: #1e3a8a;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        .success-message p {
+            margin-bottom: 10px;
+            color: #2c5282;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+
+        .btn-demo.loading .loading-spinner {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .reset-link {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tour-highlight {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.6) !important;
+            transform: scale(1.02);
+            border-radius: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-section {
+                padding-right: 0;
+                text-align: center;
+            }
+            
+            .info-section h1 {
+                font-size: 36px;
+            }
+            
+            .features {
+                align-items: center;
+            }
+            
+            .card {
+                padding: 30px 20px;
+            }
+
+            .dashboard-link {
+                top: 16px;
+                left: 16px;
+                padding: 6px 14px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Customer Dashboard button – exactly like "home" button, subtle glassmorphism -->
+    <a href="../index.html" class="dashboard-link" id="customerDashboardBtn" title="Go to Customer Dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        Home
+    </a>
+
+    <div class="container">
+        <!-- Left Side - Product Info -->
+        <div class="info-section">
+            <span class="badge">⚡ LIMITED TIME OFFER</span>
+            <h1>Transform Your Business Today</h1>
+            <p>Join 10,000+ companies already using our platform to automate workflows, increase productivity, and drive growth.</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <span>✓</span>
+                    AI-Powered Analytics
+                </div>
+                <div class="feature-item">
+                    <span>✓</span>
+                    Seamless Integration
+                </div>
+                <div class="feature-item">
+                    <span>✓</span>
+                    24/7 Premium Support
+                </div>
+                <div class="feature-item">
+                    <span>✓</span>
+                    Enterprise-Grade Security
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Request Demo Form -->
+        <div class="card" id="demoCard">
+            <div class="card-header">
+                <h2>Request a Demo</h2>
+                <p>Get a personalized walkthrough of our platform</p>
+            </div>
+
+            <!-- Demo Request Form -->
+            <form id="demoForm" class="demo-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="John Smith">
+                    <span class="error-message" id="nameError">Please enter your full name</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Work Email *</label>
+                    <input type="email" id="email" name="email" placeholder="john@company.com">
+                    <span class="error-message" id="emailError">Please enter a valid email address</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company Name *</label>
+                    <input type="text" id="company" name="company" placeholder="Your Company">
+                    <span class="error-message" id="companyError">Please enter your company name</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                </div>
+
+                <div class="form-group">
+                    <label for="employees">Company Size *</label>
+                    <select id="employees" name="employees">
+                        <option value="">Select company size</option>
+                        <option value="1-10">1-10 employees</option>
+                        <option value="11-50">11-50 employees</option>
+                        <option value="51-200">51-200 employees</option>
+                        <option value="201-500">201-500 employees</option>
+                        <option value="500+">500+ employees</option>
+                    </select>
+                    <span class="error-message" id="employeesError">Please select company size</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="interest">Primary Interest</label>
+                    <select id="interest" name="interest">
+                        <option value="">What are you most interested in?</option>
+                        <option value="analytics">Analytics & Reporting</option>
+                        <option value="automation">Workflow Automation</option>
+                        <option value="integration">API & Integrations</option>
+                        <option value="security">Security Features</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="consent" name="consent">
+                    <label for="consent">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a> *</label>
+                    <span class="error-message" id="consentError">You must agree to continue</span>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" id="requestDemoBtn" class="btn btn-demo">
+                        <span class="loading-spinner"></span>
+                        REQUEST A DEMO
+                    </button>
+                    
+                    <button type="button" id="startTourBtn" class="btn btn-tour">
+                        START GUIDED TOUR
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message">
+                <div class="success-icon">🎉</div>
+                <h3>Demo Request Sent!</h3>
+                <p>Thank you <span id="submittedName"></span>!</p>
+                <p>Our team will contact you at <strong id="submittedEmail"></strong></p>
+                <p>within 24 hours to schedule your personalized demo.</p>
+                <button onclick="resetDemoForm()" class="reset-link">Request another demo →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ============ DOM ELEMENTS ============
+            const demoForm = document.getElementById('demoForm');
+            const requestDemoBtn = document.getElementById('requestDemoBtn');
+            const startTourBtn = document.getElementById('startTourBtn');
+            const successMessage = document.getElementById('successMessage');
+            const submittedName = document.getElementById('submittedName');
+            const submittedEmail = document.getElementById('submittedEmail');
+            
+            // New dashboard button
+            const dashboardBtn = document.getElementById('customerDashboardBtn');
+
+            const fullName = document.getElementById('fullName');
+            const email = document.getElementById('email');
+            const company = document.getElementById('company');
+            const phone = document.getElementById('phone');
+            const employees = document.getElementById('employees');
+            const interest = document.getElementById('interest');
+            const consent = document.getElementById('consent');
+
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const companyError = document.getElementById('companyError');
+            const employeesError = document.getElementById('employeesError');
+            const consentError = document.getElementById('consentError');
+
+            // ============ DASHBOARD BUTTON INTERACTION ============
+            // Make it behave like a home button: show a friendly message with demo count
+            if (dashboardBtn) {
+                dashboardBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get number of demo requests from localStorage
+                    const requests = JSON.parse(localStorage.getItem('demoRequests') || '[]');
+                    const count = requests.length;
+                    
+                    // Optional: get last request name if exists
+                    let message = `🖥️ Customer Dashboard\n\n`;
+                    if (count > 0) {
+                        const last = requests[requests.length - 1];
+                        message += `You have ${count} demo request${count !== 1 ? 's' : ''} on record.\n`;
+                        message += `Latest: ${last.name} from ${last.company} (${new Date(last.timestamp).toLocaleDateString()})`;
+                    } else {
+                        message += `No demo requests yet. Start by filling the form!`;
+                    }
+                    
+                    alert(message);
+                     window.location.href = '../index.html';
+                    // subtle animation to mimic real navigation feedback
+                    dashboardBtn.style.transform = 'scale(0.96)';
+                    setTimeout(() => {
+                        dashboardBtn.style.transform = '';
+                    }, 150);
+                });
+            }
+
+            // ============ UTILITIES ============
+            function removeError(input, errorElement) {
+                input?.classList.remove('error');
+                errorElement?.classList.remove('show');
+            }
+
+            function addError(input, errorElement) {
+                input?.classList.add('error');
+                errorElement?.classList.add('show');
+            }
+
+            function isValidEmail(emailStr) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+            }
+
+            function formatPhoneNumber(value) {
+                const digits = value.replace(/\D/g, '');
+                if (digits.length <= 3) return digits;
+                if (digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
+            }
+
+            // ============ VALIDATION ============
+            function validateForm() {
+                let isValid = true;
+
+                if (!fullName.value.trim()) {
+                    addError(fullName, nameError);
+                    isValid = false;
+                } else {
+                    removeError(fullName, nameError);
+                }
+
+                if (!email.value.trim() || !isValidEmail(email.value.trim())) {
+                    addError(email, emailError);
+                    isValid = false;
+                } else {
+                    removeError(email, emailError);
+                }
+
+                if (!company.value.trim()) {
+                    addError(company, companyError);
+                    isValid = false;
+                } else {
+                    removeError(company, companyError);
+                }
+
+                if (!employees.value) {
+                    addError(employees, employeesError);
+                    isValid = false;
+                } else {
+                    removeError(employees, employeesError);
+                }
+
+                if (!consent.checked) {
+                    consent.classList.add('error');
+                    consentError.classList.add('show');
+                    isValid = false;
+                } else {
+                    consent.classList.remove('error');
+                    consentError.classList.remove('show');
+                }
+
+                return isValid;
+            }
+
+            // ============ DEMO SUBMIT ============
+            demoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    requestDemoBtn.classList.add('loading');
+                    requestDemoBtn.disabled = true;
+
+                    setTimeout(() => {
+                        requestDemoBtn.classList.remove('loading');
+                        requestDemoBtn.disabled = false;
+
+                        const demoRequest = {
+                            id: Date.now(),
+                            name: fullName.value.trim(),
+                            email: email.value.trim(),
+                            company: company.value.trim(),
+                            phone: phone.value.trim(),
+                            employees: employees.value,
+                            interest: interest.value || 'Not specified',
+                            consent: consent.checked,
+                            timestamp: new Date().toISOString(),
+                        };
+
+                        const demoRequests = JSON.parse(localStorage.getItem('demoRequests') || '[]');
+                        demoRequests.push(demoRequest);
+                        localStorage.setItem('demoRequests', JSON.stringify(demoRequests));
+                        localStorage.setItem('lastDemoRequest', JSON.stringify(demoRequest));
+
+                        submittedName.textContent = demoRequest.name.split(' ')[0];
+                        submittedEmail.textContent = demoRequest.email;
+                        demoForm.style.display = 'none';
+                        successMessage.classList.add('show');
+
+                        console.log('✅ Demo requested:', demoRequest);
+                    }, 1200);
+                }
+            });
+
+            // ============ GUIDED TOUR ============
+            const tourSteps = [
+                { element: '#requestDemoBtn', title: '🌟 Request demo', msg: 'Click here to get a personalized walkthrough.' },
+                { element: '.info-section h1', title: '🚀 Transform', msg: 'See how our platform boosts your business.' },
+                { element: '.features', title: '✨ Core features', msg: 'AI analytics, integrations, security & more.' },
+                { element: '#startTourBtn', title: '🔄 You are here', msg: 'This button starts the tour – and it works!' }
+            ];
+
+            let tourActive = false;
+            let currentTourIndex = 0;
+            let timeoutId = null;
+
+            function clearTourHighlight() {
+                document.querySelectorAll('.tour-highlight').forEach(el => {
+                    el.classList.remove('tour-highlight');
+                });
+            }
+
+            function showTourStep(index) {
+                if (!tourActive || index >= tourSteps.length) {
+                    if (tourActive) alert('✨ Tour complete! Ready to request a demo?');
+                    tourActive = false;
+                    clearTourHighlight();
+                    return;
+                }
+
+                const step = tourSteps[index];
+                const targetEl = document.querySelector(step.element);
+                if (targetEl) {
+                    clearTourHighlight();
+                    targetEl.classList.add('tour-highlight');
+                    alert(`🔶 ${step.title}\n\n${step.msg}`);
+                    
+                    if (timeoutId) clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        showTourStep(index + 1);
+                    }, 1600);
+                } else {
+                    showTourStep(index + 1);
+                }
+            }
+
+            function startGuidedTour() {
+                if (tourActive) {
+                    tourActive = false;
+                    clearTimeout(timeoutId);
+                    clearTourHighlight();
+                }
+                tourActive = true;
+                currentTourIndex = 0;
+                
+                const last = localStorage.getItem('lastDemoRequest');
+                let welcomeMsg = '🚀 Welcome to the guided tour!';
+                if (last) {
+                    const name = JSON.parse(last).name.split(' ')[0];
+                    welcomeMsg = `👋 Welcome back, ${name}! Let's highlight key areas.`;
+                }
+                alert(welcomeMsg + ' Follow the highlights.');
+                
+                showTourStep(0);
+            }
+
+            startTourBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.96)';
+                setTimeout(() => { this.style.transform = ''; }, 150);
+                startGuidedTour();
+            });
+
+            // ============ AUTO-SAVE DRAFT ============
+            function saveDraft() {
+                const draft = {
+                    name: fullName.value,
+                    email: email.value,
+                    company: company.value,
+                    phone: phone.value,
+                    employees: employees.value,
+                    interest: interest.value,
+                };
+                localStorage.setItem('demoFormDraft', JSON.stringify(draft));
+            }
+
+            function loadDraft() {
+                const draft = localStorage.getItem('demoFormDraft');
+                if (draft) {
+                    try {
+                        const data = JSON.parse(draft);
+                        fullName.value = data.name || '';
+                        email.value = data.email || '';
+                        company.value = data.company || '';
+                        phone.value = data.phone || '';
+                        employees.value = data.employees || '';
+                        interest.value = data.interest || '';
+                    } catch (e) {}
+                }
+            }
+
+            [fullName, email, company, phone, employees, interest].forEach(f => {
+                if (f) f.addEventListener('input', saveDraft);
+            });
+
+            loadDraft();
+
+            phone.addEventListener('input', function() {
+                this.value = formatPhoneNumber(this.value);
+            });
+
+            fullName.addEventListener('input', () => removeError(fullName, nameError));
+            email.addEventListener('input', () => removeError(email, emailError));
+            company.addEventListener('input', () => removeError(company, companyError));
+            employees.addEventListener('change', () => removeError(employees, employeesError));
+            consent.addEventListener('change', function() {
+                if (this.checked) {
+                    this.classList.remove('error');
+                    consentError.classList.remove('show');
+                }
+            });
+
+            window.resetDemoForm = function() {
+                demoForm.reset();
+                demoForm.style.display = 'block';
+                successMessage.classList.remove('show');
+                localStorage.removeItem('demoFormDraft');
+                if (tourActive) {
+                    tourActive = false;
+                    clearTimeout(timeoutId);
+                    clearTourHighlight();
+                }
+                console.log('🔄 Form reset');
+            };
+
+            console.log('🚀 Demo page ready — "Customer Dashboard" button added (like home button)');
+        })();
+    </script>
+</body>
+</html>

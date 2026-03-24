@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillMe | Resources</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="global.css">
+    <!-- <!-- <script src="translations.js" defer></script> --> -->
+  <script src="i18n.js" defer></script>
+    <style>
+        /* Resources Page Specific Styles */
+        .hero {
+            background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+            padding: 100px 28px 80px;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 900; margin-bottom: 20px; color: white; }
+        .hero p { font-size: clamp(18px, 2vw, 22px); opacity: 0.9; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+        .resource-card {
+            background: white; border-radius: 24px; padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 1px solid #e8eaed;
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+        .resource-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: #1a73e8; }
+        
+        .resource-icon {
+            width: 60px; height: 60px; border-radius: 16px; background: #f0f7fe;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: #1a73e8; margin-bottom: 24px;
+        }
+        .resource-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 16px; color: #202124; }
+        .resource-card p { font-size: 15px; color: #5f6368; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
+        
+        .resource-link {
+            font-weight: 700; color: #1a73e8; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 15px;
+        }
+        .resource-link:hover { text-decoration: underline; }
+
+        .cta-section {
+            background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 80px 0; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAV ── -->
+    <nav class="lp-nav">
+        <div class="lp-nav__inner">
+            <a href="../index.html" class="lp-logo">
+                <div class="lp-logo__icon"><i class="fas fa-bolt"></i></div>
+                <span data-i18n="nav_home">BillMe</span>
+            </a>
+            <ul class="lp-nav-links">
+                <li><a href="../index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="products.html" data-i18n="nav_products">Products</a></li>
+                <li><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
+                <li class="active"><a href="resources.html" data-i18n="nav_resources">Resources</a></li>
+                <li><a href="company.html" data-i18n="nav_company">Company</a></li>
+                <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+            </ul>
+            <div class="lp-nav-cta">
+                <div class="language-dropdown-container">
+                    <div class="language-switcher" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="language-dropdown" id="lang-menu">
+                        <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                        <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                        <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                    </div>
+                </div>
+                <a href="login.html" class="lp-nav-cta-btn" data-i18n="nav_signin">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <div class="container">
+            <h1 data-i18n="res_hero_title">Knowledge Hub & Resources</h1>
+            <p data-i18n="res_hero_desc">Explore our guides, whitepapers, and tools designed to help you master digital payments and billing compliance.</p>
+        </div>
+    </section>
+
+    <!-- ── RESOURCES ── -->
+    <section class="section">
+        <div class="container">
+            <div class="resource-grid">
+                <!-- GST Calculator -->
+                <div class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-calculator"></i></div>
+                    <h3 data-i18n="gst_calculator">GST Calculator</h3>
+                    <p data-i18n="res_gst_desc">Calculate GST instantly for your business. Supports CGST, SGST, and IGST with the latest tax rates.</p>
+                    <a href="gst.html" class="resource-link">Use Calculator <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Merchant Guides -->
+                <div class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-book"></i></div>
+                    <h3 data-i18n="res_guides_title">Merchant Guides</h3>
+                    <p data-i18n="res_guides_desc">Step-by-step guides on setting up your digital storefront, managing inventory, and optimizing checkout.</p>
+                    <a href="#" class="resource-link">Browse Guides <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Compliance Tools -->
+                <div class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-shield-check"></i></div>
+                    <h3 data-i18n="res_compliance_title">Compliance Tools</h3>
+                    <p data-i18n="res_compliance_desc">Stay up-to-date with the latest financial regulations and tax compliance requirements for your industry.</p>
+                    <a href="#" class="resource-link">Check Compliance <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA ── -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="section-title" data-i18n="res_cta_title">Need help with registration?</h2>
+            <p class="section-sub" data-i18n="res_cta_desc">Our team of experts is ready to help you get started with BillMe and GST compliance.</p>
+            <div style="margin-top: 32px;">
+                <a href="contact.html" class="btn-hero-primary">Talk to an Expert</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="lp-footer">
+        <span class="lp-footer-logo"><i class="fas fa-bolt"></i> BillMe</span>
+        <div style="margin-bottom:16px;">
+            <a href="#" data-i18n="link_privacy">Privacy Policy</a>
+            <a href="#" data-i18n="link_terms">Terms of Service</a>
+            <a href="contact.html" data-i18n="nav_contact">Contact</a>
+            <a href="register.html" data-i18n="nav_getstarted">Sign Up</a>
+        </div>
+        <p data-i18n="footer_copy">© 2026 BillMe · Fintech Merchant Infrastructure · Built for India</p>
+    </footer>
+
+    <script>
+    </script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacePay - Invoicing Made Easy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #fff;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            border-bottom: 1px solid #eaeaea;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-text {
+            font-size: 30px;
+            font-weight: 800;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            color: #3498db;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 22px;
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin-right: 40px;
+        }
+
+        .nav-links li {
+            margin-left: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #3498db;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #3498db;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login {
+            color: #3498db;
+            background: transparent;
+            border: 2px solid #3498db;
+        }
+
+        .btn-login:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+
+        .btn-signup {
+            color: white;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 2px solid #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-signup:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #eef5ff 100%);
+            padding: 100px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(52, 152, 219, 0.1) 100%);
+            clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            gap: 60px;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 550px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            color: #3498db;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            bottom: 2px;
+            left: 0;
+            background-color: rgba(52, 152, 219, 0.2);
+            z-index: -1;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 18px 45px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+        }
+
+        .free-note {
+            color: #777;
+            font-size: 15px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .free-note::before {
+            content: '✓';
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        /* Laptop Mockup - FIXED POSITION */
+        .laptop-mockup {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+            margin-right: 0;
+            margin-top: 20px;
+        }
+
+        .laptop-container {
+            position: relative;
+            width: 100%;
+            padding-top: 60%; /* Maintain aspect ratio */
+        }
+
+        .laptop-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #2c3e50;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .laptop-screen {
+            position: absolute;
+            top: 3%;
+            left: 2.5%;
+            width: 95%;
+            height: 94%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .screen-content {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            padding: 25px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .invoice-preview {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            height: auto;
+            position: relative;
+            min-height: 100%;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .invoice-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3498db;
+        }
+
+        .invoice-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail-group h4 {
+            color: #3498db;
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-group p {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .invoice-table th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .invoice-total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2ecc71;
+            margin-top: 20px;
+        }
+
+        .laptop-base {
+            position: absolute;
+            bottom: -15px;
+            left: 15%;
+            width: 70%;
+            height: 20px;
+            background: #34495e;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .laptop-shadow {
+            position: absolute;
+            bottom: -40px;
+            left: 15%;
+            width: 70%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            background-color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .trust-badges p {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 35px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 50px;
+        }
+
+        .badge {
+            color: #666;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .badge:hover {
+            transform: translateY(-5px);
+        }
+
+        .badge i {
+            font-size: 24px;
+        }
+
+        .badge.yahoo {
+            color: #720e9e;
+        }
+
+        .badge.software {
+            color: #e74c3c;
+        }
+
+        .badge.findthebest {
+            color: #3498db;
+        }
+
+        .badge.getapp {
+            color: #2ecc71;
+        }
+
+        .badge.mymarketwatch {
+            color: #f39c12;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 40px 20px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .copyright {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #34495e;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1100px) {
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 40px;
+            }
+            
+            .hero-content {
+                max-width: 800px;
+                margin-bottom: 0;
+            }
+            
+            .laptop-mockup {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .header-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .navigation {
+                margin-top: 20px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .nav-links {
+                margin-right: 0;
+            }
+            
+            .hero h1 {
+                font-size: 38px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .badges {
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .auth-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 70px 15px 50px;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .badges {
+                flex-direction: column;
+                gap: 25px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .laptop-container {
+                padding-top: 50%; /* Adjust aspect ratio for mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .cta-button {
+                padding: 16px 35px;
+                font-size: 16px;
+            }
+            
+            .logo-text {
+                font-size: 26px;
+            }
+            
+            .laptop-mockup {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="logo-text">Face<span>Pay</span></div>
+            </a>
+            
+            <div class="navigation">
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="gst.html">GST INFO</a></li>
+                    
+                </ul>
+    
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Laptop Image -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Online Invoice software designed for the modern business.</h1>
+                <p>Make beautiful invoices that your clients will remember.<br><span class="highlight">It's time for an upgrade!</span></p>
+                <a href="#" class="cta-button" onclick="openInvoiceFile()">START INVOICING TODAY</a>
+                <p class="free-note">*Free & Easy - no hidden fees.</p>
+            </div>
+            
+            <div class="laptop-mockup">
+                <div class="laptop-container">
+                    <div class="laptop-frame">
+                        <div class="laptop-screen">
+                            <div class="screen-content">
+                                <div class="invoice-preview">
+                                    <div class="invoice-header">
+                                        <div class="invoice-logo">FacePay Invoice</div>
+                                        <div class="invoice-title">INVOICE #001</div>
+                                    </div>
+                                    
+                                    <div class="invoice-details">
+                                        <div class="detail-group">
+                                            <h4>From</h4>
+                                            <p>FacePay Solutions<br>123 Business Ave<br>Pune, Maharashtra 10001</p>
+                                        </div>
+                                        <div class="detail-group">
+                                            <h4>To</h4>
+                                            <p>ABC Corporation<br>456 Client Street<br>Mumbai, Maharashtra 400001</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <table class="invoice-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Description</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Web Design Services</td>
+                                                <td>10</td>
+                                                <td>75.00</td>
+                                                <td>750.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Hosting (Monthly)</td>
+                                                <td>1</td>
+                                                <td>29.99</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Domain Registration</td>
+                                                <td>2</td>
+                                                <td>14.99</td>
+                                                <td>29.98</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <div class="invoice-total">
+                                        Total: 809.97
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="laptop-base"></div>
+                    <div class="laptop-shadow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Badges -->
+    <section class="trust-badges">
+        <p>As seen in:</p>
+        <div class="badges">
+            <div class="badge yahoo">
+                <i class="fab fa-yahoo"></i>
+                <span>YAHOO!</span>
+            </div>
+            <div class="badge software">
+                <i class="fas fa-laptop-code"></i>
+                <span>Software</span>
+            </div>
+            <div class="badge findthebest">
+                <i class="fas fa-search"></i>
+                <span>FindTheBest</span>
+            </div>
+            <div class="badge getapp">
+                <i class="fas fa-mobile-alt"></i>
+                <span>GetApp</span>
+            </div>
+            <div class="badge mymarketwatch">
+                <i class="fas fa-chart-line"></i>
+                <span>MyMarketWatch</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Security</a>
+                <a href="#">Help Center</a>
+                <a href="#">Blog</a>
+                <a href="#">Status</a>
+            </div>
+            <div class="copyright">
+                © 2026 FacePay. All rights reserved. | Invoicing Made Easy
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openInvoiceFile() {
+            // Open the invoice file in a new tab
+            window.open('invo.html', '_blank');
+            return false; // Prevent default link behavior
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login button
+            document.querySelector('.btn-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('FacePay Login: Enter your credentials to access your dashboard.');
+            });
+            
+            // Signup button
+            document.querySelector('.btn-signup').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('FacePay Signup: Create your free account to start invoicing.');
+            });
+            
+            // CTA button - updated to use our function
+            document.querySelector('.cta-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                openInvoiceFile();
+            });
+            
+            // Navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.textContent;
+                    alert(`FacePay ${page}: This page is under development.`);
+                });
+            });
+            
+            // Footer links
+            document.querySelectorAll('.footer-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.textContent;
+                    alert(`FacePay ${page}: This page will open in a new tab.`);
+                });
+            });
+            
+            // Add animation to laptop mockup
+            const laptop = document.querySelector('.laptop-mockup');
+            laptop.style.opacity = '0';
+            laptop.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                laptop.style.transition = 'opacity 1s ease, transform 1s ease';
+                laptop.style.opacity = '1';
+                laptop.style.transform = 'translateY(0)';
+            }, 300);
+        });
+    </script>
+</body>
+</html>

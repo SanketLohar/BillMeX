@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Pay | Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e8eaed;
+            --dark-gray: #5f6368;
+            --text: #202124;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header & Navigation */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-icon {
+            background: var(--gradient);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(26, 115, 232, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0); }
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+            padding: 5px 0;
+            cursor: pointer;
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--primary);
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        nav a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        nav a.active::after {
+            width: 100%;
+        }
+        
+        /* Dropdown styles */
+        .nav-item {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.2s ease;
+            margin-top: 10px;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .dropdown-menu.active {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--light-gray);
+            cursor: pointer;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .dropdown-item span {
+            flex: 1;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-gray);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--medium-gray);
+            font-size: 1.2rem;
+        }
+        
+        .lang-icon:hover {
+            background: var(--medium-gray);
+            transform: scale(1.05);
+            color: var(--primary-dark);
+        }
+        
+        .lang-dropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.2s ease;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .lang-dropdown.active {
+            display: block;
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+        
+        .lang-option:hover {
+            background: var(--light-gray);
+        }
+        
+        .lang-option.active {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .lang-option i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .lang-option span {
+            flex: 1;
+        }
+        
+        .lang-option .check {
+            color: var(--secondary);
+            font-size: 14px;
+            margin-left: auto;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(26, 115, 232, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.1);
+        }
+        
+        /* ========== DOCUMENTATION PAGE SPECIFIC STYLES ========== */
+        .docs-hero {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        
+        .docs-hero h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: var(--text);
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .docs-hero p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto;
+            color: var(--dark-gray);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        
+        .docs-section {
+            padding: 60px 0;
+        }
+        
+        /* Documentation Layout */
+        .docs-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        /* Sidebar */
+        .docs-sidebar {
+            background: var(--light-gray);
+            padding: 30px 0;
+            border-right: 1px solid var(--medium-gray);
+        }
+        
+        .sidebar-search {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .sidebar-search input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 30px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .sidebar-search input:focus {
+            border-color: var(--primary);
+        }
+        
+        .sidebar-menu {
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .menu-section {
+            margin-bottom: 25px;
+        }
+        
+        .menu-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .menu-section-title i {
+            color: var(--primary);
+            width: 20px;
+        }
+        
+        .menu-items {
+            list-style: none;
+            margin-left: 28px;
+        }
+        
+        .menu-item {
+            margin-bottom: 10px;
+        }
+        
+        .menu-link {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: block;
+            padding: 6px 0;
+            cursor: pointer;
+        }
+        
+        .menu-link:hover,
+        .menu-link.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .menu-link i {
+            font-size: 12px;
+            margin-right: 8px;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+        
+        /* Main Content */
+        .docs-content {
+            padding: 40px;
+            background: white;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .content-header h2 {
+            font-size: 32px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        
+        .content-header p {
+            color: var(--dark-gray);
+            font-size: 16px;
+        }
+        
+        .content-body {
+            color: var(--text);
+        }
+        
+        .content-body h3 {
+            font-size: 24px;
+            margin: 30px 0 15px;
+            color: var(--text);
+        }
+        
+        .content-body h4 {
+            font-size: 18px;
+            margin: 25px 0 10px;
+            color: var(--text);
+        }
+        
+        .content-body p {
+            margin-bottom: 20px;
+            color: var(--dark-gray);
+            line-height: 1.7;
+        }
+        
+        .content-body ul, .content-body ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+            color: var(--dark-gray);
+        }
+        
+        .content-body li {
+            margin-bottom: 8px;
+        }
+        
+        .content-body code {
+            background: var(--light-gray);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--primary);
+        }
+        
+        .content-body pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .content-body pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            font-family: inherit;
+        }
+        
+        /* Code blocks with syntax highlighting simulation */
+        .code-block {
+            position: relative;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2d2d2d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 14px;
+        }
+        
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #666;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        /* Info boxes */
+        .info-box {
+            background: #e8f0fe;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        /* Parameters table */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .params-table th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--light-gray);
+            color: var(--dark-gray);
+        }
+        
+        .params-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .params-table td:first-child {
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Navigation buttons */
+        .doc-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .doc-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 25px;
+            background: var(--light-gray);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+            max-width: 45%;
+        }
+        
+        .doc-nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .doc-nav-btn.next:hover {
+            transform: translateX(5px);
+        }
+        
+        .nav-direction {
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+        
+        .doc-nav-btn:hover .nav-direction {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .nav-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--text);
+            color: var(--white);
+            padding: 60px 0 30px;
+            margin-top: 60px;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #e8eaed;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .footer-column li:hover {
+            transform: translateX(5px);
+        }
+        
+        .footer-column a {
+            color: #bdc1c6;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column a:hover,
+        .footer-column a.active {
+            color: var(--white);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #3c4043;
+            color: #9aa0a6;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 992px) {
+            .docs-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .docs-sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--medium-gray);
+            }
+            
+            .sidebar-menu {
+                max-height: 400px;
+            }
+            
+            .docs-content {
+                max-height: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .user-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .docs-hero h1 {
+                font-size: 32px;
+            }
+            
+            .docs-content {
+                padding: 30px 20px;
+            }
+            
+            .content-header h2 {
+                font-size: 28px;
+            }
+            
+            .doc-nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .doc-nav-btn {
+                max-width: 100%;
+            }
+            
+            .params-table {
+                font-size: 14px;
+            }
+            
+            .params-table th,
+            .params-table td {
+                padding: 8px 10px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                margin-top: 5px;
+                border: 1px solid var(--medium-gray);
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-face-smile"></i></div>
+                <span>Face Pay</span>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li><a href="../index.html" id="navCompany">Home</a></li>
+                    
+                    <!-- Resources with Dropdown -->
+                    <li class="nav-item" id="resourcesNav">
+                        <a href="#" id="navResources" class="active">Documentation <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i></a>
+                        <div class="dropdown-menu" id="resourcesDropdown">
+                            <div class="dropdown-item" id="documentationOption">
+                                <i class="fas fa-book"></i>
+                                <span>Documentation</span>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    
+                </ul>
+            </nav>
+            
+            </div>
+        </div>
+    </header>
+
+    <!-- Documentation Hero Section -->
+    <section class="docs-hero">
+        <div class="container">
+            <h1>Face Pay Documentation</h1>
+            <p>Everything you need to integrate and build with Face Pay. Find guides, API references, and examples.</p>
+        </div>
+    </section>
+
+    <!-- Documentation Content -->
+    <section class="docs-section">
+        <div class="container">
+            <div class="docs-wrapper">
+                <!-- Sidebar -->
+                <div class="docs-sidebar">
+                    <div class="sidebar-search">
+                        <input type="text" id="docSearch" placeholder="Search documentation...">
+                    </div>
+                    
+                    <div class="sidebar-menu" id="sidebarMenu">
+                        <!-- Getting Started -->
+                        <div class="menu-section">
+                            <div class="menu-section-title">
+                                <i class="fas fa-rocket"></i> Getting Started
+                            </div>
+                            <ul class="menu-items">
+                                <li class="menu-item"><a href="#" class="menu-link active" data-section="introduction"><i class="fas fa-chevron-right"></i> Introduction</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="quickstart"><i class="fas fa-chevron-right"></i> Quickstart Guide</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="authentication"><i class="fas fa-chevron-right"></i> Authentication</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="webhooks"><i class="fas fa-chevron-right"></i> Webhooks</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- API Reference -->
+                        <div class="menu-section">
+                            <div class="menu-section-title">
+                                <i class="fas fa-code"></i> API Reference
+                            </div>
+                            <ul class="menu-items">
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="api-overview"><i class="fas fa-chevron-right"></i> Overview</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="invoices-api"><i class="fas fa-chevron-right"></i> Invoices</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="payments-api"><i class="fas fa-chevron-right"></i> Payments</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="customers-api"><i class="fas fa-chevron-right"></i> Customers</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="subscriptions-api"><i class="fas fa-chevron-right"></i> Subscriptions</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Guides -->
+                        <div class="menu-section">
+                            <div class="menu-section-title">
+                                <i class="fas fa-book"></i> Guides
+                            </div>
+                            <ul class="menu-items">
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="gst-guide"><i class="fas fa-chevron-right"></i> GST Compliance</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="revenue-recognition"><i class="fas fa-chevron-right"></i> Revenue Recognition</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="subscription-billing"><i class="fas fa-chevron-right"></i> Subscription Billing</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="multi-currency"><i class="fas fa-chevron-right"></i> Multi-Currency</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- SDKs & Libraries -->
+                        <div class="menu-section">
+                            <div class="menu-section-title">
+                                <i class="fas fa-laptop-code"></i> SDKs & Libraries
+                            </div>
+                            <ul class="menu-items">
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="javascript-sdk"><i class="fas fa-chevron-right"></i> JavaScript</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="python-sdk"><i class="fas fa-chevron-right"></i> Python</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="php-sdk"><i class="fas fa-chevron-right"></i> PHP</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="ruby-sdk"><i class="fas fa-chevron-right"></i> Ruby</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Support -->
+                        <div class="menu-section">
+                            <div class="menu-section-title">
+                                <i class="fas fa-headset"></i> Support
+                            </div>
+                            <ul class="menu-items">
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="faq"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="troubleshooting"><i class="fas fa-chevron-right"></i> Troubleshooting</a></li>
+                                <li class="menu-item"><a href="#" class="menu-link" data-section="contact-support"><i class="fas fa-chevron-right"></i> Contact Support</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="docs-content" id="docsContent">
+                    <!-- Content will be dynamically loaded via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column"><h3>Face Pay</h3><p style="color: #bdc1c6; margin-bottom: 20px;" id="footerDescription">One platform for all your billing and revenue management needs.</p><div style="display: flex; gap: 15px; font-size: 20px;"><a href="#" style="color: #bdc1c6;"><i class="fab fa-twitter"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-linkedin"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-facebook"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-instagram"></i></a></div></div>
+                <div class="footer-column"><h3 id="productsTitle">Products</h3><ul><li><a href="#" id="product1">Billing & Invoicing</a></li><li><a href="#" id="product2">Revenue Recognition</a></li><li><a href="#" id="product3">Subscription Management</a></li><li><a href="#" id="product4">Payment Processing</a></li><li><a href="#" id="product5">Financial Reporting</a></li></ul></div>
+                <div class="footer-column"><h3 id="resourcesTitle">Resources</h3><ul><li><a href="#" id="resource1">Documentation</a></li><li><a href="#" id="resource2">API Reference</a></li><li><a href="#" id="resource3">Help Center</a></li><li><a href="#" id="resource4">Blog</a></li><li><a href="#" id="resource5">Webinars</a></li></ul></div>
+                <div class="footer-column"><h3 id="companyTitle">Company</h3><ul><li><a href="#" id="company1">About Us</a></li><li><a href="#" id="company2">Careers</a></li><li><a href="#" id="company3">Contact</a></li><li><a href="#" id="company4">Partners</a></li><li><a href="#" id="company5">Legal</a></li></ul></div>
+            </div>
+            <div class="copyright"><p>&copy; 2026 Face Pay. All rights reserved. | <span id="privacyPolicy">Privacy Policy</span> | <span id="termsOfService">Terms of Service</span></p></div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // DOCUMENTATION CONTENT DATA
+        // ============================================
+        const docContent = {
+            introduction: {
+                title: "Introduction to Face Pay",
+                description: "Welcome to Face Pay! This guide will help you understand the platform and get started with integration.",
+                content: `
+                    <p>Face Pay is a unified revenue lifecycle platform that automates billing, subscription management, revenue recognition, and payment processing for enterprises. It supports usage-based pricing and provides real-time financial analytics.</p>
+                    
+                    <h3>Key Features</h3>
+                    <ul>
+                        <li><strong>Automated Invoicing</strong> - Generate and send invoices automatically based on your billing cycles</li>
+                        <li><strong>Revenue Recognition</strong> - ASC 606 compliance with automated revenue schedules</li>
+                        <li><strong>Subscription Management</strong> - Handle recurring billing, upgrades, downgrades, and proration</li>
+                        <li><strong>Payment Processing</strong> - Accept payments via credit card, ACH, and international methods</li>
+                        <li><strong>Multi-Currency Support</strong> - Bill customers in their local currency with automatic conversion</li>
+                        <li><strong>Advanced Analytics</strong> - Real-time dashboards and customizable reports</li>
+                    </ul>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Tip:</strong> New to Face Pay? Start with our <a href="#" class="menu-link" data-section="quickstart">Quickstart Guide</a> to create your first invoice in minutes.
+                    </div>
+                    
+                    <h3>Platform Overview</h3>
+                    <p>The Face Pay platform consists of several integrated components:</p>
+                    
+                    <h4>1. Dashboard</h4>
+                    <p>Your central hub for monitoring revenue, managing customers, and accessing reports. The dashboard provides real-time metrics and quick access to common tasks.</p>
+                    
+                    <h4>2. API</h4>
+                    <p>Our REST API allows you to integrate Face Pay with your existing systems. All functionality available in the dashboard is also available via API.</p>
+                    
+                    <pre><code>// Example API call
+curl -X GET https://api.facepay.com/v1/invoices \\
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                    
+                    <h4>3. Webhooks</h4>
+                    <p>Receive real-time notifications about events like successful payments, failed charges, and subscription changes.</p>
+                    
+                    <div class="info-box">
+                        <strong>📘 Note:</strong> All API requests must be made over HTTPS. Calls made over plain HTTP will fail.
+                    </div>
+                `
+            },
+            quickstart: {
+                title: "Quickstart Guide",
+                description: "Get up and running with Face Pay in 5 minutes.",
+                content: `
+                    <p>This guide will walk you through creating your first invoice and processing a payment using Face Pay.</p>
+                    
+                    <h3>Step 1: Create an Account</h3>
+                    <p>Sign up for a free Face Pay account at <a href="#">dashboard.facepay.com/signup</a>. You'll receive your API keys after verification.</p>
+                    
+                    <h3>Step 2: Get Your API Keys</h3>
+                    <p>Navigate to Settings > API Keys in your dashboard. Copy your Publishable Key and Secret Key. Keep your Secret Key secure!</p>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Warning:</strong> Never expose your Secret Key in client-side code. Use it only on your servers.
+                    </div>
+                    
+                    <h3>Step 3: Create a Customer</h3>
+                    <p>Before creating an invoice, you need a customer. Here's how to create one using our API:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>bash</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>curl -X POST https://api.facepay.com/v1/customers \\
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \\
+  -d "name=Acme Corporation" \\
+  -d "email=billing@acme.com"</code></pre>
+                    </div>
+                    
+                    <h3>Step 4: Create an Invoice</h3>
+                    <p>Now create an invoice for the customer:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>bash</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>curl -X POST https://api.facepay.com/v1/invoices \\
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \\
+  -d "customer_id=cus_123" \\
+  -d "amount=5000" \\
+  -d "currency=USD" \\
+  -d "description=Consulting services"</code></pre>
+                    </div>
+                    
+                    <h3>Step 5: Process Payment</h3>
+                    <p>Finally, process the payment:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>bash</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>curl -X POST https://api.facepay.com/v1/payments \\
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \\
+  -d "invoice_id=inv_456" \\
+  -d "payment_method=card"</code></pre>
+                    </div>
+                    
+                    <p>That's it! You've just created your first invoice and processed a payment with Face Pay.</p>
+                `
+            },
+            authentication: {
+                title: "Authentication",
+                description: "How to authenticate with the Face Pay API.",
+                content: `
+                    <p>The Face Pay API uses API keys for authentication. You can find your API keys in the <a href="#">Dashboard</a> under Settings > API Keys.</p>
+                    
+                    <h3>API Key Types</h3>
+                    <ul>
+                        <li><strong>Publishable Key</strong> - Used for client-side operations (e.g., tokenizing payment methods). Can be safely exposed.</li>
+                        <li><strong>Secret Key</strong> - Used for server-side operations. Must be kept confidential and never exposed.</li>
+                    </ul>
+                    
+                    <h3>Authenticating Requests</h3>
+                    <p>Include your API key in the Authorization header of every request:</p>
+                    
+                    <pre><code>Authorization: Bearer YOUR_SECRET_KEY</code></pre>
+                    
+                    <h3>Example Request</h3>
+                    <pre><code>curl -X GET https://api.facepay.com/v1/invoices \\
+  -H "Authorization: Bearer sk_live_abc123xyz"</code></pre>
+                    
+                    <div class="tip-box">
+                        <strong>🔐 Security Tip:</strong> Rotate your API keys regularly and use different keys for development and production.
+                    </div>
+                    
+                    <h3>Error Handling</h3>
+                    <p>If authentication fails, you'll receive a 401 Unauthorized response:</p>
+                    
+                    <pre><code>{
+  "error": {
+    "code": "unauthorized",
+    "message": "Invalid API key provided"
+  }
+}</code></pre>
+                `
+            },
+            webhooks: {
+                title: "Webhooks",
+                description: "Receive real-time notifications about events in your Face Pay account.",
+                content: `
+                    <p>Webhooks allow you to receive HTTP notifications when events occur in your Face Pay account. This is useful for integrating with your own systems and automating workflows.</p>
+                    
+                    <h3>Setting Up Webhooks</h3>
+                    <p>You can configure webhook endpoints in the Dashboard under Settings > Webhooks. Provide a URL where Face Pay should send POST requests when events occur.</p>
+                    
+                    <h3>Event Types</h3>
+                    <ul>
+                        <li><code>invoice.payment_succeeded</code> - A payment was successfully processed</li>
+                        <li><code>invoice.payment_failed</code> - A payment attempt failed</li>
+                        <li><code>customer.created</code> - A new customer was created</li>
+                        <li><code>subscription.updated</code> - A subscription was changed</li>
+                        <li><code>subscription.canceled</code> - A subscription was canceled</li>
+                    </ul>
+                    
+                    <h3>Example Webhook Payload</h3>
+                    <pre><code>{
+  "id": "evt_123abc",
+  "type": "invoice.payment_succeeded",
+  "data": {
+    "invoice": {
+      "id": "inv_456def",
+      "customer_id": "cus_789ghi",
+      "amount": 5000,
+      "currency": "USD",
+      "status": "paid"
+    }
+  },
+  "created": 1649876543
+}</code></pre>
+                    
+                    <div class="info-box">
+                        <strong>📡 Note:</strong> Your webhook endpoint should respond with a 200 OK status to acknowledge receipt. Face Pay will retry failed deliveries up to 3 times.
+                    </div>
+                    
+                    <h3>Verifying Webhook Signatures</h3>
+                    <p>To ensure webhooks are coming from Face Pay, we sign each request with a secret. Verify the signature using your webhook secret:</p>
+                    
+                    <pre><code># Example in Node.js
+const crypto = require('crypto');
+
+const signature = req.headers['facepay-signature'];
+const payload = JSON.stringify(req.body);
+const expected = crypto
+  .createHmac('sha256', WEBHOOK_SECRET)
+  .update(payload)
+  .digest('hex');
+
+if (signature !== expected) {
+  throw new Error('Invalid signature');
+}</code></pre>
+                `
+            },
+            "api-overview": {
+                title: "API Overview",
+                description: "General information about the Face Pay API.",
+                content: `
+                    <p>The Face Pay API is organized around REST. Our API has predictable resource-oriented URLs, accepts form-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes and authentication.</p>
+                    
+                    <h3>Base URL</h3>
+                    <pre><code>https://api.facepay.com/v1</code></pre>
+                    
+                    <h3>Versioning</h3>
+                    <p>The API is versioned through the URL path. The current version is v1. We'll announce deprecations well in advance.</p>
+                    
+                    <h3>Rate Limits</h3>
+                    <p>API requests are rate limited to 100 requests per second per API key. If you exceed this limit, you'll receive a 429 Too Many Requests response.</p>
+                    
+                    <h3>Response Format</h3>
+                    <pre><code>{
+  "id": "inv_123",
+  "object": "invoice",
+  "amount": 5000,
+  "currency": "USD",
+  "status": "paid",
+  "customer_id": "cus_456",
+  "created": 1649876543
+}</code></pre>
+                    
+                    <h3>Error Codes</h3>
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>400</td><td>Bad Request - The request was invalid</td></tr>
+                            <tr><td>401</td><td>Unauthorized - Invalid API key</td></tr>
+                            <tr><td>403</td><td>Forbidden - You don't have permission</td></tr>
+                            <tr><td>404</td><td>Not Found - The resource doesn't exist</td></tr>
+                            <tr><td>429</td><td>Too Many Requests - Rate limit exceeded</td></tr>
+                            <tr><td>500</td><td>Internal Server Error - Something went wrong</td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            "invoices-api": {
+                title: "Invoices API",
+                description: "Create, retrieve, and manage invoices.",
+                content: `
+                    <p>The Invoices API allows you to programmatically create, retrieve, update, and delete invoices.</p>
+                    
+                    <h3>Invoice Object</h3>
+                    <pre><code>{
+  "id": "inv_123abc",
+  "object": "invoice",
+  "amount": 5000,
+  "currency": "USD",
+  "customer_id": "cus_456def",
+  "status": "draft", // draft, open, paid, void
+  "description": "Consulting services",
+  "due_date": 1650000000,
+  "paid_at": null,
+  "created": 1649876543,
+  "updated": 1649876543
+}</code></pre>
+                    
+                    <h3>Create an Invoice</h3>
+                    <pre><code>POST /v1/invoices</code></pre>
+                    
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>customer_id</td><td>Yes</td><td>The ID of the customer</td></tr>
+                            <tr><td>amount</td><td>Yes</td><td>The invoice amount in smallest currency unit (e.g., cents)</td></tr>
+                            <tr><td>currency</td><td>Yes</td><td>Three-letter ISO currency code</td></tr>
+                            <tr><td>description</td><td>No</td><td>Description of the invoice</td></tr>
+                            <tr><td>due_date</td><td>No</td><td>Unix timestamp when payment is due</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Retrieve an Invoice</h3>
+                    <pre><code>GET /v1/invoices/{id}</code></pre>
+                    
+                    <h3>List Invoices</h3>
+                    <pre><code>GET /v1/invoices</code></pre>
+                    
+                    <p>Query parameters:</p>
+                    <ul>
+                        <li><code>customer_id</code> - Filter by customer</li>
+                        <li><code>status</code> - Filter by status (draft, open, paid, void)</li>
+                        <li><code>limit</code> - Number of results to return (1-100)</li>
+                        <li><code>starting_after</code> - Pagination cursor</li>
+                    </ul>
+                    
+                    <h3>Update an Invoice</h3>
+                    <pre><code>PUT /v1/invoices/{id}</code></pre>
+                    
+                    <h3>Delete an Invoice</h3>
+                    <pre><code>DELETE /v1/invoices/{id}</code></pre>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Warning:</strong> Only draft invoices can be deleted. Once an invoice is sent, it cannot be deleted.
+                    </div>
+                `
+            },
+            "payments-api": {
+                title: "Payments API",
+                description: "Process and manage payments.",
+                content: `
+                    <p>The Payments API allows you to process payments, retrieve payment details, and manage refunds.</p>
+                    
+                    <h3>Payment Object</h3>
+                    <pre><code>{
+  "id": "pay_123abc",
+  "object": "payment",
+  "amount": 5000,
+  "currency": "USD",
+  "customer_id": "cus_456def",
+  "invoice_id": "inv_789ghi",
+  "status": "succeeded", // succeeded, pending, failed
+  "payment_method": "card",
+  "card_last4": "4242",
+  "refunded": false,
+  "created": 1649876543
+}</code></pre>
+                    
+                    <h3>Create a Payment</h3>
+                    <pre><code>POST /v1/payments</code></pre>
+                    
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>invoice_id</td><td>Yes</td><td>The ID of the invoice to pay</td></tr>
+                            <tr><td>payment_method</td><td>Yes</td><td>Payment method (card, ach, etc.)</td></tr>
+                            <tr><td>payment_method_id</td><td>No</td><td>ID of saved payment method</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Retrieve a Payment</h3>
+                    <pre><code>GET /v1/payments/{id}</code></pre>
+                    
+                    <h3>List Payments</h3>
+                    <pre><code>GET /v1/payments</code></pre>
+                    
+                    <h3>Refund a Payment</h3>
+                    <pre><code>POST /v1/payments/{id}/refund</code></pre>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Tip:</strong> You can also refund partial amounts by specifying an amount parameter.
+                    </div>
+                `
+            },
+            "gst-guide": {
+                title: "GST Compliance Guide",
+                description: "Everything you need to know about GST compliance with Face Pay.",
+                content: `
+                    <p>Face Pay helps you stay compliant with Goods and Services Tax (GST) regulations in India. This guide covers how to configure GST settings and generate compliant invoices.</p>
+                    
+                    <h3>Configuring GST Settings</h3>
+                    <p>Before creating GST-compliant invoices, configure your business details in Settings > Tax:</p>
+                    <ul>
+                        <li>Your GSTIN (Goods and Services Tax Identification Number)</li>
+                        <li>Business legal name as per GST registration</li>
+                        <li>State of registration (for CGST/SGST calculations)</li>
+                        <li>Default tax rates for different product categories</li>
+                    </ul>
+                    
+                    <h3>Creating GST Invoices</h3>
+                    <p>When creating an invoice, specify the GST rate and type:</p>
+                    
+                    <pre><code>curl -X POST https://api.facepay.com/v1/invoices \\
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \\
+  -d "customer_id=cus_123" \\
+  -d "amount=10000" \\
+  -d "currency=INR" \\
+  -d "tax_rate=18" \\
+  -d "tax_type=igst" // or cgst_sgst for intra-state</code></pre>
+                    
+                    <h3>GST Breakdown</h3>
+                    <p>For intra-state supplies, Face Pay automatically splits the tax into CGST and SGST:</p>
+                    
+                    <pre><code>{
+  "amount": 10000,
+  "tax_amount": 1800,
+  "cgst": 900,
+  "sgst": 900,
+  "total": 11800
+}</code></pre>
+                    
+                    <h3>GST Returns</h3>
+                    <p>Generate GST return data directly from your Face Pay dashboard:</p>
+                    <ul>
+                        <li>GSTR-1: Outward supplies (sales)</li>
+                        <li>GSTR-3B: Summary return with tax payment</li>
+                        <li>GSTR-9: Annual return</li>
+                    </ul>
+                    
+                    <div class="info-box">
+                        <strong>📘 Note:</strong> GST return data can be exported in the format required by the GST portal for easy filing.
+                    </div>
+                `
+            },
+            "javascript-sdk": {
+                title: "JavaScript SDK",
+                description: "Integrate Face Pay with your JavaScript applications.",
+                content: `
+                    <p>The Face Pay JavaScript SDK makes it easy to integrate payment processing and invoice management into your web applications.</p>
+                    
+                    <h3>Installation</h3>
+                    <p>Include the SDK in your HTML:</p>
+                    
+                    <pre><code>&lt;script src="https://js.facepay.com/v1/facepay.js"&gt;&lt;/script&gt;</code></pre>
+                    
+                    <p>Or install via npm:</p>
+                    
+                    <pre><code>npm install @facepay/sdk</code></pre>
+                    
+                    <h3>Initialization</h3>
+                    <pre><code>// Initialize with your publishable key
+const facepay = new FacePay('pk_test_abc123');
+
+// Or with options
+const facepay = new FacePay('pk_test_abc123', {
+  apiVersion: '2026-03',
+  locale: 'en'
+});</code></pre>
+                    
+                    <h3>Create a Payment Method</h3>
+                    <pre><code>const paymentMethod = await facepay.paymentMethods.create({
+  type: 'card',
+  card: {
+    number: '4242424242424242',
+    exp_month: 12,
+    exp_year: 2027,
+    cvc: '123'
+  }
+});</code></pre>
+                    
+                    <h3>Process a Payment</h3>
+                    <pre><code>const payment = await facepay.payments.create({
+  invoice_id: 'inv_123abc',
+  payment_method_id: 'pm_456def'
+});</code></pre>
+                    
+                    <h3>React Component Example</h3>
+                    <pre><code>import { useFacePay } from '@facepay/react';
+
+function CheckoutForm() {
+  const { createPayment, loading } = useFacePay();
+  
+  const handleSubmit = async () => {
+    const payment = await createPayment({
+      amount: 5000,
+      currency: 'USD',
+      payment_method: 'card'
+    });
+  };
+  
+  return (
+    &lt;button onClick={handleSubmit} disabled={loading}&gt;
+      Pay Now
+    &lt;/button&gt;
+  );
+}</code></pre>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Tip:</strong> Check out our <a href="#">GitHub repository</a> for more examples and starter projects.
+                    </div>
+                `
+            },
+            faq: {
+                title: "Frequently Asked Questions",
+                description: "Common questions and answers about Face Pay.",
+                content: `
+                    <h3>General Questions</h3>
+                    
+                    <h4>What is Face Pay?</h4>
+                    <p>Face Pay is a unified revenue lifecycle platform that automates billing, subscription management, revenue recognition, and payment processing for enterprises.</p>
+                    
+                    <h4>How do I get started?</h4>
+                    <p>Sign up for a free account at <a href="#">dashboard.facepay.com/signup</a>. You'll get access to our dashboard and API keys to start integrating.</p>
+                    
+                    <h4>Is there a free trial?</h4>
+                    <p>Yes! All plans come with a 14-day free trial. No credit card required.</p>
+                    
+                    <h3>Technical Questions</h3>
+                    
+                    <h4>What languages/frameworks do you support?</h4>
+                    <p>We provide official SDKs for JavaScript, Python, PHP, and Ruby. Our REST API can be used with any language that can make HTTP requests.</p>
+                    
+                    <h4>How do I handle webhooks?</h4>
+                    <p>Configure your webhook endpoint in the Dashboard under Settings > Webhooks. We'll send POST requests when events occur. Make sure to verify signatures for security.</p>
+                    
+                    <h4>What are your rate limits?</h4>
+                    <p>API requests are limited to 100 requests per second per API key. Contact us if you need higher limits.</p>
+                    
+                    <h3>Billing Questions</h3>
+                    
+                    <h4>When will I be charged?</h4>
+                    <p>Your first charge will occur after your 14-day free trial ends. You'll receive an email notification before the trial ends.</p>
+                    
+                    <h4>Can I upgrade or downgrade my plan?</h4>
+                    <p>Yes, you can change your plan at any time. Changes are prorated for the remainder of your billing cycle.</p>
+                    
+                    <h4>What payment methods do you accept?</h4>
+                    <p>We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and ACH transfers for US customers.</p>
+                    
+                    <div class="info-box">
+                        <strong>📘 Still have questions?</strong> Contact our support team at <a href="mailto:support@facepay.com">support@facepay.com</a> or use the chat button below.
+                    </div>
+                `
+            }
+        };
+
+        // ============================================
+        // DOCUMENTATION RENDERING
+        // ============================================
+        const docsContent = document.getElementById('docsContent');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const searchInput = document.getElementById('docSearch');
+
+        // Function to render documentation content
+        function renderDocContent(sectionId) {
+            const content = docContent[sectionId] || docContent.introduction;
+            
+            let html = `
+                <div class="content-header">
+                    <h2>${content.title}</h2>
+                    <p>${content.description}</p>
+                </div>
+                <div class="content-body">
+                    ${content.content}
+                </div>
+                <div class="doc-nav">
+                    <a href="#" class="doc-nav-btn prev" data-prev>
+                        <i class="fas fa-arrow-left"></i>
+                        <div>
+                            <div class="nav-direction">Previous</div>
+                            <div class="nav-title">Getting Started</div>
+                        </div>
+                    </a>
+                    <a href="#" class="doc-nav-btn next" data-next>
+                        <div>
+                            <div class="nav-direction">Next</div>
+                            <div class="nav-title">Quickstart Guide</div>
+                        </div>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            `;
+            
+            docsContent.innerHTML = html;
+            
+            // Update active menu item
+            menuLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.section === sectionId) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Re-attach copy button functionality
+            attachCopyHandlers();
+        }
+
+        // Copy code functionality
+        window.copyCode = function(button) {
+            const pre = button.closest('.code-block').querySelector('pre code');
+            const text = pre.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        };
+
+        function attachCopyHandlers() {
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    copyCode(this);
+                };
+            });
+            
+            // Attach navigation
+            const prevBtn = document.querySelector('[data-prev]');
+            const nextBtn = document.querySelector('[data-next]');
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Simple navigation simulation
+                    const sections = Object.keys(docContent);
+                    const current = document.querySelector('.menu-link.active')?.dataset.section || 'introduction';
+                    const index = sections.indexOf(current);
+                    if (index > 0) {
+                        renderDocContent(sections[index - 1]);
+                    }
+                });
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sections = Object.keys(docContent);
+                    const current = document.querySelector('.menu-link.active')?.dataset.section || 'introduction';
+                    const index = sections.indexOf(current);
+                    if (index < sections.length - 1) {
+                        renderDocContent(sections[index + 1]);
+                    }
+                });
+            }
+        }
+
+        // Menu link clicks
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                renderDocContent(section);
+                
+                // Scroll to top of content
+                docsContent.scrollTop = 0;
+            });
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            menuLinks.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const parent = link.closest('.menu-item');
+                
+                if (searchTerm === '' || text.includes(searchTerm)) {
+                    parent.style.display = 'block';
+                } else {
+                    parent.style.display = 'none';
+                }
+            });
+        });
+
+        // Initial render
+        renderDocContent('introduction');
+
+        // ============================================
+        // LANGUAGE SELECTOR
+        // ============================================
+        const langIcon = document.getElementById('langIcon');
+        const langDropdown = document.getElementById('langDropdown');
+        const langOptions = document.querySelectorAll('.lang-option');
+
+        langIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!langIcon.contains(e.target) && !langDropdown.contains(e.target)) {
+                langDropdown.classList.remove('active');
+            }
+        });
+
+        langOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                langOptions.forEach(o => {
+                    o.classList.remove('active');
+                    const check = o.querySelector('.check');
+                    if (check) check.remove();
+                });
+                option.classList.add('active');
+                if (!option.querySelector('.check')) {
+                    option.innerHTML += '<i class="fas fa-check check"></i>';
+                }
+                langDropdown.classList.remove('active');
+                alert(`Language changed to ${option.dataset.lang} (Demo)`);
+            });
+        });
+
+        // ============================================
+        // DROPDOWN MENU FUNCTIONALITY
+        // ============================================
+        const resourcesNav = document.getElementById('resourcesNav');
+        const resourcesDropdown = document.getElementById('resourcesDropdown');
+        
+        resourcesNav.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resourcesDropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!resourcesNav.contains(e.target)) {
+                resourcesDropdown.classList.remove('active');
+            }
+        });
+        
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const option = item.querySelector('span').textContent;
+                alert(`Navigating to: ${option} (Demo)`);
+                resourcesDropdown.classList.remove('active');
+            });
+        });
+
+        // ============================================
+        // GET STARTED BUTTON
+        // ============================================
+        document.getElementById('getStartedBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Welcome! Choose a plan or contact sales to get started.');
+        });
+
+        // ============================================
+        // MENU SECTION TOGGLES (for mobile)
+        // ============================================
+        document.querySelectorAll('.menu-section-title').forEach(title => {
+            title.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    const items = title.nextElementSibling;
+                    items.style.display = items.style.display === 'none' ? 'block' : 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

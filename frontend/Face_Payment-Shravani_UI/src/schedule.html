@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Pay | Schedule a Call</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e8eaed;
+            --dark-gray: #5f6368;
+            --text: #202124;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 580px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* Main Card */
+        .schedule-card {
+            background: var(--white);
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Header */
+        .card-header {
+            background: var(--gradient);
+            padding: 30px 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .card-header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .card-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        /* Content */
+        .card-content {
+            padding: 30px;
+        }
+        
+        /* Your Number Display */
+        .number-display {
+            background: #e8f0fe;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .number-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(26,115,232,0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .number-display h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 18px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .number-display .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            position: relative;
+            background: white;
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            margin: 10px 0;
+        }
+        
+        .number-display .note {
+            color: var(--dark-gray);
+            font-size: 14px;
+            position: relative;
+        }
+        
+        /* Message Section */
+        .message-section {
+            background: var(--light-gray);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .message-section label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .message-section textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 16px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .message-section textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26,115,232,0.1);
+        }
+        
+        /* QR Code Container */
+        .qr-wrapper {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 2px dashed var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .qr-wrapper h3 {
+            color: var(--text);
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        #qrCode {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #qrCode canvas {
+            border-radius: 8px;
+            max-width: 220px;
+            height: auto;
+        }
+        
+        .qr-hint {
+            color: var(--dark-gray);
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        /* Action Buttons */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid transparent;
+        }
+        
+        .btn-wa {
+            background: #25D366;
+            color: white;
+        }
+        
+        .btn-wa:hover {
+            background: #128C7E;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn-sms {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .btn-sms:hover {
+            background: #1976d2;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-generate {
+            background: var(--gradient);
+            color: white;
+            width: 100%;
+            margin-bottom: 25px;
+            padding: 16px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(26,115,232,0.4);
+        }
+        
+        /* Quick Schedule */
+        .schedule-section {
+            background: var(--light-gray);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .schedule-section h3 {
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+        }
+        
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .chip {
+            background: white;
+            border: 1px solid var(--medium-gray);
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .chip:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .chip-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h4 {
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-box p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-box i {
+            width: 20px;
+            color: #ffc107;
+        }
+        
+        /* Device Note */
+        .device-note {
+            background: #e8f0fe;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .device-note i {
+            font-size: 18px;
+        }
+        
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--dark-gray);
+            font-size: 13px;
+            border-top: 1px solid var(--medium-gray);
+            padding-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .card-content {
+                padding: 20px;
+            }
+            
+            .number-display .number {
+                font-size: 24px;
+                padding: 6px 15px;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chip-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="schedule-card">
+            <!-- Header with gradient -->
+            <div class="card-header">
+                <div class="header-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h1>Schedule a Call</h1>
+                <p>Scan QR or click to message us directly</p>
+            </div>
+            
+            <div class="card-content">
+                <!-- Your Fixed Number Display (Now visible) -->
+                <div class="number-display">
+                    <h3>
+                        <i class="fas fa-phone-alt"></i>
+                        Messages will come to
+                    </h3>
+                    <div class="number">+91-9823713441</div>
+                    <div class="note">
+                        <i class="fas fa-check-circle" style="color: #34a853;"></i>
+                        This number is pre-configured for all messages
+                    </div>
+                </div>
+
+                <!-- Pre-filled Message -->
+                <div class="message-section">
+                    <label>
+                        <i class="fas fa-comment-dots" style="color: var(--primary);"></i>
+                        Customer's Message (they can edit this)
+                    </label>
+                    <textarea id="prefilledMessage" rows="3">Hi, I'd like to schedule a call to discuss your services. Please let me know available timings.</textarea>
+                </div>
+
+                <!-- QR Code Display -->
+                <div class="qr-wrapper">
+                    <h3>
+                        <i class="fas fa-qrcode" style="color: var(--primary);"></i>
+                        Scan to Message
+                    </h3>
+                    <div id="qrCode"></div>
+                    <div class="qr-hint">
+                        <i class="fas fa-camera"></i> Scan with phone camera to open WhatsApp
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-grid">
+                    <a href="#" id="whatsappLink" target="_blank" class="btn btn-wa" onclick="return openWhatsApp(event)">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="#" id="smsLink" class="btn btn-sms" onclick="return openSMS(event)">
+                        <i class="fas fa-sms"></i> SMS
+                    </a>
+                </div>
+
+                <button class="btn-generate" onclick="generateNewQR()">
+                    <i class="fas fa-sync-alt"></i> Generate New QR Code
+                </button>
+
+                <!-- Quick Schedule Options -->
+                <div class="schedule-section">
+                    <h3>
+                        <i class="fas fa-clock" style="color: var(--primary);"></i>
+                        Quick Schedule
+                    </h3>
+                    
+                    <div>
+                        <span class="chip-label">Select Date:</span>
+                        <div class="chip-group">
+                            <button class="chip" onclick="addToMessage('Tomorrow')">Tomorrow</button>
+                            <button class="chip" onclick="addToMessage('Monday')">Monday</button>
+                            <button class="chip" onclick="addToMessage('Tuesday')">Tuesday</button>
+                            <button class="chip" onclick="addToMessage('Wednesday')">Wednesday</button>
+                            <button class="chip" onclick="addToMessage('Thursday')">Thursday</button>
+                            <button class="chip" onclick="addToMessage('Friday')">Friday</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <span class="chip-label">Select Time:</span>
+                        <div class="chip-group">
+                            <button class="chip" onclick="addToMessage('9:00 AM')">9:00 AM</button>
+                            <button class="chip" onclick="addToMessage('10:00 AM')">10:00 AM</button>
+                            <button class="chip" onclick="addToMessage('11:00 AM')">11:00 AM</button>
+                            <button class="chip" onclick="addToMessage('1:00 PM')">1:00 PM</button>
+                            <button class="chip" onclick="addToMessage('2:00 PM')">2:00 PM</button>
+                            <button class="chip" onclick="addToMessage('3:00 PM')">3:00 PM</button>
+                            <button class="chip" onclick="addToMessage('4:00 PM')">4:00 PM</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> How it works:</h4>
+                    <p><i class="fas fa-1"></i> Customer scans QR code with their phone</p>
+                    <p><i class="fas fa-2"></i> WhatsApp or SMS opens with your number (+91 72516 585)</p>
+                    <p><i class="fas fa-3"></i> Customer sends the pre-filled message</p>
+                    <p><i class="fas fa-4"></i> You receive it instantly on your phone</p>
+                </div>
+
+                <!-- Device Compatibility Note -->
+                <div class="device-note">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>
+                        <strong>SMS:</strong> Opens on mobile. Desktop users scan QR.<br>
+                        <strong>WhatsApp:</strong> Works on all devices.
+                    </span>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer-note">
+                    © 2026 Face Pay · Your messages go to +91-9823713441
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your fixed phone number (India)
+        const YOUR_PHONE_NUMBER = "9823713441"; // Without + or spaces
+        const YOUR_PHONE_DISPLAY = "9823713441";
+        
+        // Initialize on page load
+        window.onload = function() {
+            generateQRCode();
+            updateLinks();
+        };
+
+        // Generate QR code with WhatsApp link
+        function generateQRCode() {
+            const message = encodeURIComponent(document.getElementById('prefilledMessage').value.trim() || "Hi, I'd like to schedule a call");
+            
+            // Clear previous QR container
+            document.getElementById('qrCode').innerHTML = '';
+            
+            // Generate WhatsApp URL for QR
+            const whatsappUrl = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
+            
+            // Generate QR Code
+            new QRCode(document.getElementById('qrCode'), {
+                text: whatsappUrl,
+                width: 220,
+                height: 220,
+                colorDark: "#1a73e8",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            updateLinks();
+        }
+
+        // Update WhatsApp and SMS links
+        function updateLinks() {
+            const message = encodeURIComponent(document.getElementById('prefilledMessage').value.trim() || "Hi, I'd like to schedule a call");
+            
+            // WhatsApp link
+            const whatsappUrl = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
+            document.getElementById('whatsappLink').href = whatsappUrl;
+            
+            // SMS link (universal format)
+            const smsUrl = `sms:${YOUR_PHONE_NUMBER}?body=${message}`;
+            document.getElementById('smsLink').href = smsUrl;
+        }
+
+        // Generate new QR
+        function generateNewQR() {
+            generateQRCode();
+            alert('✅ New QR code generated! Messages will come to ' + YOUR_PHONE_DISPLAY);
+        }
+
+        // Open WhatsApp
+        function openWhatsApp(event) {
+            return true; // Let the href work naturally
+        }
+
+        // Open SMS with device detection
+        function openSMS(event) {
+            const message = encodeURIComponent(document.getElementById('prefilledMessage').value.trim() || "Hi, I'd like to schedule a call");
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Use correct format based on device
+                if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    document.getElementById('smsLink').href = `sms:${YOUR_PHONE_NUMBER};body=${message}`;
+                } else {
+                    document.getElementById('smsLink').href = `sms:${YOUR_PHONE_NUMBER}?body=${message}`;
+                }
+                return true;
+            } else {
+                event.preventDefault();
+                alert(`📱 To send SMS:\n\n1. Scan the QR code with your phone\n2. Or manually text ${YOUR_PHONE_DISPLAY}\n\nMessage: "${decodeURIComponent(message)}"`);
+                return false;
+            }
+        }
+
+        // Add date/time to message
+        function addToMessage(text) {
+            const messageArea = document.getElementById('prefilledMessage');
+            let currentMessage = messageArea.value;
+            
+            if (!currentMessage.includes(text)) {
+                messageArea.value = currentMessage + `\nPreferred time: ${text}`;
+            }
+            
+            generateQRCode(); // Regenerate QR with new message
+            
+            // Visual feedback
+            const btn = event.target;
+            btn.style.background = '#34a853';
+            btn.style.color = 'white';
+            setTimeout(() => {
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 200);
+        }
+
+        // Copy QR to clipboard
+        function copyQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                canvas.toBlob(blob => {
+                    navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]).then(() => alert('QR code copied!'));
+                });
+            }
+        }
+
+        // Download QR as image
+        function downloadQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'facepay-call-qr.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+    </script>
+</body>
+</html>

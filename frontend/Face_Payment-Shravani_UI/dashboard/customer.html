@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillMe — Customer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/global.css">
+    <script src="../src/api.js"></script>
+    <script src="../src/auth.js"></script>
+    <script src="../src/i18n.js" defer></script>
+    <style>
+        body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+        /* ── Layout ── */
+        .dash-layout { display: flex; min-height: 100vh; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; height: 100vh;
+            z-index: 100; transition: transform 0.3s;
+            overflow-y: auto;
+        }
+        .sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
+
+        .sidebar-logo {
+            padding: 24px;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 22px; font-weight: 800; color: var(--primary);
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-logo i { 
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--gradient); display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+        }
+
+        .sidebar-profile {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+        .sidebar-profile img {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid var(--primary-light); margin-bottom: 12px;
+            object-fit: cover;
+        }
+        .sidebar-profile__name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .sidebar-profile__sub { font-size: 13px; color: var(--text-secondary); }
+
+        .sidebar-nav { flex: 1; padding: 12px 0; }
+        .nav-item a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 24px; color: var(--text-secondary);
+            font-size: 14px; font-weight: 500; transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item a i { width: 20px; text-align: center; font-size: 16px; }
+        .nav-item a:hover { background: var(--bg); color: var(--primary); }
+        .nav-item.active a { background: var(--primary-light); color: var(--primary); font-weight: 600; border-right: 4px solid var(--primary); }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); }
+
+        /* ── Main content ── */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            transition: margin 0.3s;
+        }
+
+        .topbar__title { font-size: 20px; font-weight: 700; }
+        .topbar__title { font-size: 20px; font-weight: 700; }
+
+        .page-area { padding: 28px; flex: 1; }
+        .section-page { display: none; }
+        .section-page.active { display: block; }
+
+        /* ── Profile Grid ── */
+        .profile-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+        @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+        
+        .info-list { list-style: none; }
+        .info-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .info-item:last-child { border-bottom: none; }
+        .info-label { color: var(--text-secondary); font-size: 14px; }
+        .info-value { font-weight: 600; font-size: 14px; }
+
+        /* ── Loading ── */
+        #pageLoader {
+            position: fixed; inset: 0; background: var(--gradient);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<div id="pageLoader">
+    <div class="spinner" style="border-top-color:white;border-color:rgba(255,255,255,0.3);width:50px;height:50px;border-width:5px;"></div>
+    <h2 style="margin-top:16px;">BillMe</h2>
+    <p style="opacity:0.8;">Loading your dashboard...</p>
+</div>
+
+<div class="dash-layout" id="dashLayout" style="display:none;">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-bolt"></i> BillMe
+        </div>
+        <div class="sidebar-profile">
+            <img id="side-avatar" src="https://ui-avatars.com/api/?name=Customer&background=1a73e8&color=fff" alt="Avatar">
+            <div class="sidebar-profile__name" id="side-name">Customer Name</div>
+            <div class="sidebar-profile__sub" id="side-id">Customer ID</div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul style="list-style:none;">
+                <li class="nav-item active" data-section="overview">
+                    <a href="#"><i class="fas fa-th-large"></i> <span data-i18n="dash_overview">Overview</span></a>
+                </li>
+                <li class="nav-item" data-section="invoices">
+                    <a href="#"><i class="fas fa-file-invoice-dollar"></i> <span data-i18n="dash_invoices">My Invoices</span></a>
+                </li>
+                <li class="nav-item" data-section="profile">
+                    <a href="#"><i class="fas fa-user-circle"></i> <span data-i18n="dash_profile">Profile Settings</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-secondary w-100" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> <span data-i18n="dash_logout">Sign Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="dashboard-topbar">
+            <div class="topbar-left">
+                <div class="topbar-title" id="pageTitle">Overview</div>
+            </div>
+            <div class="topbar-right">
+                <!-- Notifications Bell -->
+                <div class="notification-container" style="position:relative; cursor: pointer;" id="notificationBell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell" style="font-size: 20px; color: var(--text-secondary);"></i>
+                    <span id="notifBadge" style="display:none; position:absolute; top:-6px; right:-8px; background:var(--danger); color:white; font-size:10px; font-weight:bold; padding:2px 5px; border-radius:10px;">0</span>
+                    <div class="language-dropdown" id="notifDropdown" style="width: 320px; right: 0; padding: 10px; max-height: 400px; overflow-y: auto;">
+                        <h4 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Notifications</h4>
+                        <div id="notifList" style="font-size: 13px; color: var(--text-secondary);">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Language Switcher -->
+                <div class="language-dropdown-container">
+                    <div class="language-switcher" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="language-dropdown" id="lang-menu">
+                        <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                        <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                        <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                    </div>
+                </div>
+
+                <div class="topbar-avatar" id="topbarAvatar">C</div>
+            </div>
+        </div>
+
+        <!-- NEW: Preview Modal -->
+        <div id="previewModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center; padding:20px;">
+            <div class="modal-content" style="background:#fff; width:100%; max-width:900px; height:90vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; position:relative;">
+                <div class="modal-header" style="padding:16px 24px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <h3 id="previewTitle">Invoice Preview</h3>
+                    <button onclick="closePreview()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+                </div>
+                <div id="previewBody" style="flex:1; overflow-y:auto; padding:20px;">
+                    <!-- Preview content loaded here -->
+                    <div id="previewLoading" style="display:flex; align-items:center; justify-content:center; height:100%;">
+                        <div class="spinner"></div>
+                        <p style="margin-left:12px;">Generating preview...</p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding:16px 24px; border-top:1px solid #eee; text-align:right;">
+                    <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-area">
+            <!-- ══ OVERVIEW SECTION ══ -->
+            <div class="section-page active" id="sec-overview">
+                <div class="grid-4 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-card__label" data-i18n="dash_spent">Total Spent</div>
+                        <div class="stat-card__value" id="stat-total-spent">₹0.00</div>
+                        <div class="stat-card__sub" data-i18n="recent_activity_s">Lifetime transactions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label" data-i18n="dash_purchases">Invoices</div>
+                        <div class="stat-card__value" id="stat-total-purchases">0</div>
+                        <div class="stat-card__sub" data-i18n="recent_activity_s2">Total purchases</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label" data-i18n="dash_avg_order">Avg Order</div>
+                        <div class="stat-card__value" id="stat-avg-order">₹0.00</div>
+                        <div class="stat-card__sub" data-i18n="recent_activity_s3">Per transaction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label" data-i18n="dash_merchants">Merchants</div>
+                        <div class="stat-card__value" id="stat-merchants">0</div>
+                        <div class="stat-card__sub" data-i18n="recent_activity_s4">Different stores</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="dash_recent_inv">Recent Invoices</h3>
+                        <button class="btn btn-primary btn-sm" onclick="showSection('invoices')"><span data-i18n="btn_view_all">View All</span></button>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentInvoicesBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ INVOICES SECTION ══ -->
+            <div class="section-page" id="sec-invoices">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>All Invoices</h3>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allInvoicesBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-page" id="sec-profile">
+                <!-- Profile Photo Card -->
+                <div class="card mb-4">
+                    <div class="card-header"><h3>Profile Photo</h3></div>
+                    <div style="padding:20px; display:flex; align-items:center; gap:24px;">
+                        <div class="topbar-avatar" id="profile-preview-container" style="width:100px; height:100px; font-size:40px; background: var(--gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="form-group mb-2">
+                                <label class="form-label">Update Profile Picture</label>
+                                <input type="file" id="p-photo-input" class="form-input" accept="image/*" style="padding: 8px; width: 100%;">
+                                <div class="form-hint">JPG, PNG or GIF. Max 5MB.</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="uploadPhotoBtn" disabled>
+                                <i class="fas fa-upload"></i> Upload Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="card">
+                        <img id="prof-avatar" src="https://ui-avatars.com/api/?name=Customer&background=1a73e8&color=fff" alt="Avatar" style="width:120px;height:120px;border-radius:50%;margin:0 auto 20px;display:block;border:4px solid var(--primary-light);">
+                        <h3 class="text-center" id="prof-name">Customer Name</h3>
+                        <p class="text-center text-muted mb-3" id="prof-email">email@example.com</p>
+                        <div class="badge badge-success d-flex justify-center" id="prof-tier">Gold Tier</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Account Details</h3>
+                        </div>
+                        <ul class="info-list">
+                            <li class="info-item"><span class="info-label">Customer ID</span><span class="info-value" id="prof-id">#CUST-123</span></li>
+                            <li class="info-item"><span class="info-label">Location</span><span class="info-value" id="prof-location">Mumbai, India</span></li>
+                            <li class="info-item"><span class="info-label">Join Date</span><span class="info-value" id="prof-join">Jan 20, 2024</span></li>
+                            <li class="info-item"><span class="info-label">Last Active</span><span class="info-value" id="prof-active">Today</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Final Footer -->
+<footer style="padding: 20px 28px; border-top: 1px solid var(--border); background: #fff; font-size: 13px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; margin-left: var(--sidebar-width);">
+    <div>&copy; <span id="currentYear">2026</span> BillMe — Customer Dashboard</div>
+    <div style="display: flex; gap: 16px;">
+        <span data-i18n="footer_secure"><i class="fas fa-shield-halved"></i> Secure Payments</span>
+    </div>
+</footer>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="../src/notification.js"></script>
+<script src="customer.js"></script>
+</body>
+</html>

@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacePay Financial Suite | Enterprise Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a051e;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* FacePay Theme - Purple & Neon */
+        .facepay-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #0a051e 0%, #1a1035 100%);
+        }
+
+        /* Floating Neon Orbs */
+        .neon-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: floatNeon 15s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.2);
+            top: -200px;
+            left: -200px;
+            box-shadow: 0 0 100px rgba(147, 51, 234, 0.3);
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: rgba(236, 72, 153, 0.2);
+            bottom: -300px;
+            right: -300px;
+            animation-delay: -5s;
+            box-shadow: 0 0 100px rgba(236, 72, 153, 0.3);
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.15);
+            top: 40%;
+            left: 40%;
+            animation-delay: -10s;
+            box-shadow: 0 0 100px rgba(59, 130, 246, 0.2);
+        }
+
+        @keyframes floatNeon {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.5;
+            }
+
+            25% {
+                transform: translate(50px, 50px) scale(1.2);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translate(0, 100px) scale(1);
+                opacity: 0.5;
+            }
+
+            75% {
+                transform: translate(-50px, 50px) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Main Container */
+        .app-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* FacePay Header */
+        .facepay-header {
+            background: rgba(20, 10, 40, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 50px -15px rgba(147, 51, 234, 0.5);
+            animation: slideDownFace 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideDownFace {
+            0% {
+                transform: translateY(-100px) rotateX(20deg);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0) rotateX(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-face {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .facepay-logo {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a855f7, #ec4899, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            text-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+            letter-spacing: -0.5px;
+        }
+
+        .facepay-logo::after {
+            content: 'FACEPAY';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            background: linear-gradient(135deg, #a855f7, #ec4899, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: blur(12px);
+            opacity: 0.7;
+            z-index: -1;
+        }
+
+        .badge-neon {
+            background: rgba(147, 51, 234, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            border: 1px solid #a855f7;
+            color: #a855f7;
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+            }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-neon {
+            background: rgba(20, 10, 40, 0.6);
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-neon:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: #ec4899;
+            box-shadow: 0 10px 30px -10px #ec4899;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(20, 10, 40, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 60px;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .nav-tab {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            color: #94a3b8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            box-shadow: 0 15px 30px -10px #a855f7;
+        }
+
+        .nav-tab i {
+            margin-right: 0.5rem;
+        }
+
+        /* Content Area */
+        .content-area {
+            background: rgba(20, 10, 40, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            border-radius: 40px;
+            padding: 2.5rem;
+            min-height: 700px;
+            animation: fadeInNeon 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes fadeInNeon {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Module Header */
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .module-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(147, 51, 234, 0.1);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            padding: 0.8rem 1.8rem;
+            border-radius: 40px;
+            color: #ffffff;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(147, 51, 234, 0.3);
+            border-color: #ec4899;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px -10px #ec4899;
+        }
+
+        /* Template Grid */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .template-card {
+            background: rgba(20, 10, 40, 0.6);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 25px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            text-align: center;
+        }
+
+        .template-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #ec4899;
+            box-shadow: 0 20px 40px -15px #a855f7;
+        }
+
+        .template-card.active {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border-color: transparent;
+            box-shadow: 0 20px 40px -10px #a855f7;
+        }
+
+        .template-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            color: #a855f7;
+        }
+
+        .template-card.active .template-icon {
+            color: white;
+        }
+
+        .template-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        /* Balance Sheet Types Grid */
+        .bs-types-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .bs-type-card {
+            background: rgba(20, 10, 40, 0.6);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 20px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .bs-type-card:hover {
+            transform: translateY(-5px);
+            border-color: #ec4899;
+            box-shadow: 0 15px 30px -12px #a855f7;
+        }
+
+        .bs-type-card.active {
+            background: linear-gradient(135deg, #a855f7, #d946ef);
+            border-color: transparent;
+        }
+
+        .bs-type-icon {
+            font-size: 1.8rem;
+            color: #a855f7;
+            margin-bottom: 0.5rem;
+        }
+
+        .bs-type-card.active .bs-type-icon {
+            color: white;
+        }
+
+        .bs-type-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Balance Sheet Table */
+        .bs-container {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: rgba(20, 10, 40, 0.4);
+            padding: 1.5rem;
+        }
+
+        .bs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .bs-table th {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid #ec4899;
+        }
+
+        .bs-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+            color: #e2e8f0;
+        }
+
+        .bs-table .section-header {
+            background: rgba(147, 51, 234, 0.2);
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .bs-table .amount {
+            text-align: right;
+            font-family: 'Inter', monospace;
+        }
+
+        .bs-table .total-row {
+            background: rgba(168, 85, 247, 0.2);
+            font-weight: 700;
+        }
+
+        .bs-table .grand-total {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            color: white;
+            font-weight: 800;
+        }
+
+        .editable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .editable:hover {
+            background: rgba(168, 85, 247, 0.3);
+            outline: 2px solid #ec4899;
+        }
+
+        .editable:hover::after {
+            content: '✎';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ec4899;
+            font-size: 1rem;
+        }
+
+        /* Budget Cards */
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .budget-card {
+            background: rgba(20, 10, 40, 0.6);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 30px;
+            padding: 1.8rem;
+            transition: all 0.4s ease;
+        }
+
+        .budget-card:hover {
+            transform: translateY(-8px);
+            border-color: #ec4899;
+            box-shadow: 0 25px 40px -18px #a855f7;
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .budget-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .budget-progress {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 1.2rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #ec4899);
+            border-radius: 5px;
+            transition: width 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 0 15px #a855f7;
+        }
+
+        /* Spreadsheet */
+        .spreadsheet-container {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: rgba(20, 10, 40, 0.4);
+            padding: 1rem;
+        }
+
+        .spreadsheet {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .spreadsheet th {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spreadsheet td {
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            padding: 0.5rem;
+        }
+
+        .spreadsheet input {
+            width: 100%;
+            background: rgba(20, 10, 40, 0.6);
+            border: none;
+            color: #fff;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        .spreadsheet input:focus {
+            outline: 2px solid #ec4899;
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(20, 10, 40, 0.6);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: modalNeon 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes modalNeon {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) rotateX(-10deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateX(0);
+            }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1035, #0f0a20);
+            border-radius: 40px;
+            padding: 3rem;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #a855f7;
+            box-shadow: 0 0 50px #a855f7;
+        }
+
+        .modal-content h3 {
+            color: #fff;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #a855f7;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid #a855f7;
+        }
+
+        /* Loading Animation */
+        .neon-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.3), transparent);
+            animation: neonLoading 1.5s infinite;
+        }
+
+        @keyframes neonLoading {
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .bs-types-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tab {
+                flex: 1;
+                text-align: center;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .facepay-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .bs-types-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(20, 10, 40, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="facepay-bg">
+        <div class="neon-orb orb-1"></div>
+        <div class="neon-orb orb-2"></div>
+        <div class="neon-orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- FacePay Header -->
+        <header class="facepay-header">
+            <div class="logo-face">
+                <div class="facepay-logo">FACEPAY</div>
+                <div class="badge-neon">
+                    <i class="fas fa-bolt"></i> LIVE
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-neon">
+                    <div class="stat-label">Total Value</div>
+                    <div class="stat-value" id="totalValue">$152.3M</div>
+                </div>
+                <div class="stat-neon">
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-value" id="activeUsers">2.4M</div>
+                </div>
+                <div class="stat-neon">
+                    <div class="stat-label">Transactions</div>
+                    <div class="stat-value" id="transactions">847K</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-module="balance-sheet">
+                <i class="fas fa-balance-scale"></i> Balance Sheet
+            </div>
+            <div class="nav-tab" data-module="budget-planner">
+                <i class="fas fa-chart-pie"></i> Budget Planner
+            </div>
+            <div class="nav-tab" data-module="spreadsheet">
+                <i class="fas fa-table"></i> Spreadsheet
+            </div>
+            <div class="nav-tab" data-module="dashboard">
+                <i class="fas fa-chart-line"></i> Analytics
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Dynamic content loaded via JS -->
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-pen-fancy"></i> Edit FacePay Value</h3>
+            <input type="text" id="editField" placeholder="Enter new value">
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Global State
+        let currentModule = 'balance-sheet';
+        let currentBSType = 'standard';
+        let currentTemplate = 1;
+        let gstEnabled = false;
+        let currentEditId = null;
+        let currentEditType = null;
+        let charts = {};
+
+        // Company Data
+        const companyData = {
+            name: "FACEPAY FINANCIAL",
+            date: "March 31, 2024"
+        };
+
+        // Balance Sheet Data
+        let bsData = {
+            assets: {
+                current: [
+                    { id: 1, name: "Cash & Equivalents", amount: 18500000, gst: 0 },
+                    { id: 2, name: "Accounts Receivable", amount: 12750000, gst: 18 },
+                    { id: 3, name: "Inventory", amount: 23200000, gst: 12 },
+                    { id: 4, name: "Prepaid Expenses", amount: 1850000, gst: 5 },
+                    { id: 5, name: "Marketable Securities", amount: 7500000, gst: 0 }
+                ],
+                fixed: [
+                    { id: 6, name: "Property & Equipment", amount: 38500000, gst: 18 },
+                    { id: 7, name: "Accumulated Depreciation", amount: -8250000, gst: 0 },
+                    { id: 8, name: "Intangible Assets", amount: 12500000, gst: 0 },
+                    { id: 9, name: "Long-term Investments", amount: 15750000, gst: 0 }
+                ],
+                other: [
+                    { id: 10, name: "Deferred Tax Assets", amount: 2850000, gst: 0 },
+                    { id: 11, name: "Goodwill", amount: 9500000, gst: 0 }
+                ]
+            },
+            liabilities: {
+                current: [
+                    { id: 12, name: "Accounts Payable", amount: 9800000, gst: 18 },
+                    { id: 13, name: "Short-term Debt", amount: 6250000, gst: 0 },
+                    { id: 14, name: "Accrued Liabilities", amount: 3850000, gst: 5 },
+                    { id: 15, name: "Tax Payable", amount: 1850000, gst: 0 }
+                ],
+                longTerm: [
+                    { id: 16, name: "Long-term Debt", amount: 25200000, gst: 0 },
+                    { id: 17, name: "Bonds Payable", amount: 18500000, gst: 0 },
+                    { id: 18, name: "Deferred Tax", amount: 3950000, gst: 0 }
+                ]
+            },
+            equity: [
+                { id: 19, name: "Share Capital", amount: 45000000, gst: 0 },
+                { id: 20, name: "Retained Earnings", amount: 22400000, gst: 0 },
+                { id: 21, name: "Other Reserves", amount: 8600000, gst: 0 }
+            ]
+        };
+
+        // Budget Data
+        let budgetData = {
+            departments: [
+                { id: 1, name: "Marketing", allocated: 850000, spent: 625000, color: "#a855f7" },
+                { id: 2, name: "Operations", allocated: 1250000, spent: 1180000, color: "#ec4899" },
+                { id: 3, name: "R&D", allocated: 2200000, spent: 1890000, color: "#3b82f6" },
+                { id: 4, name: "Sales", allocated: 1600000, spent: 1420000, color: "#10b981" },
+                { id: 5, name: "HR", allocated: 800000, spent: 785000, color: "#f59e0b" },
+                { id: 6, name: "IT", allocated: 1450000, spent: 1380000, color: "#6366f1" }
+            ],
+            categories: [
+                { name: "Salaries", budget: 2800000, actual: 2750000 },
+                { name: "Marketing", budget: 1500000, actual: 1480000 },
+                { name: "Operations", budget: 1750000, actual: 1720000 },
+                { name: "Technology", budget: 1450000, actual: 1430000 },
+                { name: "Admin", budget: 900000, actual: 890000 }
+            ]
+        };
+
+        // Spreadsheet Data
+        let spreadsheetData = Array(15).fill().map(() => Array(8).fill(''));
+
+        // Initialize Navigation
+        function initNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentModule = this.dataset.module;
+                    renderModule();
+                });
+            });
+        }
+
+        // Render Current Module
+        function renderModule() {
+            const content = document.getElementById('contentArea');
+
+            switch (currentModule) {
+                case 'balance-sheet':
+                    content.innerHTML = renderBalanceSheet();
+                    initBalanceSheet();
+                    break;
+                case 'budget-planner':
+                    content.innerHTML = renderBudgetPlanner();
+                    initBudgetPlanner();
+                    break;
+                case 'spreadsheet':
+                    content.innerHTML = renderSpreadsheet();
+                    initSpreadsheet();
+                    break;
+                case 'dashboard':
+                    content.innerHTML = renderDashboard();
+                    initDashboard();
+                    break;
+            }
+
+            updateHeaderStats();
+        }
+
+        // Render Balance Sheet Module
+        function renderBalanceSheet() {
+            return `
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-balance-scale" style="margin-right: 1rem; color: #a855f7;"></i>
+                        FacePay Balance Sheet
+                    </div>
+                    <div class="module-actions">
+                        <div class="action-btn" onclick="toggleGST()">
+                            <i class="fas fa-percent"></i>
+                            ${gstEnabled ? 'Disable GST' : 'Enable GST'}
+                        </div>
+                        <div class="action-btn" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </div>
+                        <div class="action-btn" onclick="exportExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 Balance Sheet Types -->
+                <div class="bs-types-grid">
+                    <div class="bs-type-card ${currentBSType === 'standard' ? 'active' : ''}" onclick="selectBSType('standard')">
+                        <div class="bs-type-icon"><i class="fas fa-columns"></i></div>
+                        <div class="bs-type-name">Standard Format</div>
+                    </div>
+                    <div class="bs-type-card ${currentBSType === 'classified' ? 'active' : ''}" onclick="selectBSType('classified')">
+                        <div class="bs-type-icon"><i class="fas fa-sitemap"></i></div>
+                        <div class="bs-type-name">Classified</div>
+                    </div>
+                    <div class="bs-type-card ${currentBSType === 'comparative' ? 'active' : ''}" onclick="selectBSType('comparative')">
+                        <div class="bs-type-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="bs-type-name">Comparative</div>
+                    </div>
+                </div>
+
+                <div class="template-grid">
+                    ${[1, 2, 3, 4, 5, 6].map(num => `
+                        <div class="template-card ${currentTemplate === num ? 'active' : ''}" onclick="selectTemplate(${num})">
+                            <div class="template-icon"><i class="fas fa-paint-roller"></i></div>
+                            <div class="template-name">Theme ${num}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="bs-container" id="bsContainer">
+                    ${generateBalanceSheetHTML()}
+                </div>
+            `;
+        }
+
+        // Generate Balance Sheet HTML based on type
+        function generateBalanceSheetHTML() {
+            switch (currentBSType) {
+                case 'standard':
+                    return generateStandardBS();
+                case 'classified':
+                    return generateClassifiedBS();
+                case 'comparative':
+                    return generateComparativeBS();
+                default:
+                    return generateStandardBS();
+            }
+        }
+
+        // Standard Balance Sheet
+        function generateStandardBS() {
+            let totalAssets = 0;
+            let totalLiabilities = 0;
+
+            let currentAssetsTotal = bsData.assets.current.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            let fixedAssetsTotal = bsData.assets.fixed.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            let otherAssetsTotal = bsData.assets.other.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            totalAssets = currentAssetsTotal + fixedAssetsTotal + otherAssetsTotal;
+
+            let currentLiabTotal = bsData.liabilities.current.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            let longTermTotal = bsData.liabilities.longTerm.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            let equityTotal = bsData.equity.reduce((sum, item) => sum + getAmountWithGST(item), 0);
+            totalLiabilities = currentLiabTotal + longTermTotal + equityTotal;
+
+            return `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="color: #fff; font-size: 2rem;">FACEPAY FINANCIAL</h2>
+                    <p style="color: #a855f7;">Balance Sheet - Standard Format</p>
+                    <p style="color: #94a3b8;">As at March 31, 2024</p>
+                </div>
+
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <!-- Assets Column -->
+                    <div style="flex: 1; min-width: 300px;">
+                        <table class="bs-table">
+                            <thead>
+                                <tr>
+                                    <th>ASSETS</th>
+                                    <th class="amount">Amount (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="section-header">
+                                    <td colspan="2">Current Assets</td>
+                                </tr>
+                                ${bsData.assets.current.map(item => `
+                                    <tr>
+                                        <td class="editable" onclick="openEditModal('assets.current', ${item.id})">${item.name}</td>
+                                        <td class="amount editable" onclick="openEditModal('assets.current', ${item.id}, 'amount')">
+                                            ${formatCurrency(getAmountWithGST(item))}
+                                            ${gstEnabled && item.gst > 0 ? `<span style="color: #10b981;"> (GST: ${item.gst}%)</span>` : ''}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total Current Assets</td>
+                                    <td class="amount">${formatCurrency(currentAssetsTotal)}</td>
+                                </tr>
+                                
+                                <tr class="section-header">
+                                    <td colspan="2">Fixed Assets</td>
+                                </tr>
+                                ${bsData.assets.fixed.map(item => `
+                                    <tr>
+                                        <td class="editable ${item.amount < 0 ? 'negative' : ''}" onclick="openEditModal('assets.fixed', ${item.id})">${item.name}</td>
+                                        <td class="amount editable ${item.amount < 0 ? 'negative' : ''}" onclick="openEditModal('assets.fixed', ${item.id}, 'amount')">
+                                            ${item.amount < 0 ? '(' : ''}${formatCurrency(Math.abs(getAmountWithGST(item)))}${item.amount < 0 ? ')' : ''}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                
+                                <tr class="section-header">
+                                    <td colspan="2">Other Assets</td>
+                                </tr>
+                                ${bsData.assets.other.map(item => `
+                                    <tr>
+                                        <td class="editable" onclick="openEditModal('assets.other', ${item.id})">${item.name}</td>
+                                        <td class="amount editable" onclick="openEditModal('assets.other', ${item.id}, 'amount')">
+                                            ${formatCurrency(getAmountWithGST(item))}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total Non-Current Assets</td>
+                                    <td class="amount">${formatCurrency(fixedAssetsTotal + otherAssetsTotal)}</td>
+                                </tr>
+                                
+                                <tr class="grand-total">
+                                    <td><strong>TOTAL ASSETS</strong></td>
+                                    <td class="amount"><strong>${formatCurrency(totalAssets)}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Liabilities Column -->
+                    <div style="flex: 1; min-width: 300px;">
+                        <table class="bs-table">
+                            <thead>
+                                <tr>
+                                    <th>LIABILITIES & EQUITY</th>
+                                    <th class="amount">Amount (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="section-header">
+                                    <td colspan="2">Current Liabilities</td>
+                                </tr>
+                                ${bsData.liabilities.current.map(item => `
+                                    <tr>
+                                        <td class="editable" onclick="openEditModal('liabilities.current', ${item.id})">${item.name}</td>
+                                        <td class="amount editable" onclick="openEditModal('liabilities.current', ${item.id}, 'amount')">
+                                            ${formatCurrency(getAmountWithGST(item))}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total Current Liabilities</td>
+                                    <td class="amount">${formatCurrency(currentLiabTotal)}</td>
+                                </tr>
+                                
+                                <tr class="section-header">
+                                    <td colspan="2">Long-Term Liabilities</td>
+                                </tr>
+                                ${bsData.liabilities.longTerm.map(item => `
+                                    <tr>
+                                        <td class="editable" onclick="openEditModal('liabilities.longTerm', ${item.id})">${item.name}</td>
+                                        <td class="amount editable" onclick="openEditModal('liabilities.longTerm', ${item.id}, 'amount')">
+                                            ${formatCurrency(getAmountWithGST(item))}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total Long-Term Liabilities</td>
+                                    <td class="amount">${formatCurrency(longTermTotal)}</td>
+                                </tr>
+                                
+                                <tr class="section-header">
+                                    <td colspan="2">Shareholders' Equity</td>
+                                </tr>
+                                ${bsData.equity.map(item => `
+                                    <tr>
+                                        <td class="editable" onclick="openEditModal('equity', ${item.id})">${item.name}</td>
+                                        <td class="amount editable" onclick="openEditModal('equity', ${item.id}, 'amount')">
+                                            ${formatCurrency(getAmountWithGST(item))}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total Equity</td>
+                                    <td class="amount">${formatCurrency(equityTotal)}</td>
+                                </tr>
+                                
+                                <tr class="grand-total">
+                                    <td><strong>TOTAL LIABILITIES & EQUITY</strong></td>
+                                    <td class="amount"><strong>${formatCurrency(totalLiabilities)}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Classified Balance Sheet
+        function generateClassifiedBS() {
+            return `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="color: #fff; font-size: 2rem;">FACEPAY FINANCIAL</h2>
+                    <p style="color: #a855f7;">Classified Balance Sheet</p>
+                    <p style="color: #94a3b8;">As at March 31, 2024</p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="background: linear-gradient(135deg, #a855f7, #ec4899); color: white; padding: 1rem; border-radius: 15px;">ASSETS</h3>
+                    
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Current Assets</h4>
+                        <table class="bs-table">
+                            ${bsData.assets.current.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('assets.current', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('assets.current', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Property, Plant & Equipment</h4>
+                        <table class="bs-table">
+                            ${bsData.assets.fixed.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('assets.fixed', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('assets.fixed', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Other Assets</h4>
+                        <table class="bs-table">
+                            ${bsData.assets.other.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('assets.other', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('assets.other', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="background: linear-gradient(135deg, #a855f7, #ec4899); color: white; padding: 1rem; border-radius: 15px;">LIABILITIES AND EQUITY</h3>
+                    
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Current Liabilities</h4>
+                        <table class="bs-table">
+                            ${bsData.liabilities.current.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('liabilities.current', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('liabilities.current', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Long-Term Liabilities</h4>
+                        <table class="bs-table">
+                            ${bsData.liabilities.longTerm.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('liabilities.longTerm', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('liabilities.longTerm', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+
+                    <div style="padding: 1rem;">
+                        <h4 style="color: #a855f7; margin-bottom: 1rem;">Shareholders' Equity</h4>
+                        <table class="bs-table">
+                            ${bsData.equity.map(item => `
+                                <tr>
+                                    <td class="editable" onclick="openEditModal('equity', ${item.id})">${item.name}</td>
+                                    <td class="amount editable" onclick="openEditModal('equity', ${item.id}, 'amount')">${formatCurrency(getAmountWithGST(item))}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Comparative Balance Sheet
+        function generateComparativeBS() {
+            return `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="color: #fff; font-size: 2rem;">FACEPAY FINANCIAL</h2>
+                    <p style="color: #a855f7;">Comparative Balance Sheet</p>
+                    <p style="color: #94a3b8;">For the years ended March 31, 2024 & 2023</p>
+                </div>
+
+                <table class="bs-table">
+                    <thead>
+                        <tr>
+                            <th>Particulars</th>
+                            <th class="amount">2024</th>
+                            <th class="amount">2023</th>
+                            <th class="amount">Change</th>
+                            <th class="amount">% Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="section-header">
+                            <td colspan="5">ASSETS</td>
+                        </tr>
+                        <tr>
+                            <td class="sub-section">Current Assets</td>
+                            <td class="amount">${formatCurrency(bsData.assets.current.reduce((sum, i) => sum + getAmountWithGST(i), 0))}</td>
+                            <td class="amount">${formatCurrency(bsData.assets.current.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.85)}</td>
+                            <td class="amount" style="color: #10b981;">+15%</td>
+                            <td class="amount" style="color: #10b981;">+15.0%</td>
+                        </tr>
+                        <tr>
+                            <td class="sub-section">Fixed Assets</td>
+                            <td class="amount">${formatCurrency(bsData.assets.fixed.reduce((sum, i) => sum + getAmountWithGST(i), 0))}</td>
+                            <td class="amount">${formatCurrency(bsData.assets.fixed.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.9)}</td>
+                            <td class="amount" style="color: #10b981;">+10%</td>
+                            <td class="amount" style="color: #10b981;">+10.0%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Assets</td>
+                            <td class="amount">${formatCurrency(
+                bsData.assets.current.reduce((sum, i) => sum + getAmountWithGST(i), 0) +
+                bsData.assets.fixed.reduce((sum, i) => sum + getAmountWithGST(i), 0) +
+                bsData.assets.other.reduce((sum, i) => sum + getAmountWithGST(i), 0)
+            )}</td>
+                            <td class="amount">${formatCurrency(
+                (bsData.assets.current.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.85) +
+                (bsData.assets.fixed.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.9) +
+                (bsData.assets.other.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.88)
+            )}</td>
+                            <td class="amount" style="color: #10b981;">+12.3%</td>
+                            <td class="amount" style="color: #10b981;">+12.3%</td>
+                        </tr>
+
+                        <tr class="section-header">
+                            <td colspan="5">LIABILITIES & EQUITY</td>
+                        </tr>
+                        <tr>
+                            <td class="sub-section">Current Liabilities</td>
+                            <td class="amount">${formatCurrency(bsData.liabilities.current.reduce((sum, i) => sum + getAmountWithGST(i), 0))}</td>
+                            <td class="amount">${formatCurrency(bsData.liabilities.current.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.92)}</td>
+                            <td class="amount" style="color: #f59e0b;">+8%</td>
+                            <td class="amount" style="color: #f59e0b;">+8.0%</td>
+                        </tr>
+                        <tr>
+                            <td class="sub-section">Long-Term Liabilities</td>
+                            <td class="amount">${formatCurrency(bsData.liabilities.longTerm.reduce((sum, i) => sum + getAmountWithGST(i), 0))}</td>
+                            <td class="amount">${formatCurrency(bsData.liabilities.longTerm.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.95)}</td>
+                            <td class="amount" style="color: #f59e0b;">+5%</td>
+                            <td class="amount" style="color: #f59e0b;">+5.0%</td>
+                        </tr>
+                        <tr>
+                            <td class="sub-section">Shareholders' Equity</td>
+                            <td class="amount">${formatCurrency(bsData.equity.reduce((sum, i) => sum + getAmountWithGST(i), 0))}</td>
+                            <td class="amount">${formatCurrency(bsData.equity.reduce((sum, i) => sum + getAmountWithGST(i), 0) * 0.88)}</td>
+                            <td class="amount" style="color: #10b981;">+12%</td>
+                            <td class="amount" style="color: #10b981;">+12.0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Render Budget Planner Module
+        function renderBudgetPlanner() {
+            return `
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-chart-pie" style="margin-right: 1rem; color: #a855f7;"></i>
+                        FacePay Budget Planner
+                    </div>
+                    <div class="module-actions">
+                        <div class="action-btn" onclick="addBudgetItem()">
+                            <i class="fas fa-plus"></i> Add Department
+                        </div>
+                        <div class="action-btn" onclick="exportBudget()">
+                            <i class="fas fa-download"></i> Export
+                        </div>
+                    </div>
+                </div>
+
+                <div class="budget-grid">
+                    ${budgetData.departments.map(dept => {
+                const percentage = (dept.spent / dept.allocated) * 100;
+                return `
+                            <div class="budget-card">
+                                <div class="budget-header">
+                                    <span class="budget-title">${dept.name}</span>
+                                    <span style="color: ${dept.color};">${percentage.toFixed(1)}%</span>
+                                </div>
+                                <div class="budget-progress">
+                                    <div class="progress-bar" style="width: ${percentage}%; background: ${dept.color};"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                                    <span>Spent: ${formatCurrency(dept.spent)}</span>
+                                    <span>Budget: ${formatCurrency(dept.allocated)}</span>
+                                </div>
+                                <div style="margin-top: 1rem; text-align: center;">
+                                    <span style="color: ${dept.spent > dept.allocated ? '#ef4444' : '#10b981'};">
+                                        <i class="fas ${dept.spent > dept.allocated ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
+                                        ${dept.spent > dept.allocated ? 'Over Budget' : 'Under Budget'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+            }).join('')}
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="budgetChart" style="height: 400px;"></canvas>
+                </div>
+            `;
+        }
+
+        // Render Spreadsheet Module
+        function renderSpreadsheet() {
+            return `
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-table" style="margin-right: 1rem; color: #a855f7;"></i>
+                        FacePay Spreadsheet
+                    </div>
+                    <div class="module-actions">
+                        <div class="action-btn" onclick="addRow()">
+                            <i class="fas fa-plus"></i> Add Row
+                        </div>
+                        <div class="action-btn" onclick="addColumn()">
+                            <i class="fas fa-columns"></i> Add Column
+                        </div>
+                        <div class="action-btn" onclick="exportSpreadsheet()">
+                            <i class="fas fa-download"></i> Export
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spreadsheet-container">
+                    <table class="spreadsheet" id="spreadsheet">
+                        <thead>
+                            <tr>
+                                <th style="background: #a855f7;">#</th>
+                                ${Array(8).fill().map((_, i) => `
+                                    <th style="background: #a855f7;">
+                                        ${String.fromCharCode(65 + i)}
+                                        <i class="fas fa-times" style="float: right; cursor: pointer; color: #fff; margin-left: 0.5rem;" onclick="deleteColumn(${i})"></i>
+                                    </th>
+                                `).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${spreadsheetData.map((row, rowIndex) => `
+                                <tr>
+                                    <td style="background: #a855f7; color: white; font-weight: 600;">
+                                        ${rowIndex + 1}
+                                        <i class="fas fa-times" style="float: right; cursor: pointer; color: #fff;" onclick="deleteRow(${rowIndex})"></i>
+                                    </td>
+                                    ${row.map((cell, colIndex) => `
+                                        <td>
+                                            <input type="text" value="${cell}" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)" placeholder="Enter value">
+                                        </td>
+                                    `).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="budget-card">
+                        <div class="stat-label">Total Sum</div>
+                        <div class="stat-value" id="spreadsheetSum">$0</div>
+                    </div>
+                    <div class="budget-card">
+                        <div class="stat-label">Average</div>
+                        <div class="stat-value" id="spreadsheetAvg">$0</div>
+                    </div>
+                    <div class="budget-card">
+                        <div class="stat-label">Count</div>
+                        <div class="stat-value" id="spreadsheetCount">0</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Dashboard Module
+        function renderDashboard() {
+            return `
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-chart-line" style="margin-right: 1rem; color: #a855f7;"></i>
+                        FacePay Analytics
+                    </div>
+                    <div class="module-actions">
+                        <div class="action-btn" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="budget-card">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" style="font-size: 2.5rem;">$45.2M</div>
+                        <div style="color: #10b981; margin-top: 0.5rem;"><i class="fas fa-arrow-up"></i> +12.3%</div>
+                    </div>
+                    <div class="budget-card">
+                        <div class="stat-label">Net Profit</div>
+                        <div class="stat-value" style="font-size: 2.5rem;">$12.8M</div>
+                        <div style="color: #10b981; margin-top: 0.5rem;"><i class="fas fa-arrow-up"></i> +8.1%</div>
+                    </div>
+                    <div class="budget-card">
+                        <div class="stat-label">Operating Margin</div>
+                        <div class="stat-value" style="font-size: 2.5rem;">28.3%</div>
+                        <div style="color: #f59e0b; margin-top: 0.5rem;"><i class="fas fa-minus"></i> -2.1%</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            `;
+        }
+
+        // Helper Functions
+        function getAmountWithGST(item) {
+            if (!gstEnabled || item.gst === 0) return item.amount;
+            return item.amount + (item.amount * item.gst / 100);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function selectBSType(type) {
+            currentBSType = type;
+            renderModule();
+        }
+
+        function selectTemplate(num) {
+            currentTemplate = num;
+            renderModule();
+        }
+
+        function toggleGST() {
+            gstEnabled = !gstEnabled;
+            renderModule();
+            updateHeaderStats();
+        }
+
+        function openEditModal(path, id, field = 'name') {
+            currentEditId = id;
+            currentEditType = { path, field };
+            document.getElementById('editField').value = '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditId = null;
+            currentEditType = null;
+        }
+
+        function saveEdit() {
+            const value = document.getElementById('editField').value;
+            if (!currentEditId || !value) return;
+
+            // Update the appropriate field
+            const updateItem = (items) => {
+                const item = items.find(i => i.id === currentEditId);
+                if (item) {
+                    if (currentEditType.field === 'amount') {
+                        item.amount = parseFloat(value) || 0;
+                    } else {
+                        item.name = value;
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            // Search through all categories
+            let updated = false;
+            for (const category in bsData) {
+                if (Array.isArray(bsData[category])) {
+                    updated = updateItem(bsData[category]);
+                } else {
+                    for (const subcat in bsData[category]) {
+                        updated = updateItem(bsData[category][subcat]);
+                        if (updated) break;
+                    }
+                }
+                if (updated) break;
+            }
+
+            closeModal();
+            renderModule();
+        }
+
+        function updateHeaderStats() {
+            const totalAssets = bsData.assets.current.reduce((sum, i) => sum + getAmountWithGST(i), 0) +
+                bsData.assets.fixed.reduce((sum, i) => sum + getAmountWithGST(i), 0) +
+                bsData.assets.other.reduce((sum, i) => sum + getAmountWithGST(i), 0);
+
+            document.getElementById('totalValue').textContent = formatCurrency(totalAssets);
+            document.getElementById('activeUsers').textContent = '2.4M';
+            document.getElementById('transactions').textContent = '847K';
+        }
+
+        // Budget Planner Functions
+        function initBudgetPlanner() {
+            setTimeout(() => {
+                const ctx = document.getElementById('budgetChart')?.getContext('2d');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: budgetData.departments.map(d => d.name),
+                            datasets: [{
+                                data: budgetData.departments.map(d => d.spent),
+                                backgroundColor: budgetData.departments.map(d => d.color),
+                                borderWidth: 0,
+                                hoverOffset: 15
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#fff', font: { size: 12 } }
+                                }
+                            },
+                            animation: {
+                                animateScale: true,
+                                animateRotate: true
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+
+        function addBudgetItem() {
+            budgetData.departments.push({
+                id: budgetData.departments.length + 1,
+                name: "New Department",
+                allocated: 100000,
+                spent: 0,
+                color: "#a855f7"
+            });
+            renderModule();
+        }
+
+        // Spreadsheet Functions
+        function initSpreadsheet() {
+            updateSpreadsheetStats();
+        }
+
+        function updateCell(row, col, value) {
+            spreadsheetData[row][col] = value;
+            updateSpreadsheetStats();
+        }
+
+        function addRow() {
+            spreadsheetData.push(Array(8).fill(''));
+            renderModule();
+        }
+
+        function addColumn() {
+            spreadsheetData.forEach(row => row.push(''));
+            renderModule();
+        }
+
+        function deleteRow(index) {
+            spreadsheetData.splice(index, 1);
+            renderModule();
+        }
+
+        function deleteColumn(index) {
+            spreadsheetData.forEach(row => row.splice(index, 1));
+            renderModule();
+        }
+
+        function updateSpreadsheetStats() {
+            const numbers = spreadsheetData.flat()
+                .map(v => parseFloat(v))
+                .filter(v => !isNaN(v));
+
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const avg = numbers.length ? sum / numbers.length : 0;
+
+            document.getElementById('spreadsheetSum').textContent = formatCurrency(sum);
+            document.getElementById('spreadsheetAvg').textContent = formatCurrency(avg);
+            document.getElementById('spreadsheetCount').textContent = numbers.length;
+        }
+
+        // Dashboard Functions
+        function initDashboard() {
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [32, 34.5, 38, 41, 43.5, 45.2],
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ec4899',
+                            pointBorderColor: '#fff',
+                            pointRadius: 5,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: { color: '#fff' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: { color: '#fff' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Expense Chart
+            const expenseCtx = document.getElementById('expenseChart')?.getContext('2d');
+            if (expenseCtx) {
+                new Chart(expenseCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: budgetData.departments.map(d => d.name),
+                        datasets: [{
+                            label: 'Expenses',
+                            data: budgetData.departments.map(d => d.spent / 100000),
+                            backgroundColor: budgetData.departments.map(d => d.color),
+                            borderRadius: 8,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: { color: '#fff' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: { color: '#fff' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Cash Flow Chart
+            const cashFlowCtx = document.getElementById('cashFlowChart')?.getContext('2d');
+            if (cashFlowCtx) {
+                new Chart(cashFlowCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'],
+                        datasets: [{
+                            label: 'Cash Flow',
+                            data: [4.5, 5.2, 4.8, 6.1, 5.8, 6.3, 6.7, 7.2],
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(236, 72, 153, 0.1)' },
+                                ticks: { color: '#fff' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(236, 72, 153, 0.1)' },
+                                ticks: { color: '#fff' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Export Functions
+        function exportPDF() {
+            alert('FacePay PDF Export - Generating professional document...');
+        }
+
+        function exportExcel() {
+            alert('FacePay Excel Export - Generating spreadsheet...');
+        }
+
+        function exportBudget() {
+            alert('FacePay Budget Export - Exporting budget data...');
+        }
+
+        function exportSpreadsheet() {
+            alert('FacePay Spreadsheet Export - Exporting as CSV...');
+        }
+
+        function refreshDashboard() {
+            renderModule();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!checkAuth('MERCHANT')) return;
+
+            initNavigation();
+            renderModule();
+
+            // Close modal on outside click
+            window.addEventListener('click', function (e) {
+                const modal = document.getElementById('editModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillMe — Balance Sheet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/global.css">
+    <link rel="stylesheet" href="balance_sheet.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Nav -->
+    <nav class="global-nav">
+        <div class="global-nav__inner">
+            <a href="../index.html" class="d-flex align-center gap-1" style="font-size:20px;font-weight:800;color:var(--primary);text-decoration:none;">
+                <i class="fas fa-bolt"></i> BillMe
+            </a>
+            <div class="d-flex align-center gap-2">
+                <a href="merchant.html" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+                <button class="btn btn-outline btn-sm" id="refreshBtn">
+                    <i class="fas fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-main">
+        <div class="app-container">
+            <div class="d-flex align-center justify-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h1 style="font-size:26px;margin-bottom:4px;">
+                        <i class="fas fa-scale-balanced" style="color:var(--primary);"></i>
+                        Balance Sheet
+                    </h1>
+                    <p class="text-muted" style="font-size:14px;">Your financial position at a glance</p>
+                </div>
+                <div class="d-flex gap-1">
+                    <select id="periodFilter" class="form-input" style="width:auto;">
+                        <option value="all">All Time</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Financial data notice -->
+            <div class="alert alert-warning mb-3" id="apiNotice">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>
+                    <strong>Awaiting wallet &amp; ledger APIs.</strong>
+                    Revenue, escrow, and fee data will populate once
+                    <code>GET /api/merchant/balance-sheet</code>, <code>GET /api/wallet</code>, and <code>GET /api/ledger</code>
+                    are available. All values currently show <strong>₹0.00</strong> as safe defaults.
+                </span>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="stats-grid mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue"><i class="fas fa-arrow-trend-up"></i></div>
+                    <div class="stat-val" id="bs-revenue">₹0.00</div>
+                    <div class="stat-label">Net Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-orange"><i class="fas fa-vault"></i></div>
+                    <div class="stat-val" id="bs-escrow">₹0.00</div>
+                    <div class="stat-label">Escrow Balance</div>
+                    <div class="financial-pending"><i class="fas fa-clock"></i> Awaiting first transaction</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green"><i class="fas fa-bank"></i></div>
+                    <div class="stat-val" id="bs-withdrawals">₹0.00</div>
+                    <div class="stat-label">Withdrawals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-purple"><i class="fas fa-percent"></i></div>
+                    <div class="stat-val" id="bs-fees">₹0.00</div>
+                    <div class="stat-label">Processing Fees</div>
+                </div>
+            </div>
+
+            <!-- Summary table + Activity charts -->
+            <div class="grid-2 mb-3">
+                <!-- Ledger summary table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size:16px;"><i class="fas fa-table" style="color:var(--primary);"></i> Financial Summary</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Category</th><th style="text-align:right;">Amount (₹)</th></tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            <tr><td>Revenue</td><td class="text-right fw-600" id="st-rev">0.00</td></tr>
+                            <tr><td>Escrow Balance</td><td class="text-right fw-600" id="st-escrow">0.00</td></tr>
+                            <tr><td>Withdrawals</td><td class="text-right fw-600" id="st-wd">0.00</td></tr>
+                            <tr><td>Processing Fees</td><td class="text-right fw-600" id="st-fees">0.00</td></tr>
+                            <tr style="background:var(--primary-light);">
+                                <td><strong>Net Settlement</strong></td>
+                                <td class="text-right fw-700" id="st-net">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="financial-pending mt-2">
+                        <i class="fas fa-clock"></i>
+                        Values will update when financial APIs are available.
+                    </div>
+                </div>
+
+                <!-- Invoice activity chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size:16px;"><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Invoice Activity</h3>
+                        <span class="badge badge-info">Invoice counts only</span>
+                    </div>
+                    <div class="chart-box"><canvas id="chartMonthly"></canvas></div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Invoice status chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size:16px;"><i class="fas fa-chart-pie" style="color:var(--primary);"></i> Invoice Status</h3>
+                    </div>
+                    <div class="chart-box"><canvas id="chartStatus"></canvas></div>
+                </div>
+                <!-- Payment method chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size:16px;"><i class="fas fa-chart-pie" style="color:var(--secondary);"></i> Payment Methods</h3>
+                    </div>
+                    <div class="chart-box"><canvas id="chartMethods"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Invoice count summary (not financial amounts) -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3 style="font-size:16px;"><i class="fas fa-file-invoice" style="color:var(--primary);"></i> Invoice Summary</h3>
+                    <span class="badge badge-info">Counts from live data</span>
+                </div>
+                <div class="stats-grid" id="invCountGrid" style="padding-top:12px;">
+                    <div class="stat-card"><div class="stat-val" id="ic-total">0</div><div class="stat-label">Total Invoices</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:var(--secondary);" id="ic-paid">0</div><div class="stat-label">Paid</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:#b06000;" id="ic-pending">0</div><div class="stat-label">Pending</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:var(--danger);" id="ic-unpaid">0</div><div class="stat-label">Unpaid</div></div>
+                </div>
+                <div class="alert alert-info mt-2">
+                    <i class="fas fa-info-circle"></i>
+                    Invoice amounts are <strong>not</strong> used to compute financial summaries. Only wallet/ledger data constitutes real financial reporting.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="../src/api.js"></script>
+    <script src="balance_sheet.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+# ======================
+# JAVA / SPRING BOOT
+# ======================
+target/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.mvn/
+mvnw
+mvnw.cmd
+
+# IntelliJ
+.idea/
+*.iws
+*.ipr
+
+# ======================
+# NODE / FRONTEND
+# ======================
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*
+
+# ======================
+# OS FILES
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# LOGS
+# ======================
+logs/
+*.log
+
+# ======================
+# TEMP FILES
+# ======================
+*.tmp
+*.temp
+
+# ======================
+# VSCODE
+# ======================
+.vscode/
+
+# ======================
+# SECURITY
+# ======================
+application.properties
+application-dev.properties
+application-prod.properties
+application.yml
+*.key
+*.pem

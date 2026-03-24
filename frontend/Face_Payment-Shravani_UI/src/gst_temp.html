@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 GST Invoice Templates - Fully Editable including Company Name</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .header h1 i {
+            color: #3498db;
+            margin-right: 10px;
+        }
+
+        .badge {
+            background: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .filter-btn i {
+            margin-right: 5px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .invoice-preview {
+            background: white;
+            padding: 20px;
+            font-size: 12px;
+            border-bottom: 3px solid;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #999;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .gstin-text {
+            color: #555;
+        }
+
+        .address-block {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 11px;
+            color: #444;
+        }
+
+        .issued-to {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .issued-to div {
+            flex: 1;
+        }
+
+        .editable {
+            border: 1px solid #bdc3c7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: white;
+            font-size: 11px;
+            font-family: inherit;
+            width: 100%;
+            margin: 2px 0;
+            transition: all 0.3s;
+        }
+
+        .editable:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .editable.small {
+            width: 60px;
+        }
+
+        .editable.medium {
+            width: 100px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 11px;
+        }
+
+        .preview-table th {
+            background: #34495e;
+            color: white;
+            padding: 8px 5px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .preview-table td {
+            padding: 8px 5px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .preview-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .manufacturer {
+            color: #7f8c8d;
+            font-size: 10px;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .words {
+            font-style: italic;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .tax-breakup {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: #ecf0f1;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .tax-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .total-row {
+            font-weight: bold;
+            font-size: 14px;
+            text-align: right;
+            margin: 15px 0;
+            padding: 10px;
+            background: #d4e6f1;
+            border-radius: 5px;
+        }
+
+        .terms {
+            font-size: 10px;
+            color: #555;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .signature {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #999;
+        }
+
+        .color-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .color-dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #ccc;
+        }
+
+        .card-footer {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .card-footer h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .template-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-preview {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-preview:hover {
+            background: #2980b9;
+        }
+
+        .btn-pdf {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 1100px;
+            width: 100%;
+            padding: 30px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .close {
+            font-size: 35px;
+            cursor: pointer;
+            color: #95a5a6;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        .modal-body {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .full-invoice {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .edit-field-group {
+            margin-bottom: 15px;
+        }
+
+        .edit-field-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-size: 13px;
+        }
+
+        .edit-field-group .editable {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .color-picker-group div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker-group input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 18px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-download:hover {
+            background: #229954;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* Company name specific style */
+        .company-edit {
+            font-size: 18px;
+            font-weight: bold;
+            background: #f8f9fa;
+            border: 2px solid #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-file-invoice"></i> GST Invoice Templates</h1>
+            <span class="badge"><i class="fas fa-check-circle"></i> Editable · Preview · PDF</span>
+            <button class="home-btn" onclick="window.location.href='../src/contact.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+
+        <div class="filters" id="filters">
+            <button class="filter-btn active" data-filter="all"><i class="fas fa-th-large"></i> All (24)</button>
+            <button class="filter-btn" data-filter="pharma"><i class="fas fa-pills"></i> Pharma</button>
+            <button class="filter-btn" data-filter="corporate"><i class="fas fa-building"></i> Corporate</button>
+            <button class="filter-btn" data-filter="retail"><i class="fas fa-store"></i> Retail</button>
+            <button class="filter-btn" data-filter="export"><i class="fas fa-ship"></i> Export</button>
+        </div>
+
+        <div id="templateGrid" class="template-grid"></div>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Edit Template - Including Company Name</h2>
+                    <span class="close" id="closeModal">&times;</span>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <button class="btn-download" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Download Complete Invoice as PDF
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>@ 2026 Face Pay. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 24 Templates with exact Raga format
+        const templates = Array(24).fill(null).map((_, index) => {
+            const colors = [
+                { bg: '#e8f4fd', accent: '#2980b9' }, // Blue
+                { bg: '#e8f8f5', accent: '#16a085' }, // Green
+                { bg: '#fef9e7', accent: '#f39c12' }, // Yellow
+                { bg: '#fdedec', accent: '#c0392b' }, // Red
+                { bg: '#f4ecf7', accent: '#8e44ad' }, // Purple
+                { bg: '#eaecee', accent: '#34495e' }, // Gray
+                { bg: '#fef5e4', accent: '#d35400' }, // Orange
+                { bg: '#ebf5fb', accent: '#3498db' }, // Light Blue
+                { bg: '#f0f8e9', accent: '#27ae60' }, // Light Green
+                { bg: '#f9ebf2', accent: '#e83e8c' }, // Pink
+                { bg: '#d4e6f1', accent: '#1f618d' }, // Dark Blue
+                { bg: '#d5f5e3', accent: '#1e8449' }, // Dark Green
+                { bg: '#fdebd0', accent: '#ba6b25' }, // Brown
+                { bg: '#ebdef0', accent: '#76448a' }, // Violet
+                { bg: '#f2f3f4', accent: '#566573' }, // Silver
+                { bg: '#fcf3cf', accent: '#b7950b' }, // Gold
+                { bg: '#fadbd8', accent: '#b03a2e' }, // Terracotta
+                { bg: '#d0ece2', accent: '#117a65' }, // Mint
+                { bg: '#fae5d3', accent: '#ba6b25' }, // Peach
+                { bg: '#e8daef', accent: '#633974' }, // Lavender
+                { bg: '#f9e79f', accent: '#9a7d0a' }, // Mustard
+                { bg: '#aed6f1', accent: '#2875a7' }, // Sky Blue
+                { bg: '#f5cba0', accent: '#ca6f1e' }, // Apricot
+                { bg: '#d7bde2', accent: '#884ea0' }  // Orchid
+            ];
+
+            const categories = ['pharma', 'corporate', 'retail', 'export', 'pharma', 'corporate', 'retail', 'export'];
+            const companyNames = [
+                'Raga Pvt Ltd', 'MediLife Pharma', 'Global Exports', 'City Retail',
+                'HealthCare Corp', 'International Trading', 'Local Mart', 'Pharma World',
+                'Corporate Solutions', 'Export House', 'Super Retail', 'MediCare',
+                'Raga Industries', 'Pharma Plus', 'Global Trade', 'City Mart',
+                'HealthPlus', 'Corporate Enterprises', 'Export Zone', 'Retail King',
+                'MediWorld', 'Raga International', 'Pharma Corp', 'City Superstore'
+            ];
+
+            return {
+                id: index + 1,
+                name: `Template ${index + 1}`,
+                category: categories[index % 4],
+                bgColor: colors[index].bg,
+                accentColor: colors[index].accent,
+                company: companyNames[index],
+                companyGst: `33AAAGP${String(6800 + index).padStart(4, '0')}F1ZH`,
+                companyAddress: `${100 + index} ${index % 2 === 0 ? 'S Usman Road' : 'Mount Road'}, T. Nagar, Chennai - 6000${17 + index}`,
+                companyPhone: `044 ${258636000 + index}`,
+                companyEmail: `contact@company${index}.com`,
+                customer: 'Anu Labs',
+                customerGst: `33AQZPS${String(2360 + index).padStart(4, '0')}E12E`,
+                customerPos: 'Tamil Nadu',
+                customerAddress: `Anu Labs, ${index % 2 === 0 ? 'Adyar' : 'Velachery'}, Chennai - 6000${77 + index}`,
+                customerMobile: `9823561${String(230 + index).padStart(3, '0')}`,
+                customerPhone: `04456879${String(8800 + index).slice(0, 4)}`,
+                customerEmail: `anu${index}@gmail.com`,
+                items: [
+                    { sno: 1, batch: 'Alternagel', qty: '50', mfg: '12/11/2019', exp: '21/10/2025', nos: '100 nos', rate: '200.00', tax: '28%', amount: '20,000.00', manufacturer: 'DAMINO' },
+                    { sno: 2, batch: 'Repanthan', qty: '50', mfg: '11/11/2019', exp: '20/12/2025', nos: '50 nos', rate: '560.00', tax: '5%', amount: '28,000.00', manufacturer: 'LUCKY PHARMA' },
+                    { sno: 3, batch: 'Sudocrem', qty: '12', mfg: '30/11/2019', exp: '21/12/2026', nos: '20 nos', rate: '630.00', tax: '5%', amount: '12,600.00', manufacturer: 'DAMINO' }
+                ],
+                words: 'Sixty Eight Thousand Two Hundred and Thirty Rupees Fifty Paise only',
+                subtotal: '60,600.00',
+                cgst14: '2,800.00',
+                sgst14: '2,800.00',
+                cgst25: '1,015.00',
+                sgst25: '1,015.00',
+                roundoff: '0.50',
+                total: '68,230.50',
+                terms: [
+                    '1. Goods once sold will not be taken back or exchange.',
+                    '2. Product supplied in Cryo Shipper has to be written same day immediately.',
+                    '3. Subject to Bengaluru jurisdiction'
+                ]
+            };
+        });
+
+        const grid = document.getElementById('templateGrid');
+        const modal = document.getElementById('previewModal');
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeModal = document.getElementById('closeModal');
+        const downloadBtn = document.getElementById('downloadPdfBtn');
+        let currentTemplate = null;
+
+        // Render all templates
+        function renderTemplates(filter = 'all') {
+            const filtered = filter === 'all' ? templates : templates.filter(t => t.category === filter);
+
+            grid.innerHTML = filtered.map(t => `
+                <div class="template-card" data-id="${t.id}">
+                    <div class="invoice-preview" id="preview-${t.id}" style="border-bottom-color: ${t.accentColor}; background: ${t.bgColor}20;">
+                        <div class="invoice-header">
+                            <input class="editable company-edit" value="${t.company}" data-id="${t.id}" data-field="company" style="font-size:16px; font-weight:bold; width:200px;">
+                            <span class="gstin-text">GSTIN : <input class="editable" value="${t.companyGst}" data-id="${t.id}" data-field="companyGst" style="width:150px;"></span>
+                        </div>
+                        
+                        <div class="address-block">
+                            <input class="editable" value="${t.companyAddress}" data-id="${t.id}" data-field="companyAddress" style="width:100%;"><br>
+                            Phone : <input class="editable" value="${t.companyPhone}" data-id="${t.id}" data-field="companyPhone" style="width:120px;"> | 
+                            Email : <input class="editable" value="${t.companyEmail}" data-id="${t.id}" data-field="companyEmail" style="width:150px;">
+                        </div>
+
+                        <div style="border-top: 1px dashed #999; margin: 10px 0;"></div>
+
+                        <div class="issued-to">
+                            <div>
+                                <strong>Issued To</strong><br>
+                                <input class="editable" value="${t.customer}" data-id="${t.id}" data-field="customer"><br>
+                                GSTIN : <input class="editable" value="${t.customerGst}" data-id="${t.id}" data-field="customerGst"><br>
+                                POS : <input class="editable" value="${t.customerPos}" data-id="${t.id}" data-field="customerPos">
+                            </div>
+                            <div>
+                                <strong>Billing & Shipping Address :</strong><br>
+                                <input class="editable" value="${t.customerAddress}" data-id="${t.id}" data-field="customerAddress"><br>
+                                Mobile : <input class="editable" value="${t.customerMobile}" data-id="${t.id}" data-field="customerMobile"><br>
+                                Phone : <input class="editable" value="${t.customerPhone}" data-id="${t.id}" data-field="customerPhone"><br>
+                                Email : <input class="editable" value="${t.customerEmail}" data-id="${t.id}" data-field="customerEmail">
+                            </div>
+                        </div>
+
+                        <table class="preview-table">
+                            <thead>
+                                <tr><th>S.No</th><th>Batch</th><th colspan="2">Item Description</th><th>Qty</th><th>Rate</th><th>Tax</th><th>Amount</th></tr>
+                            </thead>
+                            <tbody>
+                                ${t.items.map((item, i) => `
+                                    <tr>
+                                        <td><input class="editable small" value="${item.sno}" data-id="${t.id}" data-item="${i}" data-field="sno"></td>
+                                        <td><input class="editable" value="${item.batch}" data-id="${t.id}" data-item="${i}" data-field="batch" style="width:80px"></td>
+                                        <td colspan="2">
+                                            <input class="editable small" value="${item.qty}" data-id="${t.id}" data-item="${i}" data-field="qty"> MFG: <input class="editable small" value="${item.mfg}" data-id="${t.id}" data-item="${i}" data-field="mfg"> EXP: <input class="editable small" value="${item.exp}" data-id="${t.id}" data-item="${i}" data-field="exp"><br>
+                                            <span class="manufacturer">Manufacturer : <input class="editable" value="${item.manufacturer}" data-id="${t.id}" data-item="${i}" data-field="manufacturer"></span>
+                                        </td>
+                                        <td><input class="editable small" value="${item.nos}" data-id="${t.id}" data-item="${i}" data-field="nos"></td>
+                                        <td><input class="editable small" value="${item.rate}" data-id="${t.id}" data-item="${i}" data-field="rate"></td>
+                                        <td><input class="editable small" value="${item.tax}" data-id="${t.id}" data-item="${i}" data-field="tax"></td>
+                                        <td><input class="editable small" value="${item.amount}" data-id="${t.id}" data-item="${i}" data-field="amount"></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div class="words">
+                            <strong>Amount (in words) :</strong><br>
+                            <input class="editable" value="${t.words}" data-id="${t.id}" data-field="words" style="width:100%">
+                        </div>
+
+                        <div style="border-top: 1px dashed #999; margin: 10px 0;"></div>
+
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span><strong>Sub Total</strong> <input class="editable small" value="${t.subtotal}" data-id="${t.id}" data-field="subtotal"></span>
+                            <span>Thanks for your Business</span>
+                        </div>
+
+                        <div class="tax-breakup">
+                            <div class="tax-item">CGST 14% on 20,000.00 <input class="editable small" value="${t.cgst14}" data-id="${t.id}" data-field="cgst14"></div>
+                            <div class="tax-item">SGST 14% on 20,000.00 <input class="editable small" value="${t.sgst14}" data-id="${t.id}" data-field="sgst14"></div>
+                            <div class="tax-item">CGST 2.5% on 40,600.00 <input class="editable small" value="${t.cgst25}" data-id="${t.id}" data-field="cgst25"></div>
+                            <div class="tax-item">SGST 2.5% on 40,600.00 <input class="editable small" value="${t.sgst25}" data-id="${t.id}" data-field="sgst25"></div>
+                            <div class="tax-item">Round Off <input class="editable small" value="${t.roundoff}" data-id="${t.id}" data-field="roundoff"></div>
+                        </div>
+
+                        <div class="total-row">
+                            Total Rs <input class="editable" value="${t.total}" data-id="${t.id}" data-field="total" style="font-weight:bold; width:120px">
+                        </div>
+
+                        <div class="terms">
+                            <strong>Terms & Conditions :</strong><br>
+                            ${t.terms.map((term, i) => `<input class="editable" value="${term}" data-id="${t.id}" data-term="${i}" style="width:100%; margin:2px 0"><br>`).join('')}
+                        </div>
+
+                        <div class="signature">
+                            <span>For <input class="editable" value="${t.company}" data-id="${t.id}" data-field="company" style="width:150px;"></span>
+                            <span>Authorized Signature</span>
+                        </div>
+
+                        <div class="color-info">
+                            <span class="color-dot" style="background: ${t.bgColor};"></span>
+                            <span>${t.bgColor}</span>
+                            <span class="color-dot" style="background: ${t.accentColor};"></span>
+                            <span>${t.accentColor}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <h3>${t.name} <span style="font-size:12px; color:#666;">(${t.category})</span></h3>
+                        <div class="template-tags">
+                            <span class="tag"><i class="fas fa-tag"></i> ${t.category}</span>
+                            <span class="tag"><i class="fas fa-percent"></i> GST ${t.items[0].tax}</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-preview" onclick="openFullPreview(${t.id})">
+                                <i class="fas fa-eye"></i> Full Preview & Edit
+                            </button>
+                            <button class="btn btn-pdf" onclick="downloadAsPDF(${t.id})">
+                                <i class="fas fa-file-pdf"></i> Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add event listeners to all editable fields
+            document.querySelectorAll('.editable').forEach(input => {
+                input.addEventListener('change', function () {
+                    const id = parseInt(this.dataset.id);
+                    const field = this.dataset.field;
+                    const itemIndex = this.dataset.item;
+                    const termIndex = this.dataset.term;
+
+                    const template = templates.find(t => t.id === id);
+                    if (!template) return;
+
+                    if (itemIndex !== undefined) {
+                        // Update item field
+                        if (template.items[itemIndex]) {
+                            template.items[itemIndex][field] = this.value;
+                        }
+                    } else if (termIndex !== undefined) {
+                        // Update term
+                        template.terms[termIndex] = this.value;
+                    } else {
+                        // Update template field (including company name!)
+                        template[field] = this.value;
+                    }
+
+                    // Update any other fields with same company name (like signature)
+                    if (field === 'company') {
+                        document.querySelectorAll(`[data-id="${id}"][data-field="company"]`).forEach(el => {
+                            if (el !== this) el.value = this.value;
+                        });
+                    }
+                });
+            });
+        }
+
+        // Open full preview in modal
+        window.openFullPreview = function (id) {
+            const t = templates.find(t => t.id === id);
+            if (!t) return;
+
+            currentTemplate = t;
+            modalTitle.textContent = `Editing ${t.name} - Including Company Name`;
+
+            modalBody.innerHTML = `
+                <div class="full-invoice" style="border-left: 5px solid ${t.accentColor};">
+                    <h3 style="margin-bottom: 20px;">Complete Invoice Details - All Fields Editable</h3>
+                    
+                    <div class="edit-grid">
+                        <div class="edit-field-group">
+                            <label>🏢 Company Name</label>
+                            <input class="editable" id="modal_company" value="${t.company}" style="font-size:16px; font-weight:bold;">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>🔖 Company GSTIN</label>
+                            <input class="editable" id="modal_companyGst" value="${t.companyGst}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>📍 Company Address</label>
+                            <input class="editable" id="modal_companyAddress" value="${t.companyAddress}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>📞 Company Phone</label>
+                            <input class="editable" id="modal_companyPhone" value="${t.companyPhone}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>📧 Company Email</label>
+                            <input class="editable" id="modal_companyEmail" value="${t.companyEmail}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>👤 Customer Name</label>
+                            <input class="editable" id="modal_customer" value="${t.customer}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>🔖 Customer GSTIN</label>
+                            <input class="editable" id="modal_customerGst" value="${t.customerGst}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>📍 Customer Address</label>
+                            <input class="editable" id="modal_customerAddress" value="${t.customerAddress}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>💰 Total Amount</label>
+                            <input class="editable" id="modal_total" value="${t.total}">
+                        </div>
+                        <div class="edit-field-group">
+                            <label>📝 Amount in Words</label>
+                            <input class="editable" id="modal_words" value="${t.words}">
+                        </div>
+                    </div>
+                    
+                    <div class="color-picker-group">
+                        <div>
+                            <label>🎨 Background Color</label>
+                            <input type="color" id="modal_bg" value="${t.bgColor}">
+                        </div>
+                        <div>
+                            <label>🎨 Accent Color</label>
+                            <input type="color" id="modal_accent" value="${t.accentColor}">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        };
+
+        // Download as PDF
+        window.downloadAsPDF = function (id) {
+            const t = templates.find(t => t.id === id);
+            if (!t) return;
+
+            // Get the preview element
+            const previewElement = document.getElementById(`preview-${id}`);
+            if (!previewElement) {
+                createAndDownloadPDF(t);
+                return;
+            }
+
+            // Clone the preview with all current values
+            const clone = previewElement.cloneNode(true);
+
+            // Convert inputs to display text for PDF
+            const inputs = clone.querySelectorAll('input');
+            inputs.forEach(input => {
+                const span = document.createElement('span');
+                span.textContent = input.value;
+                span.style.cssText = 'border-bottom: 1px solid #999; padding: 0 2px; min-width: 50px; display: inline-block; margin: 0 2px;';
+                input.parentNode.replaceChild(span, input);
+            });
+
+            // Add print styles
+            const style = document.createElement('style');
+            style.textContent = `
+                body { 
+                    background: white; 
+                    padding: 20px; 
+                    font-family: Arial, sans-serif;
+                }
+                .invoice-preview { 
+                    max-width: 800px; 
+                    margin: 0 auto; 
+                    background: white; 
+                    padding: 20px;
+                }
+                .color-dot { 
+                    display: inline-block; 
+                    width: 20px; 
+                    height: 20px; 
+                    border-radius: 50%; 
+                }
+                .preview-table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                }
+                .preview-table th { 
+                    background: #34495e; 
+                    color: white; 
+                    padding: 8px; 
+                }
+                .preview-table td { 
+                    border: 1px solid #ddd; 
+                    padding: 6px; 
+                }
+                .issued-to { 
+                    background: #f8f9fa; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                }
+                .tax-breakup { 
+                    background: #ecf0f1; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                }
+                .total-row { 
+                    background: #d4e6f1; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                }
+            `;
+            clone.prepend(style);
+
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${t.company} - Invoice</title>
+                        <style>
+                            @media print {
+                                body { 
+                                    print-color-adjust: exact; 
+                                    -webkit-print-color-adjust: exact; 
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>${clone.outerHTML}</body>
+                </html>
+            `);
+
+            printWindow.document.close();
+
+            // Wait for content to load then print
+            printWindow.onload = function () {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            };
+        };
+
+        // Helper to create and download PDF from template data
+        function createAndDownloadPDF(t) {
+            const html = `
+                <div style="padding:20px; font-family:Arial; max-width:800px; margin:0 auto;">
+                    <div style="border-left:5px solid ${t.accentColor}; padding-left:15px;">
+                        <h2>${t.company}</h2>
+                        <p>GSTIN: ${t.companyGst}</p>
+                        <p>${t.companyAddress}</p>
+                        <p>Phone: ${t.companyPhone} | Email: ${t.companyEmail}</p>
+                        
+                        <h3>Issued To: ${t.customer}</h3>
+                        <p>GSTIN: ${t.customerGst}</p>
+                        <p>${t.customerAddress}</p>
+                        
+                        <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+                            <tr style="background:#34495e; color:white;">
+                                <th style="padding:8px;">Item</th>
+                                <th style="padding:8px;">Batch</th>
+                                <th style="padding:8px;">Qty</th>
+                                <th style="padding:8px;">Amount</th>
+                            </tr>
+                            ${t.items.map(item => `
+                                <tr>
+                                    <td style="border:1px solid #ddd; padding:6px;">${item.batch}</td>
+                                    <td style="border:1px solid #ddd; padding:6px;">${item.manufacturer}</td>
+                                    <td style="border:1px solid #ddd; padding:6px;">${item.nos}</td>
+                                    <td style="border:1px solid #ddd; padding:6px;">₹${item.amount}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                        
+                        <p><strong>Total: ₹${t.total}</strong></p>
+                        <p>${t.words}</p>
+                        <hr>
+                        <p>For ${t.company}</p>
+                        <p>Authorized Signature</p>
+                    </div>
+                </div>
+            `;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Download from modal
+        downloadBtn.addEventListener('click', function () {
+            if (!currentTemplate) return;
+
+            const t = currentTemplate;
+
+            // Get all modal values
+            const company = document.getElementById('modal_company')?.value || t.company;
+            const companyGst = document.getElementById('modal_companyGst')?.value || t.companyGst;
+            const companyAddress = document.getElementById('modal_companyAddress')?.value || t.companyAddress;
+            const companyPhone = document.getElementById('modal_companyPhone')?.value || t.companyPhone;
+            const companyEmail = document.getElementById('modal_companyEmail')?.value || t.companyEmail;
+            const customer = document.getElementById('modal_customer')?.value || t.customer;
+            const customerGst = document.getElementById('modal_customerGst')?.value || t.customerGst;
+            const customerAddress = document.getElementById('modal_customerAddress')?.value || t.customerAddress;
+            const total = document.getElementById('modal_total')?.value || t.total;
+            const words = document.getElementById('modal_words')?.value || t.words;
+            const bgColor = document.getElementById('modal_bg')?.value || t.bgColor;
+            const accentColor = document.getElementById('modal_accent')?.value || t.accentColor;
+
+            const html = `
+                <div style="padding:30px; font-family:Arial; background:${bgColor}20;">
+                    <div style="border-left:5px solid ${accentColor}; padding:20px; background:white; max-width:800px; margin:0 auto;">
+                        <h2>${company}</h2>
+                        <p>GSTIN: ${companyGst}</p>
+                        <p>${companyAddress}</p>
+                        <p>📞 ${companyPhone} | ✉️ ${companyEmail}</p>
+                        <hr>
+                        <h3>Customer: ${customer}</h3>
+                        <p>GSTIN: ${customerGst}</p>
+                        <p>${customerAddress}</p>
+                        <hr>
+                        <h2 style="color:${accentColor};">Total Amount: ₹${total}</h2>
+                        <p><em>${words}</em></p>
+                        <hr>
+                        <p>For ${company}</p>
+                        <p>Authorized Signature</p>
+                    </div>
+                </div>
+            `;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.print();
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderTemplates(this.dataset.filter);
+            });
+        });
+
+        // Modal close
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Initial render
+        renderTemplates('all');
+    </script>
+</body>
+
+</html>

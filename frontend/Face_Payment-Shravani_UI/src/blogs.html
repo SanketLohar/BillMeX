@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Pay | Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e8eaed;
+            --dark-gray: #5f6368;
+            --text: #202124;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header & Navigation */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-icon {
+            background: var(--gradient);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(26, 115, 232, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0); }
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+            padding: 5px 0;
+            cursor: pointer;
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--primary);
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        nav a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        nav a.active::after {
+            width: 100%;
+        }
+        
+        /* Dropdown styles */
+        .nav-item {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.2s ease;
+            margin-top: 10px;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .dropdown-menu.active {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--light-gray);
+            cursor: pointer;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .dropdown-item span {
+            flex: 1;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-gray);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--medium-gray);
+            font-size: 1.2rem;
+        }
+        
+        .lang-icon:hover {
+            background: var(--medium-gray);
+            transform: scale(1.05);
+            color: var(--primary-dark);
+        }
+        
+        .lang-dropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.2s ease;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .lang-dropdown.active {
+            display: block;
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+        
+        .lang-option:hover {
+            background: var(--light-gray);
+        }
+        
+        .lang-option.active {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .lang-option i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .lang-option span {
+            flex: 1;
+        }
+        
+        .lang-option .check {
+            color: var(--secondary);
+            font-size: 14px;
+            margin-left: auto;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(26, 115, 232, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.1);
+        }
+        
+        /* ========== BLOG PAGE SPECIFIC STYLES ========== */
+        .blog-hero {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        
+        .blog-hero h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: var(--text);
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .blog-hero p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto;
+            color: var(--dark-gray);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        
+        .blog-section {
+            padding: 60px 0;
+        }
+        
+        /* Search and Filter */
+        .blog-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 50px;
+            padding: 5px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            max-width: 400px;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .search-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .search-box button:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--medium-gray);
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Featured Post */
+        .featured-post {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .featured-image {
+            height: 100%;
+            min-height: 300px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+        
+        .featured-content {
+            padding: 40px;
+        }
+        
+        .featured-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .featured-content h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--dark-gray);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .post-meta i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+        
+        .featured-content p {
+            color: var(--dark-gray);
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        
+        .read-more {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: gap 0.3s;
+        }
+        
+        .read-more:hover {
+            gap: 12px;
+            color: var(--primary-dark);
+        }
+        
+        /* Blog Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border: 1px solid var(--medium-gray);
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .card-image {
+            height: 200px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            position: relative;
+        }
+        
+        .card-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--text);
+            line-height: 1.4;
+        }
+        
+        .card-excerpt {
+            color: var(--dark-gray);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 20px;
+        }
+        
+        .author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            background: var(--light-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 14px;
+        }
+        
+        .author-info {
+            font-size: 13px;
+        }
+        
+        .author-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .post-date {
+            color: var(--dark-gray);
+            font-size: 12px;
+        }
+        
+        /* Newsletter Section */
+        .newsletter-section {
+            background: white;
+            border-radius: 24px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin: 60px 0;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .newsletter-section h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+        
+        .newsletter-section p {
+            color: var(--dark-gray);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 10px;
+        }
+        
+        .newsletter-form input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .newsletter-form input:focus {
+            border-color: var(--primary);
+        }
+        
+        .newsletter-form button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .newsletter-form button:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .page-btn {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--medium-gray);
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .page-btn:hover,
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--text);
+            color: var(--white);
+            padding: 60px 0 30px;
+            margin-top: 60px;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #e8eaed;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .footer-column li:hover {
+            transform: translateX(5px);
+        }
+        
+        .footer-column a {
+            color: #bdc1c6;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column a:hover {
+            color: var(--white);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #3c4043;
+            color: #9aa0a6;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 992px) {
+            .featured-post {
+                grid-template-columns: 1fr;
+            }
+            
+            .blog-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            .blog-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .user-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .blog-hero h1 {
+                font-size: 32px;
+            }
+            
+            .featured-content {
+                padding: 30px;
+            }
+            
+            .featured-content h2 {
+                font-size: 24px;
+            }
+            
+            .newsletter-section {
+                padding: 40px 20px;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+            
+            .newsletter-form button {
+                padding: 15px;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                margin-top: 5px;
+                border: 1px solid var(--medium-gray);
+                width: 100%;
+            }
+            
+            .pagination {
+                gap: 5px;
+            }
+            
+            .page-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-face-smile"></i></div>
+                <span>Face Pay</span>
+            </div>
+            
+            <nav>
+                <ul>
+                     <li><a href="../index.html" id="navPricing">Home</a></li>
+                    
+                    <!-- Resources with Dropdown -->
+                    <li class="nav-item" id="resourcesNav">
+                        <a href="#" id="navResources" class="active">Blogs <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i></a>
+                        <div class="dropdown-menu" id="resourcesDropdown">
+                        
+                            <div class="dropdown-item" id="blogsOption">
+                                <i class="fas fa-blog"></i>
+                                <span>Blogs</span>
+                            </div>
+                        
+                        </div>
+                    </li>
+                    
+                </ul>
+            </nav>
+            
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <h1>Face Pay Blog</h1>
+            <p>Insights, updates, and stories from the world of revenue automation and financial technology</p>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-section">
+        <div class="container">
+            <!-- Search and Filter -->
+            <div class="blog-toolbar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search articles...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="category-filter">
+                    <button class="filter-btn active" data-category="all">All</button>
+                    <button class="filter-btn" data-category="product">Product</button>
+                    <button class="filter-btn" data-category="engineering">Engineering</button>
+                    <button class="filter-btn" data-category="company">Company</button>
+                    <button class="filter-btn" data-category="tutorials">Tutorials</button>
+                </div>
+            </div>
+            
+            <!-- Featured Post -->
+            <div class="featured-post" id="featuredPost">
+                <div class="featured-image">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="featured-content">
+                    <span class="featured-badge">Featured</span>
+                    <h2>Introducing AI-Powered Revenue Forecasting</h2>
+                    <div class="post-meta">
+                        <span><i class="fas fa-user"></i> Sarah Chen</span>
+                        <span><i class="fas fa-calendar"></i> March 5, 2026</span>
+                        <span><i class="fas fa-clock"></i> 6 min read</span>
+                    </div>
+                    <p>Our new machine learning model predicts revenue with 95% accuracy, helping you make better business decisions. Learn how AI is transforming financial planning and analysis for modern enterprises.</p>
+                    <a href="#" class="read-more">Read Full Article <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <!-- Blog Grid - Will be populated by JavaScript -->
+            <div class="blog-grid" id="blogGrid"></div>
+            
+            <!-- Newsletter Section -->
+            <div class="newsletter-section">
+                <h2>Subscribe to Our Newsletter</h2>
+                <p>Get the latest posts, updates, and insights delivered straight to your inbox. No spam, unsubscribe anytime.</p>
+                <div class="newsletter-form">
+                    <input type="email" id="newsletterEmail" placeholder="Enter your email address">
+                    <button id="subscribeBtn">Subscribe</button>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column"><h3>Face Pay</h3><p style="color: #bdc1c6; margin-bottom: 20px;" id="footerDescription">One platform for all your billing and revenue management needs.</p><div style="display: flex; gap: 15px; font-size: 20px;"><a href="#" style="color: #bdc1c6;"><i class="fab fa-twitter"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-linkedin"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-facebook"></i></a><a href="#" style="color: #bdc1c6;"><i class="fab fa-instagram"></i></a></div></div>
+                <div class="footer-column"><h3 id="productsTitle">Products</h3><ul><li><a href="#" id="product1">Billing & Invoicing</a></li><li><a href="#" id="product2">Revenue Recognition</a></li><li><a href="#" id="product3">Subscription Management</a></li><li><a href="#" id="product4">Payment Processing</a></li><li><a href="#" id="product5">Financial Reporting</a></li></ul></div>
+                <div class="footer-column"><h3 id="resourcesTitle">Resources</h3><ul><li><a href="#" id="resource1">Documentation</a></li><li><a href="#" id="resource2">API Reference</a></li><li><a href="#" id="resource3">Help Center</a></li><li><a href="#" class="active" id="resource4">Blog</a></li><li><a href="#" id="resource5">Webinars</a></li></ul></div>
+                <div class="footer-column"><h3 id="companyTitle">Company</h3><ul><li><a href="#" id="company1">About Us</a></li><li><a href="#" id="company2">Careers</a></li><li><a href="#" id="company3">Contact</a></li><li><a href="#" id="company4">Partners</a></li><li><a href="#" id="company5">Legal</a></li></ul></div>
+            </div>
+            <div class="copyright"><p>&copy; 2026 Face Pay. All rights reserved. | <span id="privacyPolicy">Privacy Policy</span> | <span id="termsOfService">Terms of Service</span></p></div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // BLOG DATA - 50+ blog posts across categories
+        // ============================================
+        const blogPosts = [
+            // Product category (12 posts)
+            { id: 1, title: "Introducing AI-Powered Revenue Forecasting", category: "product", author: "Sarah Chen", date: "March 5, 2026", readTime: "6 min", excerpt: "Our new machine learning model predicts revenue with 95% accuracy, helping you make better business decisions.", icon: "fa-chart-line" },
+            { id: 2, title: "New Dashboard Features for Better Insights", category: "product", author: "Alex Rivera", date: "March 2, 2026", readTime: "4 min", excerpt: "Explore the latest updates to your analytics dashboard, including customizable widgets and real-time data visualization.", icon: "fa-chart-pie" },
+            { id: 3, title: "Introducing Mobile Approvals", category: "product", author: "Tom Wilson", date: "February 20, 2026", readTime: "3 min", excerpt: "Approve invoices and payments on the go with our new mobile app. Available now on iOS and Android.", icon: "fa-mobile-alt" },
+            { id: 4, title: "Custom Reporting Made Easy", category: "product", author: "Nina Patel", date: "February 15, 2026", readTime: "5 min", excerpt: "Build custom reports with our new drag-and-drop interface. No coding required.", icon: "fa-file-alt" },
+            { id: 5, title: "API v2: Now with Webhooks", category: "product", author: "James Kim", date: "February 10, 2026", readTime: "7 min", excerpt: "Real-time notifications for your integrations. Learn about our new webhook system.", icon: "fa-code-branch" },
+            { id: 6, title: "Multi-Currency Support Expanded", category: "product", author: "Elena Rodriguez", date: "February 5, 2026", readTime: "4 min", excerpt: "Now supporting 50+ currencies with automatic conversion and settlement.", icon: "fa-coins" },
+            { id: 7, title: "Dashboard Widgets You'll Love", category: "product", author: "Mike Chen", date: "January 28, 2026", readTime: "3 min", excerpt: "Ten new widgets for deeper insights into your revenue data.", icon: "fa-chart-bar" },
+            { id: 8, title: "Automated Invoice Reminders", category: "product", author: "Lisa Wong", date: "January 20, 2026", readTime: "4 min", excerpt: "Reduce late payments with automated email and SMS reminders.", icon: "fa-bell" },
+            { id: 9, title: "New Integration: Salesforce", category: "product", author: "David Park", date: "January 15, 2026", readTime: "5 min", excerpt: "Sync your CRM data seamlessly with our new Salesforce connector.", icon: "fa-cloud" },
+            { id: 10, title: "Recurring Billing Improvements", category: "product", author: "Anna Schmidt", date: "January 8, 2026", readTime: "6 min", excerpt: "More flexibility for subscription plans with proration and mid-cycle changes.", icon: "fa-sync" },
+            { id: 11, title: "Audit Logs Now Available", category: "product", author: "Robert Chen", date: "January 2, 2026", readTime: "3 min", excerpt: "Track every change with detailed audit logs for compliance.", icon: "fa-history" },
+            { id: 12, title: "Customer Portal Enhancements", category: "product", author: "Sophie Martin", date: "December 28, 2025", readTime: "4 min", excerpt: "Give your customers more control with self-service options.", icon: "fa-users" },
+            
+            // Engineering category (10 posts)
+            { id: 13, title: "Scaling to 1 Million Transactions Per Second", category: "engineering", author: "Priya Patel", date: "February 28, 2026", readTime: "8 min", excerpt: "Behind the scenes of our infrastructure upgrades that enable lightning-fast payment processing at any scale.", icon: "fa-server" },
+            { id: 14, title: "How We Achieved SOC2 Type II Certification", category: "engineering", author: "James Kim", date: "February 18, 2026", readTime: "7 min", excerpt: "A deep dive into our security practices and what it took to earn the gold standard in data protection.", icon: "fa-shield-alt" },
+            { id: 15, title: "Microservices at Scale", category: "engineering", author: "Alex Rivera", date: "February 8, 2026", readTime: "9 min", excerpt: "How we architected our system for maximum reliability and developer productivity.", icon: "fa-cubes" },
+            { id: 16, title: "Database Sharding Strategy", category: "engineering", author: "Maria Garcia", date: "January 25, 2026", readTime: "6 min", excerpt: "Handling billions of records with our distributed database approach.", icon: "fa-database" },
+            { id: 17, title: "Zero-Downtime Deployments", category: "engineering", author: "Chris Lee", date: "January 12, 2026", readTime: "5 min", excerpt: "How we deploy 50+ times per day without impacting users.", icon: "fa-rocket" },
+            { id: 18, title: "Monitoring and Observability", category: "engineering", author: "Tom Wilson", date: "December 20, 2025", readTime: "6 min", excerpt: "Our approach to understanding system behavior in production.", icon: "fa-chart-line" },
+            { id: 19, title: "GraphQL at Face Pay", category: "engineering", author: "Sarah Chen", date: "December 10, 2025", readTime: "7 min", excerpt: "Why we chose GraphQL and how it improved developer experience.", icon: "fa-code" },
+            { id: 20, title: "Load Testing Strategies", category: "engineering", author: "Mike Ross", date: "November 28, 2025", readTime: "5 min", excerpt: "How we ensure our systems handle peak traffic during tax season.", icon: "fa-tachometer-alt" },
+            { id: 21, title: "Disaster Recovery Planning", category: "engineering", author: "Anna Smith", date: "November 15, 2025", readTime: "6 min", excerpt: "Our multi-region backup and recovery strategy for business continuity.", icon: "fa-life-ring" },
+            { id: 22, title: "Tech Stack Evolution", category: "engineering", author: "David Chen", date: "November 5, 2025", readTime: "8 min", excerpt: "How our technology choices have evolved over 5 years of growth.", icon: "fa-laptop-code" },
+            
+            // Company category (10 posts)
+            { id: 23, title: "Announcing Our Series B Funding", category: "company", author: "Michael Chang", date: "February 25, 2026", readTime: "5 min", excerpt: "We've raised $50M to accelerate product development and expand our global footprint. Here's what's next.", icon: "fa-handshake" },
+            { id: 24, title: "Welcome to Our New CTO", category: "company", author: "Board of Directors", date: "February 12, 2026", readTime: "3 min", excerpt: "Dr. Sarah Johnson joins Face Pay to lead engineering and product development.", icon: "fa-user-tie" },
+            { id: 25, title: "Face Pay Named in Forbes Fintech 50", category: "company", author: "PR Team", date: "January 30, 2026", readTime: "4 min", excerpt: "Recognition for our innovative approach to revenue automation.", icon: "fa-trophy" },
+            { id: 26, title: "New Office in Singapore", category: "company", author: "Michael Chang", date: "January 18, 2026", readTime: "3 min", excerpt: "Expanding our APAC presence with a new regional headquarters.", icon: "fa-building" },
+            { id: 27, title: "5 Years of Face Pay", category: "company", author: "Founders", date: "January 5, 2026", readTime: "6 min", excerpt: "Celebrating our journey from startup to serving 10,000+ businesses.", icon: "fa-birthday-cake" },
+            { id: 28, title: "Best Places to Work 2026", category: "company", author: "HR Team", date: "December 15, 2025", readTime: "3 min", excerpt: "Ranked among the top tech companies for employee satisfaction.", icon: "fa-medal" },
+            { id: 29, title: "New Partnership with Stripe", category: "company", author: "Partnerships Team", date: "December 5, 2025", readTime: "4 min", excerpt: "Enhanced payment processing capabilities through strategic partnership.", icon: "fa-handshake" },
+            { id: 30, title: "Our Commitment to Sustainability", category: "company", author: "ESG Committee", date: "November 22, 2025", readTime: "5 min", excerpt: "How we're reducing our carbon footprint and promoting green practices.", icon: "fa-leaf" },
+            { id: 31, title: "Diversity & Inclusion Report", category: "company", author: "HR Team", date: "November 10, 2025", readTime: "7 min", excerpt: "Our progress and continued commitment to building an inclusive workplace.", icon: "fa-users" },
+            { id: 32, title: "Customer Milestone: 50,000 Businesses", category: "company", author: "CEO", date: "October 28, 2025", readTime: "4 min", excerpt: "Thank you to our customers for helping us reach this incredible milestone.", icon: "fa-chart-line" },
+            
+            // Tutorials category (10 posts)
+            { id: 33, title: "GST Compliance: A Step-by-Step Guide", category: "tutorials", author: "Divya Sharma", date: "February 22, 2026", readTime: "10 min", excerpt: "Everything you need to know about filing GST returns correctly and on time. Includes checklists and best practices.", icon: "fa-book-open" },
+            { id: 34, title: "Setting Up Your First Invoice", category: "tutorials", author: "Alex Rivera", date: "February 14, 2026", readTime: "5 min", excerpt: "A beginner's guide to creating and sending professional invoices.", icon: "fa-file-invoice" },
+            { id: 35, title: "API Integration Guide", category: "tutorials", author: "James Kim", date: "February 7, 2026", readTime: "8 min", excerpt: "Connect Face Pay with your existing systems using our REST API.", icon: "fa-code" },
+            { id: 36, title: "Revenue Recognition Under ASC 606", category: "tutorials", author: "Sarah Chen", date: "January 27, 2026", readTime: "12 min", excerpt: "Understanding the new revenue recognition standards and how to comply.", icon: "fa-balance-scale" },
+            { id: 37, title: "Setting Up Subscription Billing", category: "tutorials", author: "Tom Wilson", date: "January 19, 2026", readTime: "7 min", excerpt: "Configure recurring billing for SaaS and subscription businesses.", icon: "fa-sync" },
+            { id: 38, title: "Multi-Currency Setup Guide", category: "tutorials", author: "Elena Rodriguez", date: "January 11, 2026", readTime: "6 min", excerpt: "Accept payments in multiple currencies with automatic conversion.", icon: "fa-globe" },
+            { id: 39, title: "Creating Custom Reports", category: "tutorials", author: "Nina Patel", date: "December 18, 2025", readTime: "5 min", excerpt: "Build powerful reports to gain insights into your business.", icon: "fa-chart-bar" },
+            { id: 40, title: "Automating Payment Reminders", category: "tutorials", author: "Lisa Wong", date: "December 8, 2025", readTime: "4 min", excerpt: "Reduce late payments with automated email and SMS sequences.", icon: "fa-bell" },
+            { id: 41, title: "Team Management Best Practices", category: "tutorials", author: "David Park", date: "November 25, 2025", readTime: "5 min", excerpt: "Set up roles and permissions for your team members.", icon: "fa-users-cog" },
+            { id: 42, title: "Exporting Data for Tax Filing", category: "tutorials", author: "Divya Sharma", date: "November 12, 2025", readTime: "6 min", excerpt: "Prepare your financial data for smooth tax filing and audits.", icon: "fa-file-export" },
+            
+            // Additional posts to reach 50+ total
+            { id: 43, title: "Customer Success: How Acme Corp Saved 40 Hours/Month", category: "case-study", author: "Customer Success", date: "October 15, 2025", readTime: "5 min", excerpt: "See how a leading manufacturing company automated their billing process.", icon: "fa-building" },
+            { id: 44, title: "Understanding GST Returns", category: "tutorials", author: "Tax Team", date: "October 5, 2025", readTime: "8 min", excerpt: "A comprehensive guide to GSTR-1, 3B, and 9 filing requirements.", icon: "fa-file-invoice" },
+            { id: 45, title: "Payment Gateway Comparison", category: "product", author: "Alex Rivera", date: "September 28, 2025", readTime: "7 min", excerpt: "Compare Stripe, PayPal, and Razorpay integrations with Face Pay.", icon: "fa-credit-card" },
+            { id: 46, title: "Security Best Practices", category: "engineering", author: "Security Team", date: "September 20, 2025", readTime: "6 min", excerpt: "How we keep your financial data safe and secure.", icon: "fa-lock" },
+            { id: 47, title: "Face Pay vs. Traditional Accounting", category: "product", author: "Michael Chang", date: "September 12, 2025", readTime: "5 min", excerpt: "Why modern businesses are switching to automated revenue platforms.", icon: "fa-chart-line" },
+            { id: 48, title: "Year-End Tax Planning Guide", category: "tutorials", author: "Divya Sharma", date: "September 5, 2025", readTime: "9 min", excerpt: "Get your finances ready for the fiscal year-end.", icon: "fa-calculator" },
+            { id: 49, title: "Meet Our Engineering Team", category: "company", author: "HR Team", date: "August 28, 2025", readTime: "4 min", excerpt: "Get to know the people building Face Pay.", icon: "fa-users" },
+            { id: 50, title: "2026 Product Roadmap", category: "product", author: "Product Team", date: "August 20, 2025", readTime: "6 min", excerpt: "See what's coming in the next year of Face Pay development.", icon: "fa-road" },
+            { id: 51, title: "Handling High-Volume Invoicing", category: "tutorials", author: "Tom Wilson", date: "August 12, 2025", readTime: "5 min", excerpt: "Best practices for businesses processing thousands of invoices monthly.", icon: "fa-file-invoice" },
+            { id: 52, title: "International Expansion Strategy", category: "company", author: "CEO", date: "August 5, 2025", readTime: "7 min", excerpt: "Our plans for global growth and localization.", icon: "fa-globe-asia" }
+        ];
+
+        // ============================================
+        // PAGINATION AND BLOG RENDERING
+        // ============================================
+        const postsPerPage = 10;
+        let currentPage = 1;
+        let currentCategory = 'all';
+        let currentSearchTerm = '';
+
+        const blogGrid = document.getElementById('blogGrid');
+        const paginationDiv = document.getElementById('pagination');
+
+        // Filter posts based on category and search
+        function getFilteredPosts() {
+            return blogPosts.filter(post => {
+                const categoryMatch = currentCategory === 'all' || post.category === currentCategory;
+                const searchMatch = currentSearchTerm === '' || 
+                    post.title.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                    post.excerpt.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                    post.author.toLowerCase().includes(currentSearchTerm.toLowerCase());
+                return categoryMatch && searchMatch;
+            });
+        }
+
+        // Render blog posts for current page
+        function renderBlogPosts() {
+            const filteredPosts = getFilteredPosts();
+            const totalPosts = filteredPosts.length;
+            const totalPages = Math.ceil(totalPosts / postsPerPage);
+            
+            // Adjust current page if out of bounds
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            if (currentPage < 1) currentPage = 1;
+            
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = Math.min(startIndex + postsPerPage, totalPosts);
+            const currentPosts = filteredPosts.slice(startIndex, endIndex);
+            
+            // Generate HTML for blog cards
+            let blogHTML = '';
+            currentPosts.forEach(post => {
+                blogHTML += `
+                    <div class="blog-card" data-category="${post.category}">
+                        <div class="card-image">
+                            <i class="fas ${post.icon}"></i>
+                            <span class="card-category">${post.category.charAt(0).toUpperCase() + post.category.slice(1)}</span>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">${post.title}</h3>
+                            <p class="card-excerpt">${post.excerpt}</p>
+                            <div class="card-footer">
+                                <div class="author">
+                                    <div class="author-avatar"><i class="fas fa-user"></i></div>
+                                    <div class="author-info">
+                                        <div class="author-name">${post.author}</div>
+                                        <div class="post-date">${post.date} · ${post.readTime}</div>
+                                    </div>
+                                </div>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // If no posts found
+            if (currentPosts.length === 0) {
+                blogHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 20px;"><i class="fas fa-search" style="font-size: 48px; color: var(--medium-gray); margin-bottom: 20px;"></i><h3>No posts found</h3><p>Try adjusting your search or filter.</p></div>';
+            }
+            
+            blogGrid.innerHTML = blogHTML;
+            
+            // Render pagination
+            renderPagination(totalPages);
+        }
+
+        // Render pagination buttons
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `<button class="page-btn" data-page="prev" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            
+            // Page numbers
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            
+            if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+            
+            // Next button
+            paginationHTML += `<button class="page-btn" data-page="next" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+            
+            paginationDiv.innerHTML = paginationHTML;
+            
+            // Add event listeners to pagination buttons
+            document.querySelectorAll('.page-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = btn.dataset.page;
+                    
+                    if (page === 'prev' && currentPage > 1) {
+                        currentPage--;
+                    } else if (page === 'next' && currentPage < totalPages) {
+                        currentPage++;
+                    } else if (!isNaN(page)) {
+                        currentPage = parseInt(page);
+                    }
+                    
+                    renderBlogPosts();
+                    window.scrollTo({ top: document.querySelector('.blog-grid').offsetTop - 100, behavior: 'smooth' });
+                });
+            });
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        // Category filter
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                currentCategory = btn.dataset.category;
+                currentPage = 1;
+                renderBlogPosts();
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        function performSearch() {
+            currentSearchTerm = searchInput.value.trim();
+            currentPage = 1;
+            renderBlogPosts();
+        }
+        
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        // Newsletter subscription
+        document.getElementById('subscribeBtn').addEventListener('click', () => {
+            const email = document.getElementById('newsletterEmail').value.trim();
+            if (email && email.includes('@') && email.includes('.')) {
+                alert(`Thank you for subscribing! Check your inbox (${email}) for confirmation.`);
+                document.getElementById('newsletterEmail').value = '';
+            } else {
+                alert('Please enter a valid email address.');
+            }
+        });
+
+        // Read more links (delegation)
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.read-more')) {
+                e.preventDefault();
+                const card = e.target.closest('.blog-card, .featured-post');
+                const title = card ? card.querySelector('h2, h3').textContent : 'article';
+                alert(`Opening article: "${title}" (Demo)`);
+            }
+        });
+
+        // Language selector
+        const langIcon = document.getElementById('langIcon');
+        const langDropdown = document.getElementById('langDropdown');
+        const langOptions = document.querySelectorAll('.lang-option');
+
+        langIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!langIcon.contains(e.target) && !langDropdown.contains(e.target)) {
+                langDropdown.classList.remove('active');
+            }
+        });
+
+        langOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                langOptions.forEach(o => {
+                    o.classList.remove('active');
+                    const check = o.querySelector('.check');
+                    if (check) check.remove();
+                });
+                option.classList.add('active');
+                if (!option.querySelector('.check')) {
+                    option.innerHTML += '<i class="fas fa-check check"></i>';
+                }
+                langDropdown.classList.remove('active');
+                alert(`Language changed to ${option.dataset.lang} (Demo)`);
+            });
+        });
+
+        // Dropdown menu
+        const resourcesNav = document.getElementById('resourcesNav');
+        const resourcesDropdown = document.getElementById('resourcesDropdown');
+        
+        resourcesNav.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resourcesDropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!resourcesNav.contains(e.target)) {
+                resourcesDropdown.classList.remove('active');
+            }
+        });
+        
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const option = item.querySelector('span').textContent;
+                alert(`Navigating to: ${option} (Demo)`);
+                resourcesDropdown.classList.remove('active');
+            });
+        });
+
+        // Get Started button
+        document.getElementById('getStartedBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Welcome! Choose a plan or contact sales to get started.');
+        });
+
+        // Initial render
+        renderBlogPosts();
+    </script>
+</body>
+</html>

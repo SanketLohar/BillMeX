@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillMe — Secure Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/global.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    <!-- <script src="src/translations.js" defer></script> -->
+    <script src="src/i18n.js" defer></script>
+    <style>
+        body { background: var(--bg); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .pay-card { max-width: 500px; width: 100%; animation: slideUp 0.4s ease-out; }
+        .pay-header { background: var(--gradient); color: white; padding: 30px; border-radius: 16px 16px 0 0; text-align: center; }
+        .pay-header i { font-size: 32px; margin-bottom: 10px; }
+        .pay-body { background: #fff; padding: 30px; border-radius: 0 0 16px 16px; border: 1px solid var(--border); border-top: none; }
+        
+        .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bg); font-size: 14px; }
+        .item-row:last-child { border-bottom: none; }
+        
+        .total-box { background: var(--bg); padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary); }
+        .total-row.grand { font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--border); }
+
+        #cameraSection { display: none; margin-top: 20px; text-align: center; border: 2px dashed var(--primary); border-radius: 12px; padding: 20px; background: var(--primary-light); }
+        #video { width: 100%; max-width: 320px; border-radius: 8px; margin-bottom: 15px; background: #000; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="pay-card" id="mainCard">
+    <div class="pay-header">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:-20px;">
+             <!-- Language Switcher -->
+             <div class="language-dropdown-container">
+                <div class="language-switcher" onclick="toggleLangDropdown()" style="background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.3); color:white;">
+                    <i class="fas fa-globe"></i>
+                    <span id="current-lang">EN</span>
+                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                </div>
+                <div class="language-dropdown" id="lang-menu" style="color:var(--text-primary);">
+                    <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                    <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                    <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                </div>
+            </div>
+        </div>
+        <i class="fas fa-bolt"></i>
+        <h2 data-i18n="branding_name">BillMe Secure Pay</h2>
+        <p id="invoice-label" style="opacity:0.8; font-size:14px;">Loading invoice details...</p>
+    </div>
+    
+    <div class="pay-body">
+        <div id="loader" class="text-center py-4">
+            <div class="spinner mb-2"></div>
+            <p class="text-muted">Fetching invoice data...</p>
+        </div>
+
+        <div id="payment-content" style="display:none;">
+            <div class="mb-3">
+                <h3 id="merchant-name" style="margin-bottom:4px;">Merchant Name</h3>
+                <p id="merchant-gst" class="text-muted" style="font-size:12px;">GSTIN: --</p>
+            </div>
+
+            <div id="items-list" class="mb-3">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="total-box">
+                <div class="total-row"><span data-i18n="dash_products">Subtotal</span><span id="sub-total">₹0.00</span></div>
+                <div class="total-row"><span data-i18n="sol_c6_f2">Platform Fee</span><span id="platform-fee">₹0.00</span></div>
+                <div class="total-row tax-row" id="cgst-container"><span>CGST</span><span id="cgst-total">₹0.00</span></div>
+                <div class="total-row tax-row" id="sgst-container"><span>SGST</span><span id="sgst-total">₹0.00</span></div>
+                <div class="total-row grand"><span data-i18n="gst_res_total">Total Payable</span><span id="grand-total">₹0.00</span></div>
+            </div>
+
+            <div id="action-area">
+                <p class="text-center text-muted mb-3" style="font-size:13px; font-weight:500;">CHOOSE PAYMENT METHOD</p>
+                <div class="grid-2">
+                    <button class="btn btn-primary" id="btn-facepay">
+                        <i class="fas fa-camera"></i> FacePay
+                    </button>
+                    <button class="btn btn-secondary" id="btn-upi">
+                        <i class="fas fa-qrcode"></i> UPI / Card
+                    </button>
+                </div>
+            </div>
+
+            <div id="cameraSection">
+                <p class="mb-2" style="font-weight:600; color:var(--primary);">FacePay Verification</p>
+                <video id="video" autoplay muted></video>
+                <button class="btn btn-primary w-100" id="btn-verify">
+                    <i class="fas fa-fingerprint"></i> Verify & Pay
+                </button>
+            </div>
+        </div>
+
+        <div id="success-area" class="text-center py-4" style="display:none;">
+            <i class="fas fa-check-circle text-success" style="font-size:64px; margin-bottom:20px;"></i>
+            <h2>Payment Successful!</h2>
+            <p class="text-muted mb-4">Your transaction has been completed securely.</p>
+            <button class="btn btn-primary" onclick="handlePostPaymentRedirect()">Go to Dashboard</button>
+        </div>
+    </div>
+</div>
+
+<script src="src/api.js"></script>
+<script>
+    // Note: I'll move the updated logic to pay-invoice.js but keep the essential UI refs here consistent.
+</script>
+<script src="pay-invoice.js"></script>
+</body>
+</html>
