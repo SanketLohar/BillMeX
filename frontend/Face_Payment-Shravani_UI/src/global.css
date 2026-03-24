@@ -1063,3 +1063,59 @@ img, svg, video {
     font-weight: 700;
     cursor: pointer;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE FIX (MINIMAL SAFE LAYER)
+   Appended: 2026-03-24
+   ============================================================ */
+@media (max-width: 768px) {
+    /* 1. Refined Spacing for Mobile Readability */
+    .page-area {
+        padding: 16px !important;
+    }
+
+    .card, 
+    .stat-card {
+        padding: 16px !important;
+    }
+
+    /* 2. Grid Gap Adjustment (More compact on mobile) */
+    .grid-2, .grid-3, .grid-4 {
+        gap: 16px !important;
+    }
+}
+
+/* ============================================================
+   DASHBOARD FULL-WIDTH FIX (SCOPED)
+   Restores full width for dashboards only
+   ============================================================ */
+.dashboard-page .dash-layout {
+    max-width: none;
+    width: 100%;
+}
+.dashboard-page .main-content {
+    max-width: none;
+    margin-left: 260px;
+    width: calc(100% - 260px);
+}
+@media (max-width: 768px) {
+    .dashboard-page .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   CHART RESPONSIVENESS FIX
+   Prevents charts from breaking layouts and handles sizing
+   ============================================================ */
+.chart-container {
+    width: 100%;
+    position: relative;
+    min-height: 250px;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}

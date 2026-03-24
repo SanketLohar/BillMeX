@@ -168,43 +168,44 @@ async function loadDashboard() {
 }
 
 function processDashboardData(transactions, revenueList) {
-    const volumeByDate = {};
-    const methods = { 'FACE_PAY': 0, 'UPI': 0, 'INVOICE': 0 };
+    console.log("Chart API Response (Transactions):", transactions);
+    console.log("Chart API Response (Revenue):", revenueList);
 
-    const revLabels = (revenueList || []).map(r => r.date);
-    const revValues = (revenueList || []).map(r => r.amount);
+    const volumeByDate = {};
+    const methods = {};
+
+    const revLabels = [];
+    const revValues = [];
+
+    (revenueList || []).filter(r => r.amount != null).forEach(r => {
+        if (r.date) {
+            revLabels.push(r.date);
+            revValues.push(Number(r.amount));
+        }
+    });
 
     (transactions || []).forEach(tx => {
-        // 1. Safe Date Parsing (Backward compatible: timestamp -> createdAt)
-        const rawDate = tx.timestamp || tx.createdAt;
-        let dateKey = null;
-
-        if (rawDate && rawDate !== 'N/A') {
-            const d = new Date(rawDate);
-            if (!isNaN(d.getTime())) {
-                dateKey = d.toISOString().split('T')[0];
-            }
+        const timeVal = tx.timestamp || tx.createdAt;
+        if (timeVal) {
+            const date = new Date(timeVal).toISOString().split('T')[0];
+            volumeByDate[date] = (volumeByDate[date] || 0) + 1;
         }
 
-        if (dateKey) {
-            volumeByDate[dateKey] = (volumeByDate[dateKey] || 0) + 1;
-        }
-
-        // 2. Safe Method Normalization (Backward compatible: mechanism -> transactionType)
-        const rawMethod = tx.mechanism || tx.transactionType || 'OTHER';
-        
-        // Normalize backend enums to frontend chart keys
-        let method = rawMethod;
-        if (rawMethod === 'UPI_PAY') method = 'UPI';
-        else if (rawMethod === 'INVOICE_PAYMENT') method = 'INVOICE';
-        
-        if (methods.hasOwnProperty(method)) {
-            methods[method]++;
+        const method = tx.method || tx.transactionType || tx.mechanism;
+        if (method) {
+            // Count all valid payment methods dynamically
+            methods[method] = (methods[method] || 0) + 1;
         }
     });
 
     const volLabels = Object.keys(volumeByDate).sort();
     const volValues = volLabels.map(d => volumeByDate[d]);
+
+    console.log("Processed Labels (Daily Volume):", volLabels);
+    console.log("Processed Values (Daily Volume):", volValues);
+    console.log("Processed Payment Methods:", methods);
+    console.log("Processed Labels (Revenue):", revLabels);
+    console.log("Processed Values (Revenue):", revValues);
 
     return {
         revenueTrend: { labels: revLabels, values: revValues },
@@ -222,10 +223,10 @@ function renderRevenueTrend(data) {
     window.revenueChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.labels.length ? data.labels : ['No Data'],
+            labels: data.labels,
             datasets: [{
                 label: 'Revenue (₹)',
-                data: data.values.length ? data.values : [0],
+                data: data.values,
                 borderColor: '#6366f1',
                 backgroundColor: 'rgba(99, 102, 241, 0.1)',
                 borderWidth: 3,
@@ -285,10 +286,10 @@ function renderTransactionVolume(data) {
     window.volChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: data.labels.length ? data.labels : ['No Data'],
+            labels: data.labels,
             datasets: [{
                 label: 'Transactions',
-                data: data.values.length ? data.values : [0],
+                data: data.values,
                 backgroundColor: '#cbd5e1',
                 hoverBackgroundColor: '#6366f1',
                 borderRadius: 6
@@ -315,17 +316,7 @@ function renderActivity(transactions) {
         return;
     }
 
-    body.innerHTML = transactions.map(t => {
-        // Safe Date Parsing
-        let dateStr = 'Recently';
-        if (t.timestamp && t.timestamp !== 'N/A') {
-            const d = new Date(t.timestamp);
-            if (!isNaN(d.getTime())) {
-                dateStr = d.toLocaleString();
-            }
-        }
-
-        return `
+    body.innerHTML = transactions.map(t => `
         <tr>
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -340,9 +331,9 @@ function renderActivity(transactions) {
             </td>
             <td>Action: <span class="badge badge-info">${t.mechanism || 'SYSTEM'}</span></td>
             <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'warning'}">${t.status || 'UNKNOWN'}</span></td>
-            <td style="color:var(--text-muted); font-size:12px;">${dateStr}</td>
+            <td style="color:var(--text-muted); font-size:12px;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : 'N/A'}</td>
         </tr>
-    `}).join('');
+    `).join('');
 }
 
 /* ===========================================================
@@ -404,24 +395,14 @@ function renderTransactions(transactions) {
         return;
     }
 
-    body.innerHTML = filtered.map(t => {
-        // Safe Date Parsing
-        let dateStr = 'N/A';
-        if (t.timestamp && t.timestamp !== 'N/A') {
-            const d = new Date(t.timestamp);
-            if (!isNaN(d.getTime())) {
-                dateStr = d.toLocaleString();
-            }
-        }
-
-        return `
+    body.innerHTML = filtered.map(t => `
         <tr>
             <td><code style="font-size:12px; font-weight:700;">#${t.id || t.transactionId}</code></td>
             <td><div style="font-weight:700; color:var(--primary);">₹${(t.amount || 0).toLocaleString()}</div></td>
             <td>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <i class="fas ${t.method === 'CARD' ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
-                    ${t.method || t.mechanism || 'UPI'}
+                    ${t.method || 'UPI'}
                 </div>
             </td>
             <td>
@@ -433,9 +414,9 @@ function renderTransactions(transactions) {
                 <div style="font-size:11px; color:var(--text-muted);">${t.customerEmail || ''}</div>
             </td>
             <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'warning'}">${t.status || 'UNKNOWN'}</span></td>
-            <td style="color:var(--text-muted); font-size:12px;">${dateStr}</td>
+            <td style="color:var(--text-muted); font-size:12px;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : 'N/A'}</td>
         </tr>
-    `}).join('');
+    `).join('');
 }
 
 /* ===========================================================

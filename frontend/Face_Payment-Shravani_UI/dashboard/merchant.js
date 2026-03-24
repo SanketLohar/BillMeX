@@ -964,12 +964,11 @@ function bindSidebarToggle() {
 }
 
 function bindMisc() {
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        if (window.Auth && window.Auth.logout) {
-            window.Auth.logout();
-        } else {
-            window.API.auth.logout();
-        }
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        const rt = localStorage.getItem('billme_refresh');
+        if (rt) API.auth.logout(rt).catch(() => { });
+        clearAuth();
+        window.location.href = '../index.html';
     });
     document.getElementById('refreshBtn')?.addEventListener('click', () => {
         loadDashboard();
