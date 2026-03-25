@@ -48,4 +48,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
        AND i.refundWindowExpiry > CURRENT_TIMESTAMP
        """)
     BigDecimal sumLockedAmount();
+
+    Optional<Invoice> findByInvoiceNumberAndPaymentToken(String invoiceNumber, String paymentToken);
 }

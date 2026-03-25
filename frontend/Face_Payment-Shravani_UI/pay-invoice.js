@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
-    const invoiceNumber = params.get('invoiceNumber') || params.get('num');
+    const invoiceNumber =
+        params.get('invoiceId') ||
+        params.get('invoiceNumber') ||
+        params.get('num');
     const tokenParam = params.get('token');
+
+    console.log("URL:", window.location.href);
+    console.log("invoiceNumber:", invoiceNumber);
+    console.log("token:", tokenParam);
 
     const loader = document.getElementById('loader');
     const content = document.getElementById('payment-content');
@@ -52,12 +59,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         grandTotalElem.innerText = `₹${(invoice.totalPayable || 0).toFixed(2)}`;
 
         loader.style.display = 'none';
-        
+
         if (invoice.status === 'PAID') {
             showSuccess();
             return;
         }
-        
+
         content.style.display = 'block';
 
     } catch (err) {
@@ -97,6 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!detection) throw new Error("No face detected");
 
+
             const BASE_URL = "http://localhost:8080";
             const token = localStorage.getItem("billme_token");
 
@@ -116,14 +124,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             console.log("🚀 PAYLOAD:", payload);
 
-            const res = await fetch(`${BASE_URL}/customer/invoices/${currentInvoice.id}/pay/face`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: payload
-            });
+            const res = await fetch(`${BASE_URL}/public/pay/face`, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        invoiceNumber: invoiceNumber,
+        token: tokenParam,
+        embedding: embedding
+    })
+});
 
             if (!res.ok) {
                 const errText = await res.text();
@@ -144,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btn-upi')?.addEventListener('click', async () => {
         try {
             const BASE_URL = "http://localhost:8080";
-            
+
             // 1. Create Razorpay Order
             const token = localStorage.getItem("billme_token");
             const orderRes = await fetch(`${BASE_URL}/api/payments/create-order/${currentInvoice.id}`, {
@@ -153,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "Authorization": token ? `Bearer ${token}` : ""
                 }
             });
-            
+
             if (!orderRes.ok) {
                 const errText = await orderRes.text();
                 const errJson = errText.startsWith('{') ? JSON.parse(errText) : null;

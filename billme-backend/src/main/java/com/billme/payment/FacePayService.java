@@ -27,15 +27,14 @@ public class FacePayService {
     private final CustomerProfileRepository customerProfileRepository;
     private final PaymentSettlementService settlementService;
 
-    private static final double FACE_MATCH_THRESHOLD = 0.80;
+    // 🔥 UPDATED THRESHOLD (STRICTER)
+    private static final double FACE_MATCH_THRESHOLD = 0.97;
 
     @Transactional
     public String payInvoice(Long invoiceId, Object paymentEmbedding) {
 
-        // 🔥 Convert ANY format → double[]
         double[] embedding = FaceRecognitionUtil.parseEmbedding(paymentEmbedding);
 
-        // 🔥 Strict validation AFTER parsing
         if (embedding.length != 128) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid embedding size. Expected 128, got " + embedding.length);
@@ -55,13 +54,15 @@ public class FacePayService {
                 .findByUser_Id(customer.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer profile not found"));
 
-        boolean match = FaceRecognitionUtil.isMatch(
+        // 🔥 IMPORTANT: log similarity for debugging
+        double similarity = FaceRecognitionUtil.calculateSimilarity(
                 profile.getFaceEmbeddings(),
-                embedding,
-                FACE_MATCH_THRESHOLD
+                embedding
         );
 
-        if (!match) {
+        System.out.println("🔍 FACE SIMILARITY: " + similarity);
+
+        if (similarity < FACE_MATCH_THRESHOLD) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Face verification failed");
         }
 
@@ -77,5 +78,64 @@ public class FacePayService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+
+    @Transactional
+    public String payInvoicePublic(FacePayRequest request) {
+
+        double[] embedding = FaceRecognitionUtil.parseEmbedding(request.getEmbedding());
+
+        if (embedding.length != 128) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid embedding size");
+        }
+
+        // 🔥 Fetch invoice using secure token
+        Invoice invoice = invoiceRepository
+                .findByInvoiceNumberAndPaymentToken(
+                        request.getInvoiceNumber(),
+                        request.getToken()
+                )
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid payment link"
+                ));
+
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already paid");
+        }
+
+        User customer = invoice.getCustomer().getUser();
+
+        CustomerProfile profile = customerProfileRepository
+                .findByUser_Id(customer.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Profile not found"
+                ));
+
+        double similarity = FaceRecognitionUtil.calculateSimilarity(
+                profile.getFaceEmbeddings(),
+                embedding
+        );
+
+        System.out.println("🔍 FACE SIMILARITY: " + similarity);
+
+        if (similarity < FACE_MATCH_THRESHOLD) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Face verification failed"
+            );
+        }
+
+        invoice.setPaymentMethod(PaymentMethod.FACE_PAY);
+        invoiceRepository.save(invoice);
+
+        settlementService.settlePayment(
+                invoice.getId(),
+                "FACEPAY-" + UUID.randomUUID()
+        );
+
+        return "FacePay successful";
     }
 }

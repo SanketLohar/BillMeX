@@ -91,4 +91,21 @@ public class FaceRecognitionUtil {
 
         return similarity >= threshold;
     }
+
+    public static double calculateSimilarity(String storedEmbeddingJson, double[] incoming) {
+
+        double[] stored = parseEmbedding(storedEmbeddingJson);
+
+        double dot = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+
+        for (int i = 0; i < stored.length; i++) {
+            dot += stored[i] * incoming[i];
+            normA += stored[i] * stored[i];
+            normB += incoming[i] * incoming[i];
+        }
+
+        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
 }

@@ -58,7 +58,7 @@ public class InvoiceEmailService {
 
             // ✅ Secure Pay Now link
             String payLink = frontendUrl
-                    + "/pay-invoice.html?num="
+                    + "/pay-invoice.html?invoiceId="
                     + invoice.getInvoiceNumber()
                     + "&token="
                     + invoice.getPaymentToken();
