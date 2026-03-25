@@ -43,7 +43,7 @@ public class AdminService {
             Map<String, Object> map = new HashMap<>();
             map.put("id", t.getId() != null ? t.getId() : 0);
             map.put("amount", t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO);
-            map.put("mechanism", t.getTransactionType() != null ? t.getTransactionType() : "N/A");
+            map.put("transactionType", t.getTransactionType() != null ? t.getTransactionType().name() : "UNKNOWN");
             map.put("status", t.getStatus() != null ? t.getStatus() : "UNKNOWN");
             map.put("timestamp", t.getCreatedAt() != null ? t.getCreatedAt().toString() : "N/A");
             

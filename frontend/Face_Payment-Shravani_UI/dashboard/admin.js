@@ -191,8 +191,8 @@ function processDashboardData(transactions, revenueList) {
             volumeByDate[date] = (volumeByDate[date] || 0) + 1;
         }
 
-        const method = tx.method || tx.transactionType || tx.mechanism;
-        if (method) {
+        const method = tx.transactionType;
+        if (method && method !== 'UNKNOWN') {
             // Count all valid payment methods dynamically
             methods[method] = (methods[method] || 0) + 1;
         }
@@ -329,7 +329,7 @@ function renderActivity(transactions) {
                     </div>
                 </div>
             </td>
-            <td>Action: <span class="badge badge-info">${t.mechanism || 'SYSTEM'}</span></td>
+            <td>Action: <span class="badge badge-info">${t.transactionType || 'SYSTEM'}</span></td>
             <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'warning'}">${t.status || 'UNKNOWN'}</span></td>
             <td style="color:var(--text-muted); font-size:12px;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : 'N/A'}</td>
         </tr>
@@ -401,8 +401,8 @@ function renderTransactions(transactions) {
             <td><div style="font-weight:700; color:var(--primary);">₹${(t.amount || 0).toLocaleString()}</div></td>
             <td>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas ${(t.mechanism === 'CARD' || t.transactionType === 'CARD') ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
-                    ${t.mechanism && t.mechanism !== 'N/A' ? t.mechanism : (t.transactionType || 'UNKNOWN')}
+                    <i class="fas ${t.transactionType === 'CARD' ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
+                    ${t.transactionType && t.transactionType !== 'UNKNOWN' ? t.transactionType : 'UNKNOWN'}
                 </div>
             </td>
             <td>

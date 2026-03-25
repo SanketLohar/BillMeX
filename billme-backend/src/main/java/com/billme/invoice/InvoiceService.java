@@ -491,10 +491,40 @@ public class InvoiceService {
         paymentSettlementService.settlePayment(invoiceId, "FACEPAY-" + invoice.getInvoiceNumber());
     }
     @Transactional
-    public String createRazorpayOrder(Long invoiceId) {
+    public String createRazorpayOrder(Long invoiceId, String token) {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found"));
+
+        // Validate Token or Ownership
+        boolean isAuthorized = false;
+        if (token != null && !token.isBlank()) {
+            if (invoice.getPaymentToken().equals(token)) {
+                isAuthorized = true;
+                // Token Expiry Check
+                if (invoice.getDueDate() != null && LocalDateTime.now().isAfter(invoice.getDueDate().atTime(23, 59))) {
+                    log.warn("❌ [TOKEN EXPIRED] Payment token expired for Invoice {}", invoice.getInvoiceNumber());
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment link has expired");
+                }
+            }
+        }
+        
+        if (!isAuthorized) {
+            try {
+                User user = getLoggedInUser();
+                if (invoice.getCustomer() != null && invoice.getCustomer().getUser() != null 
+                    && invoice.getCustomer().getUser().getId().equals(user.getId())) {
+                    isAuthorized = true;
+                }
+            } catch (Exception e) {
+                // Not authenticated
+            }
+        }
+
+        if (!isAuthorized) {
+            log.warn("🚨 [UNAUTHORIZED] Invalid token access attempt for Invoice {}", invoice.getInvoiceNumber());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid payment token or unauthorized");
+        }
 
         // ❌ BLOCK if already paid
         if (invoice.getStatus() == InvoiceStatus.PAID) {
@@ -575,7 +605,7 @@ public class InvoiceService {
         log.info("✅ [RESET SUCCESS] paymentInProgress set to FALSE for Invoice: {}", invoice.getInvoiceNumber());
 
         // 3. Create fresh order
-        return createRazorpayOrder(invoiceId);
+        return createRazorpayOrder(invoiceId, null);
     }
 
     @Transactional(readOnly = true)
@@ -585,7 +615,16 @@ public class InvoiceService {
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
         if (!invoice.getPaymentToken().equals(token)) {
+            log.warn("🚨 [UNAUTHORIZED] Invalid token access attempt for public invoice {}", invoiceNumber);
             throw new RuntimeException("Invalid payment token");
+        }
+
+        // Only enforce expiry logic for public fetching if it's UNPAID/PENDING.
+        // Once PAID, we allow customers to view the receipt even after due date.
+        if (invoice.getStatus() != InvoiceStatus.PAID && invoice.getDueDate() != null 
+            && LocalDateTime.now().isAfter(invoice.getDueDate().atTime(23, 59))) {
+            log.warn("❌ [TOKEN EXPIRED] Public invoice link expired for Invoice {}", invoiceNumber);
+            throw new RuntimeException("Payment link has expired");
         }
 
         MerchantProfile merchant = invoice.getMerchant();
@@ -643,6 +682,6 @@ public class InvoiceService {
         // 🔥 Centralized Settlement Logic
         paymentSettlementService.settlePayment(invoice.getId(), request.getRazorpay_payment_id());
 
-        log.info("✅ [UPI SETTLED] Invoice: {} verified via Razorpay.", invoice.getInvoiceNumber());
+        log.info("✅ [PAYMENT VERIFIED & SETTLED] Invoice: {} verified via Razorpay.", invoice.getInvoiceNumber());
     }
 }

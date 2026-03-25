@@ -151,11 +151,23 @@
                 console.warn("Token exists but no role found in localStorage");
             }
 
-            const prefix = path.includes('/src/') ? '../' : '';
+            // Dynamically resolve absolute base URI
+            let rootPath = path;
+            if (path.includes('/dashboard/')) {
+                rootPath = path.substring(0, path.indexOf('/dashboard/') + 1);
+            } else if (path.includes('/src/')) {
+                rootPath = path.substring(0, path.indexOf('/src/') + 1);
+            } else if (path.includes('/payment/')) {
+                rootPath = path.substring(0, path.indexOf('/payment/') + 1);
+            } else {
+                rootPath = path.substring(0, path.lastIndexOf('/') + 1);
+            }
+            const baseUri = window.location.origin + rootPath;
+
             const dashboards = {
-                admin: prefix + 'dashboard/Admin.html',
-                merchant: prefix + 'dashboard/merchant.html',
-                customer: prefix + 'dashboard/customer.html'
+                admin: baseUri + 'dashboard/Admin.html',
+                merchant: baseUri + 'dashboard/merchant.html',
+                customer: baseUri + 'dashboard/customer.html'
             };
 
             const target = dashboards[role];

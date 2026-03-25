@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 1. Create Razorpay Order
             const token = localStorage.getItem("billme_token");
-            const orderRes = await fetch(`${BASE_URL}/api/payments/create-order/${currentInvoice.id}`, {
+            const orderRes = await fetch(`${BASE_URL}/api/payments/create-order/${currentInvoice.id}?token=${tokenParam || ''}`, {
                 method: "POST",
                 headers: {
                     "Authorization": token ? `Bearer ${token}` : ""
@@ -227,18 +227,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================
 
     function showSuccess() {
-        content.style.display = 'none';
-        successArea.style.display = 'block';
-
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
         }
 
-        showToast('Payment successful!', 'success');
-
-        setTimeout(() => {
-            window.location.href = "dashboard/customer.html";
-        }, 3000);
+        // Navigate to dedicated success page for validation, idempotency, and smart redirect
+        window.location.href = `payment/success.html?invoiceId=${invoiceNumber}&token=${tokenParam || ''}`;
     }
 
     function esc(str) {

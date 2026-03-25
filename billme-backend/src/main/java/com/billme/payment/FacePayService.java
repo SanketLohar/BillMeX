@@ -98,11 +98,20 @@ public class FacePayService {
                         request.getInvoiceNumber(),
                         request.getToken()
                 )
-                .orElseThrow(() -> new ResponseStatusException(
+                .orElseThrow(() -> {
+                    System.out.println("🚨 [UNAUTHORIZED] Invalid token access attempt for FacePay public invoice.");
+                    return new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Invalid payment link"
-                ));
+                    );
+                });
+
+        if (invoice.getDueDate() != null && java.time.LocalDateTime.now().isAfter(invoice.getDueDate().atTime(23, 59))) {
+            System.out.println("❌ [TOKEN EXPIRED] FacePay link expired for Invoice " + invoice.getInvoiceNumber());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment link has expired");
+        }
 
         if (invoice.getStatus() == InvoiceStatus.PAID) {
+            System.out.println("⚠️ [IDEMPOTENCY] Invoice " + invoice.getInvoiceNumber() + " already paid. Skipping FacePay.");
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already paid");
         }
 

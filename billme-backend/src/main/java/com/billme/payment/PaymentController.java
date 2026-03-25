@@ -14,9 +14,10 @@ public class PaymentController {
 
     @PostMapping("/create-order/{invoiceId}")
     public ResponseEntity<String> createOrder(
-            @PathVariable Long invoiceId) {
+            @PathVariable Long invoiceId,
+            @RequestParam(required = false) String token) {
 
-        String orderId = invoiceService.createRazorpayOrder(invoiceId);
+        String orderId = invoiceService.createRazorpayOrder(invoiceId, token);
 
         return ResponseEntity.ok(orderId);
     }
