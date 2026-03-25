@@ -2,7 +2,10 @@
 // BillMe — Centralized API Client
 // ============================================================
 
-const API_BASE_URL = "http://localhost:8080";
+window.API_BASE_URL = window.API_BASE_URL || "http://localhost:8080";
+
+
+
 
 /* ===========================================================
    TOKEN HELPERS
@@ -411,6 +414,9 @@ function showToast(message, type = "info") {
   }, 3000);
 
 }
+
+
+
 
 /* ===========================================================
    GLOBAL EXPORT

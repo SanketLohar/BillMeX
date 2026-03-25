@@ -2,7 +2,6 @@
 //  BillMe — Merchant Dashboard Logic  (merchant.js)
 // ============================================================
 'use strict';
-'use strict';
 
 // ── State ────────────────────────────────────────────────────
 let merchantProfile = null;
@@ -55,7 +54,7 @@ function safeErrorMessage(e) {
     if (e.message) return e.message;
     if (e.error) return e.error;
     if (typeof e === 'object') {
-        try { return JSON.stringify(e); } catch(s) { return "Something went wrong"; }
+        try { return JSON.stringify(e); } catch (s) { return "Something went wrong"; }
     }
     return "Something went wrong";
 }
@@ -808,8 +807,8 @@ async function submitInvoice() {
 
         if (!response.ok) {
             const isEmailError = responseText.includes("Failed to send invoice email") ||
-                                 responseText.includes("Too many emails") ||
-                                 responseText.includes("Email error");
+                responseText.includes("Too many emails") ||
+                responseText.includes("Email error");
 
             if (isEmailError) {
                 console.warn("⚠️ Email failed but invoice created successfully");
@@ -835,15 +834,15 @@ async function submitInvoice() {
 
         // 2. Refresh Dashboard Data
         try {
-           const [newInvoices, newPm] = await Promise.all([
-               API.merchant.getInvoices().catch(() => []),
-               API.merchant.getPaymentMethods().catch(() => ({ UPI: 0, FACE_PAY: 0, CARD: 0 }))
-           ]);
-           invoiceList = newInvoices || [];
-           renderInvoices();
-           renderCharts(invoiceList, newPm);
-        } catch(refreshErr) {
-           console.error("Dashboard refresh failed:", refreshErr);
+            const [newInvoices, newPm] = await Promise.all([
+                API.merchant.getInvoices().catch(() => []),
+                API.merchant.getPaymentMethods().catch(() => ({ UPI: 0, FACE_PAY: 0, CARD: 0 }))
+            ]);
+            invoiceList = newInvoices || [];
+            renderInvoices();
+            renderCharts(invoiceList, newPm);
+        } catch (refreshErr) {
+            console.error("Dashboard refresh failed:", refreshErr);
         }
 
         // 3. Navigate back to list
@@ -1029,19 +1028,13 @@ window.editInvoice = function (id) {
 
     if (inv.items && inv.items.length) {
         inv.items.forEach(item => {
-            // Find matching product in productList by name snapshot or we might need productId from backend
-            // For now, let's assume we can match by name or fallback. 
-            // Better: backend CustomerInvoiceResponse should probably include productId.
-            // Let's check CustomerInvoiceResponse.java
             renderInvoiceItemRow();
             const row = container.lastElementChild;
             const sel = row.querySelector('.inv-prod-select');
 
-            // Better matching using productId
             if (item.productId) {
                 sel.value = item.productId;
             } else {
-                // Fallback for legacy items
                 for (let opt of sel.options) {
                     if (opt.text.startsWith(item.productName)) {
                         sel.value = opt.value;

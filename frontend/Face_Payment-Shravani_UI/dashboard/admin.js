@@ -401,8 +401,8 @@ function renderTransactions(transactions) {
             <td><div style="font-weight:700; color:var(--primary);">₹${(t.amount || 0).toLocaleString()}</div></td>
             <td>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas ${t.method === 'CARD' ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
-                    ${t.method || 'UPI'}
+                    <i class="fas ${(t.mechanism === 'CARD' || t.transactionType === 'CARD') ? 'fa-credit-card' : 'fa-mobile-screen'}"></i>
+                    ${t.mechanism && t.mechanism !== 'N/A' ? t.mechanism : (t.transactionType || 'UNKNOWN')}
                 </div>
             </td>
             <td>

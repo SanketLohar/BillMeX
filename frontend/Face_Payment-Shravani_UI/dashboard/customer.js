@@ -290,6 +290,7 @@ window.requestRefund = async function(invoiceId) {
     }
 };
 
+
 // Internal helpers
 function setText(id, value) {
     const el = document.getElementById(id);
@@ -300,3 +301,5 @@ function setImage(id, src) {
     const el = document.getElementById(id);
     if (el) el.src = src;
 }
+
+
