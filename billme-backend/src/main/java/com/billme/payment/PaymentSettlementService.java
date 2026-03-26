@@ -12,6 +12,7 @@ import com.billme.transaction.TransactionStatus;
 import com.billme.transaction.TransactionType;
 import com.billme.wallet.Wallet;
 import com.billme.notification.NotificationService;
+import com.billme.email.InvoiceEmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ public class PaymentSettlementService {
     private final TransactionRepository transactionRepository;
     private final InvoiceRepository invoiceRepository;
     private final NotificationService notificationService;
+    private final InvoiceEmailService invoiceEmailService;
 
     @Transactional
     public void settlePayment(Long invoiceId, String externalRef) {
@@ -107,5 +109,8 @@ public class PaymentSettlementService {
 
         // 5. Notifications
         notificationService.sendPaymentNotifications(invoice);
+        
+        // 6. Trigger Payment Success Email
+        invoiceEmailService.sendPaymentSuccessEmail(invoice);
     }
 }

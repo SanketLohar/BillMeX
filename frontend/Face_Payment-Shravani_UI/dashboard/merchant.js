@@ -866,14 +866,25 @@ function bindTransactions() {
         txPage = 0; loadTransactions();
     });
     document.getElementById('txPrev')?.addEventListener('click', () => {
+        console.log("PREV CLICKED");
         if (txPage > 0) { txPage--; loadTransactions(); }
     });
     document.getElementById('txNext')?.addEventListener('click', () => {
+        console.log("NEXT CLICKED");
         if (txPage < txTotalPages - 1) { txPage++; loadTransactions(); }
     });
 }
 
+let isTxLoading = false;
 async function loadTransactions() {
+    if (isTxLoading) return;
+    
+    isTxLoading = true;
+    const btnNext = document.getElementById('txNext');
+    const btnPrev = document.getElementById('txPrev');
+    if (btnPrev) btnPrev.disabled = true;
+    if (btnNext) btnNext.disabled = true;
+
     const tbody = document.getElementById('txBody');
     tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner spinner-sm" style="margin:20px auto;"></div></td></tr>';
     try {
@@ -883,17 +894,24 @@ async function loadTransactions() {
             status: document.getElementById('txFilter-status').value || undefined,
         };
         const data = await API.wallet.getTransactions(params);
+        console.log("txPage:", txPage, "totalPages:", data?.totalPages);
+
+        txTotalPages = Math.max(1, data?.totalPages || 1);
+        document.getElementById('txPageInfo').textContent =
+            `Page ${txPage + 1} of ${txTotalPages} (${data?.totalElements || 0} total)`;
+        
+        if (btnPrev) btnPrev.disabled = txPage === 0;
+        if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
+
+        console.log("Next disabled (before force):", btnNext ? btnNext.disabled : "null");
+        txTotalPages = 5; // FORCE TEST
+        if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
+        console.log("Forced txTotalPages to 5, Next disabled:", btnNext ? btnNext.disabled : "null");
 
         if (!data || !data.content || !data.content.length) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">No transactions found.</td></tr>';
             return;
         }
-
-        txTotalPages = data.totalPages || 1;
-        document.getElementById('txPageInfo').textContent =
-            `Page ${txPage + 1} of ${txTotalPages} (${data.totalElements || 0} total)`;
-        document.getElementById('txPrev').disabled = txPage === 0;
-        document.getElementById('txNext').disabled = txPage >= txTotalPages - 1;
 
         tbody.innerHTML = data.content.map(tx => {
             const isCredit = tx.direction === 'CREDIT';
@@ -917,6 +935,10 @@ async function loadTransactions() {
         }).join('');
     } catch (e) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">Failed to load transactions: ${e.message}</td></tr>`;
+        if (btnPrev) btnPrev.disabled = txPage === 0;
+        if (btnNext) btnNext.disabled = true;
+    } finally {
+        isTxLoading = false;
     }
 }
 

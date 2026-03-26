@@ -28,7 +28,7 @@ public class InvoiceEmailService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    @Async
+//    @Async
     public void sendInvoiceEmail(Invoice invoice) {
 
         if (invoice == null) {
@@ -100,6 +100,60 @@ public class InvoiceEmailService {
                     invoice.getInvoiceNumber(), e.getMessage());
 
             // DO NOT throw exception
+        }
+    }
+
+    // @Async
+    public void sendPaymentSuccessEmail(Invoice invoice) {
+        log.info("EMAIL METHOD TRIGGERED");
+        if (invoice == null) {
+            log.error("Cannot send email: Invoice is null");
+            return;
+        }
+
+        log.info("📧 Sending payment receipt email: {}", invoice.getInvoiceNumber());
+
+        try {
+            // ✅ Generate UPDATED PAID PDF
+            byte[] pdf = pdfService.generateInvoicePdf(invoice);
+            log.info("PDF SIZE: {}", pdf.length);
+
+            // ✅ Create email
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(invoice.getResolvedCustomerEmail());
+
+            helper.setSubject("Payment Receipt: Invoice " + invoice.getInvoiceNumber());
+
+            // ✅ CLEAN RECEIPT TEMPLATE (NO PAY NOW BUTTON)
+            String htmlContent =
+                    "<div style='font-family: Arial, sans-serif; max-width:600px;margin:auto'>" +
+                            "<h2 style='color:#34a853'>Payment Successful</h2>" +
+                            "<p>Your payment for invoice <b>" + invoice.getInvoiceNumber() + "</b> has been successfully received.</p>" +
+                            "<p><b>Amount Paid:</b> ₹" + invoice.getTotalPayable() + "</p>" +
+                            "<p><b>Paid Date:</b> " + (invoice.getPaidAt() != null ? invoice.getPaidAt().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")) : "N/A") + "</p>" +
+                            "<br>" +
+                            "<p>Please find your updated receipt attached for your records.</p>" +
+                            "</div>";
+
+            helper.setText(htmlContent, true);
+
+            // ✅ Attach PDF
+            helper.addAttachment(
+                    "paid-invoice-" + invoice.getInvoiceNumber() + ".pdf",
+                    () -> new ByteArrayInputStream(pdf)
+            );
+
+            // ✅ Send email
+            mailSender.send(message);
+
+            log.info("✅ Payment success email sent successfully: {}", invoice.getInvoiceNumber());
+
+        } catch (Exception e) {
+            // ✅ DO NOT BREAK FLOW
+            log.error("EMAIL ERROR", e);
+            log.error("❌ Receipt email failed for {}: {}", invoice.getInvoiceNumber(), e.getMessage());
         }
     }
 }

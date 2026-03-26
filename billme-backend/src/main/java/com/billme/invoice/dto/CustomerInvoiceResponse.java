@@ -17,6 +17,7 @@ public class CustomerInvoiceResponse {
     private String status;
     private String paymentMethod;
     private LocalDateTime issuedAt;
+    private LocalDateTime dueDate;
     private LocalDateTime paidAt;
     private List<InvoiceItemResponse> items;
     private BigDecimal subtotal;

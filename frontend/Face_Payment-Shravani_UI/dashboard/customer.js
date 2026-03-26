@@ -179,7 +179,8 @@ function renderInvoices(invoices) {
                     ${status.replace('_', ' ')}
                 </span>
             </td>
-            <td>${inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : "-"}</td>
+            <td>${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "-"}</td>
+            <td>${(status === 'PAID' && inv.paidAt) ? new Date(inv.paidAt).toLocaleDateString() : "-"}</td>
             <td>
                 <div class="d-flex gap-1 align-items-center">
                     ${actionsHtml}
@@ -191,8 +192,8 @@ function renderInvoices(invoices) {
         </tr>`;
     }).join('');
 
-    allBody.innerHTML = invoices.length ? rows : '<tr><td colspan="6" class="text-center text-muted">No invoices found</td></tr>';
-    recentBody.innerHTML = invoices.length ? rows.split('</tr>').slice(0, 5).join('</tr>') : '<tr><td colspan="6" class="text-center text-muted">No recent activity</td></tr>';
+    allBody.innerHTML = invoices.length ? rows : '<tr><td colspan="7" class="text-center text-muted">No invoices found</td></tr>';
+    recentBody.innerHTML = invoices.length ? rows.split('</tr>').slice(0, 5).join('</tr>') : '<tr><td colspan="7" class="text-center text-muted">No recent activity</td></tr>';
 }
 
 function updateAnalytics(invoices) {

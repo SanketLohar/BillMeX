@@ -437,6 +437,11 @@ public class InvoiceService {
                         ? invoice.getPaymentMethod().name()
                         : null)
                 .issuedAt(invoice.getIssuedAt())
+                .dueDate(
+                        invoice.getDueDate() != null
+                                ? invoice.getDueDate().atStartOfDay()
+                                : null
+                )
                 .paidAt(invoice.getPaidAt())
                 .refundWindowExpiry(invoice.getRefundWindowExpiry())
                 .items(

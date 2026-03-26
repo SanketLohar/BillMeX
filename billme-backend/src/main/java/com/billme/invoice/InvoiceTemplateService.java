@@ -44,6 +44,11 @@ public class InvoiceTemplateService {
                         ? invoice.getStatus().name()
                         : "");
 
+        context.setVariable("paidDate",
+                (invoice.getStatus() != null && invoice.getStatus().name().equals("PAID") && invoice.getPaidAt() != null)
+                        ? invoice.getPaidAt().format(formatter)
+                        : null);
+
         // ===== MERCHANT =====
         context.setVariable("merchantName", invoice.getMerchant().getBusinessName());
         context.setVariable("merchantAddress", invoice.getMerchant().getAddress());

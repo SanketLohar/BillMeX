@@ -97,6 +97,7 @@
         <div><b>Invoice #:</b> <span th:text="${invoiceNumber}"></span></div>
         <div><b>Date:</b> <span th:text="${invoiceDate}"></span></div>
         <div><b>Due Date:</b> <span th:text="${dueDate}"></span></div>
+        <div th:if="${paidDate != null}"><b>Paid Date:</b> <span th:text="${paidDate}"></span></div>
         <div><b>Status:</b> <span th:text="${status}"></span></div>
     </div>
 </div>
@@ -198,14 +199,6 @@
 <div class="section">
     <b>UPI:</b> <span th:text="${upiId}"></span>
 </div>
-
-<!-- PAY BUTTON -->
-<!--<div class="section" style="text-align:center;">-->
-<!--    <a th:href="${payUrl}"-->
-<!--       style="background:#27ae60;color:white;padding:10px 22px;text-decoration:none;border-radius:6px;font-size:13px;">-->
-<!--        Pay Now-->
-<!--    </a>-->
-<!--</div>-->
 
 <!-- TERMS -->
 <div class="terms">
