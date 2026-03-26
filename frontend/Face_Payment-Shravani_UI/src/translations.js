@@ -205,7 +205,7 @@
 
         // Footer
         // Footer
-        footer_copy: "© 2025 BillMe · Fintech Merchant Infrastructure · Built for India",
+        footer_copy: "© 2026 BillMeX · Next Generation Billing & Payment System · Built for India",
 
         // Company Page
         company_hero_badge: "Fintech · Made in India · Built for Scale",

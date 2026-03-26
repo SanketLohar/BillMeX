@@ -1,346 +1,915 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BillMe | Solutions</title>
+    <title>BillMeX | Solutions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="global.css">
     <!-- <!-- <script src="translations.js" defer></script> --> -->
-   <script src="i18n.js" defer></script>
+    <script src="i18n.js" defer></script>
     <style>
         /* Solutions Specific Styles */
         :root {
-            --primary: #1a73e8; --primary-dark: #0d47a1;
-            --secondary: #34a853; --light-gray: #f8f9fa;
-            --medium-gray: #e8eaed; --dark-gray: #5f6368;
-            --text: #202124; --white: #ffffff;
-            --shadow: 0 4px 16px rgba(0,0,0,0.08);
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e8eaed;
+            --dark-gray: #5f6368;
+            --text: #202124;
+            --white: #ffffff;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             --gradient: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
         }
-        body { background-color: #f5f7fa; color: var(--text); line-height: 1.6; overflow-x: hidden; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
         /* NAV */
-        header { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--medium-gray); position: sticky; top: 0; z-index: 200; }
-        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 0 24px; height: 68px; max-width: 1200px; margin: 0 auto; }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .logo-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
-        nav ul { display: flex; list-style: none; gap: 28px; }
-        nav a { text-decoration: none; color: var(--dark-gray); font-weight: 500; font-size: 14px; transition: color 0.2s; position: relative; padding: 4px 0; }
-        nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--primary); transition: width 0.3s; }
-        nav a:hover, nav a.active { color: var(--primary); }
-        nav a:hover::after, nav a.active::after { width: 100%; }
-        .nav-actions { display: flex; align-items: center; gap: 12px; }
-        .btn { padding: 10px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.25s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
-        .btn-outline:hover { background: rgba(26,115,232,0.06); }
-        @media(max-width:900px) { nav ul { display: none; } }
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 0 var(--medium-gray);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            height: 68px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 28px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--primary);
+        }
+
+        nav a:hover::after,
+        nav a.active::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(26, 115, 232, 0.06);
+        }
+
+        @media(max-width:900px) {
+            nav ul {
+                display: none;
+            }
+        }
 
         /* HERO */
-        .hero { background: linear-gradient(160deg, #0d47a1 0%, #1a73e8 60%, #34a853 100%); padding: 80px 24px 64px; text-align: center; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 50px; padding: 6px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 24px; position: relative; }
-        .hero h1 { font-size: clamp(32px,5vw,56px); font-weight: 900; color: white; margin-bottom: 16px; line-height: 1.1; position: relative; }
-        .hero h1 span { color: #fbbc04; }
-        .hero p { font-size: clamp(16px,2vw,20px); color: rgba(255,255,255,0.85); max-width: 640px; margin: 0 auto; position: relative; }
+        .hero {
+            background: linear-gradient(160deg, #0d47a1 0%, #1a73e8 60%, #34a853 100%);
+            padding: 80px 24px 64px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.1;
+            position: relative;
+        }
+
+        .hero h1 span {
+            color: #fbbc04;
+        }
+
+        .hero p {
+            font-size: clamp(16px, 2vw, 20px);
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+        }
 
         /* SOLUTIONS */
-        .solutions-section { padding: 72px 24px; }
-        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); margin-bottom: 10px; }
-        .section-title { font-size: clamp(24px,3.5vw,36px); font-weight: 800; color: var(--text); margin-bottom: 8px; }
-        .section-sub { color: var(--dark-gray); font-size: 16px; max-width: 600px; margin-bottom: 48px; }
-        .solutions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; }
-        .solution-card { background: white; border-radius: 20px; padding: 32px; box-shadow: var(--shadow); border: 1px solid var(--medium-gray); transition: all 0.3s; animation: fadeUp 0.6s ease forwards; opacity: 0; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .solution-card:nth-child(1){animation-delay:.05s} .solution-card:nth-child(2){animation-delay:.1s} .solution-card:nth-child(3){animation-delay:.15s} .solution-card:nth-child(4){animation-delay:.2s} .solution-card:nth-child(5){animation-delay:.25s} .solution-card:nth-child(6){animation-delay:.3s}
-        .solution-card:hover { transform: translateY(-8px); box-shadow: 0 20px 48px rgba(0,0,0,0.12); border-color: var(--primary); }
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .solution-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
-        .card-badge { background: var(--secondary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; height: fit-content; }
-        .solution-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-        .solution-card p { font-size: 14px; color: var(--dark-gray); margin-bottom: 18px; line-height: 1.65; }
-        .feature-list { list-style: none; }
-        .feature-list li { font-size: 13px; color: var(--dark-gray); padding: 7px 0; display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed var(--medium-gray); }
-        .feature-list li:last-child { border-bottom: none; }
-        .feature-list i { color: var(--primary); width: 18px; flex-shrink: 0; }
+        .solutions-section {
+            padding: 72px 24px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: clamp(24px, 3.5vw, 36px);
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .section-sub {
+            color: var(--dark-gray);
+            font-size: 16px;
+            max-width: 600px;
+            margin-bottom: 48px;
+        }
+
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+        }
+
+        .solution-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--medium-gray);
+            transition: all 0.3s;
+            animation: fadeUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .solution-card:nth-child(1) {
+            animation-delay: .05s
+        }
+
+        .solution-card:nth-child(2) {
+            animation-delay: .1s
+        }
+
+        .solution-card:nth-child(3) {
+            animation-delay: .15s
+        }
+
+        .solution-card:nth-child(4) {
+            animation-delay: .2s
+        }
+
+        .solution-card:nth-child(5) {
+            animation-delay: .25s
+        }
+
+        .solution-card:nth-child(6) {
+            animation-delay: .3s
+        }
+
+        .solution-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .solution-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .card-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            height: fit-content;
+        }
+
+        .solution-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .solution-card p {
+            font-size: 14px;
+            color: var(--dark-gray);
+            margin-bottom: 18px;
+            line-height: 1.65;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            font-size: 13px;
+            color: var(--dark-gray);
+            padding: 7px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px dashed var(--medium-gray);
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list i {
+            color: var(--primary);
+            width: 18px;
+            flex-shrink: 0;
+        }
 
         /* CTA */
-        .cta-section { padding: 0 24px 80px; }
-        .cta-banner { background: var(--gradient); border-radius: 24px; padding: 56px 40px; text-align: center; color: white; max-width: 1200px; margin: 0 auto; }
-        .cta-banner h2 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-        .cta-banner p { font-size: 18px; opacity: 0.9; margin-bottom: 28px; }
-        .btn-white { background: white; color: var(--primary); padding: 16px 32px; border-radius: 10px; font-size: 16px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s; }
-        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .cta-section {
+            padding: 0 24px 80px;
+        }
+
+        .cta-banner {
+            background: var(--gradient);
+            border-radius: 24px;
+            padding: 56px 40px;
+            text-align: center;
+            color: white;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cta-banner h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .cta-banner p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 28px;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
 
         /* FOOTER */
-        footer { background: var(--text); color: rgba(255,255,255,0.7); padding: 48px 24px 28px; position: relative; }
-        footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient); }
-        .footer-inner { max-width: 1200px; margin: 0 auto; }
-        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 40px; margin-bottom: 40px; }
-        .footer-col h4 { color: #e8eaed; font-size: 15px; margin-bottom: 16px; position: relative; display: inline-block; }
-        .footer-col h4::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 32px; height: 2px; background: var(--primary); }
-        .footer-col ul { list-style: none; }
-        .footer-col li { margin-bottom: 10px; }
-        .footer-col a { color: #bdc1c6; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-        .footer-col a:hover { color: white; }
-        .footer-copy { border-top: 1px solid #3c4043; padding-top: 24px; text-align: center; font-size: 13px; }
+        footer {
+            background: var(--text);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 48px 24px 28px;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            color: #e8eaed;
+            font-size: 15px;
+            margin-bottom: 16px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 32px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col a {
+            color: #bdc1c6;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: white;
+        }
+
+        .footer-copy {
+            border-top: 1px solid #3c4043;
+            padding-top: 24px;
+            text-align: center;
+            font-size: 13px;
+        }
 
         /* CHATBOT */
-        .chatbot-btn { position: fixed; bottom: 28px; right: 28px; width: 56px; height: 56px; border-radius: 50%; background: var(--gradient); color: white; font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 999; box-shadow: 0 6px 20px rgba(26,115,232,0.4); border: none; transition: all 0.3s; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        .chatbot-btn:hover { transform: scale(1.1)!important; animation: none; }
-        .chatbot-window { position: fixed; bottom: 96px; right: 28px; width: 320px; background: white; border-radius: 20px; box-shadow: 0 16px 48px rgba(0,0,0,0.18); display: none; flex-direction: column; z-index: 998; border: 1px solid var(--medium-gray); overflow: hidden; }
-        .chatbot-window.open { display: flex; }
-        .chat-header { background: var(--gradient); color: white; padding: 16px 18px; display: flex; align-items: center; gap: 10px; }
-        .chat-avatar-sm { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .chat-title { font-size: 15px; font-weight: 700; }
-        .chat-status { font-size: 11px; opacity: 0.85; }
-        .chat-close-btn { margin-left: auto; cursor: pointer; background: none; border: none; color: white; font-size: 18px; }
-        .chat-msgs { flex: 1; padding: 14px; overflow-y: auto; max-height: 240px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { max-width: 85%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
-        .chat-msg.bot { background: #f5f7fa; color: var(--text); align-self: flex-start; }
-        .chat-msg.user { background: var(--primary); color: white; align-self: flex-end; }
-        .chat-input-area { display: flex; padding: 10px 14px; gap: 8px; border-top: 1px solid var(--medium-gray); }
-        .chat-inp { flex: 1; border: 1.5px solid var(--medium-gray); border-radius: 18px; padding: 7px 12px; font-size: 13px; outline: none; transition: border 0.2s; }
-        .chat-inp:focus { border-color: var(--primary); }
-        .chat-send-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-        .chat-send-btn:hover { background: var(--primary-dark); }
+        .chatbot-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+            border: none;
+            transition: all 0.3s;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-8px)
+            }
+        }
+
+        .chatbot-btn:hover {
+            transform: scale(1.1) !important;
+            animation: none;
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 96px;
+            right: 28px;
+            width: 320px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+            display: none;
+            flex-direction: column;
+            z-index: 998;
+            border: 1px solid var(--medium-gray);
+            overflow: hidden;
+        }
+
+        .chatbot-window.open {
+            display: flex;
+        }
+
+        .chat-header {
+            background: var(--gradient);
+            color: white;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-avatar-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .chat-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .chat-status {
+            font-size: 11px;
+            opacity: 0.85;
+        }
+
+        .chat-close-btn {
+            margin-left: auto;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+        }
+
+        .chat-msgs {
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+            max-height: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 9px 13px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .chat-msg.bot {
+            background: #f5f7fa;
+            color: var(--text);
+            align-self: flex-start;
+        }
+
+        .chat-msg.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px 14px;
+            gap: 8px;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        .chat-inp {
+            flex: 1;
+            border: 1.5px solid var(--medium-gray);
+            border-radius: 18px;
+            padding: 7px 12px;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .chat-inp:focus {
+            border-color: var(--primary);
+        }
+
+        .chat-send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
+
 <body>
 
-<header>
-    <div class="header-container">
-        <a href="../index.html" class="logo">
-            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
-            <span>BillMe</span>
-        </a>
-        <nav>
-            <ul>
-                <li><a href="../index.html" data-i18n="nav_home">Home</a></li>
-                <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-                <li class="active"><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
-                <li><a href="resources.html" data-i18n="nav_resources">Resources</a></li>
-                <li><a href="company.html" data-i18n="nav_company">Company</a></li>
-                <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
-            </ul>
-        </nav>
-        <div class="nav-actions">
-            <!-- Language Switcher -->
-            <div class="language-dropdown-container">
-                <div class="language-switcher" onclick="toggleLangDropdown()">
-                    <i class="fas fa-globe"></i>
-                    <span id="current-lang">EN</span>
-                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
-                </div>
-                <div class="language-dropdown" id="lang-menu">
-                    <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
-                    <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
-                    <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
-                </div>
-            </div>
-            <a href="login.html" class="btn btn-outline" data-i18n="nav_signin">Sign In</a>
-            <a href="register.html" class="btn btn-primary" data-i18n="nav_getstarted">Get Started</a>
-        </div>
-    </div>
-</header>
-
-<section class="hero">
-    <div class="hero-badge" data-i18n="sol_hero_badge"><i class="fas fa-layer-group"></i> BillMe Solutions · Built for your business model</div>
-    <h1 data-i18n="sol_hero_title">Solutions for <span>Every Business</span></h1>
-    <p data-i18n="sol_hero_desc">From retail and healthcare to SaaS and B2B enterprises — BillMe adapts exactly to how you sell and collect.</p>
-</section>
-
-<section class="solutions-section">
-    <div class="container">
-        <div class="section-label" data-i18n="sol_sect_label">Business Solutions</div>
-        <h2 class="section-title" data-i18n="sol_sect_title">Comprehensive Revenue Solutions</h2>
-        <p class="section-sub" data-i18n="sol_sect_desc">Tailored billing and payment solutions for every industry and business model.</p>
-        <div class="solutions-grid">
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#e8f0fe;color:#1a73e8;"><i class="fas fa-store"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_retail">Retail</span>
-                </div>
-                <h3 data-i18n="sol_c1_t">Retail &amp; Quick Commerce</h3>
-                <p data-i18n="sol_c1_d">Complete POS, invoicing, and payment collection for physical retail stores with barcode scanning and FacePay checkout.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c1_f1"><i class="fas fa-check"></i> POS barcode scanning integration</li>
-                    <li data-i18n="sol_c1_f2"><i class="fas fa-check"></i> Walk-in &amp; recurring customer invoicing</li>
-                    <li data-i18n="sol_c1_f3"><i class="fas fa-check"></i> UPI + FacePay dual checkout</li>
-                    <li data-i18n="sol_c1_f4"><i class="fas fa-check"></i> Daily sales analytics dashboard</li>
-                </ul>
-            </div>
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-building"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_b2b">B2B</span>
-                </div>
-                <h3 data-i18n="sol_c2_t">B2B &amp; Enterprise</h3>
-                <p data-i18n="sol_c2_d">Professional invoicing, GST compliance, and escrow-protected payments for business-to-business transactions.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c2_f1"><i class="fas fa-check"></i> PDF invoices with custom branding</li>
-                    <li data-i18n="sol_c2_f2"><i class="fas fa-check"></i> Net 30/60/90 terms with reminders</li>
-                    <li data-i18n="sol_c2_f3"><i class="fas fa-check"></i> Multi-party escrow settlements</li>
-                    <li data-i18n="sol_c2_f4"><i class="fas fa-check"></i> Audit-ready ledger reports</li>
-                </ul>
-            </div>
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#f3e5f5;color:#7b1fa2;"><i class="fas fa-sync-alt"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_recurring">Recurring</span>
-                </div>
-                <h3 data-i18n="sol_c3_t">SaaS &amp; Subscription</h3>
-                <p data-i18n="sol_c3_d">Recurring billing, plan management, and automated dunning for subscription-based businesses.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c3_f1"><i class="fas fa-check"></i> Recurring billing with trial management</li>
-                    <li data-i18n="sol_c3_f2"><i class="fas fa-check"></i> Prorated upgrades &amp; downgrades</li>
-                    <li data-i18n="sol_c3_f3"><i class="fas fa-check"></i> MRR/ARR analytics</li>
-                    <li data-i18n="sol_c3_f4"><i class="fas fa-check"></i> Automated invoice delivery</li>
-                </ul>
-            </div>
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-hospital"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_health">Healthcare</span>
-                </div>
-                <h3 data-i18n="sol_c4_t">Healthcare &amp; Clinics</h3>
-                <p data-i18n="sol_c4_d">Patient billing, appointment fee collection, and secure biometric identity verification for healthcare providers.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c4_f1"><i class="fas fa-check"></i> Patient identity via FacePay</li>
-                    <li data-i18n="sol_c4_f2"><i class="fas fa-check"></i> Copay &amp; consultation fee billing</li>
-                    <li data-i18n="sol_c4_f3"><i class="fas fa-check"></i> Recurring patient subscriptions</li>
-                    <li data-i18n="sol_c4_f4"><i class="fas fa-check"></i> GST-compliant medical invoices</li>
-                </ul>
-            </div>
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#e3f2fd;color:#0277bd;"><i class="fas fa-graduation-cap"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_edu">Education</span>
-                </div>
-                <h3 data-i18n="sol_c5_t">Education &amp; Coaching</h3>
-                <p data-i18n="sol_c5_d">Fee collection, tuition installment plans, and automated receipts for schools, colleges, and coaching institutes.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c5_f1"><i class="fas fa-check"></i> Tuition installment plans</li>
-                    <li data-i18n="sol_c5_f2"><i class="fas fa-check"></i> Campus FacePay identification</li>
-                    <li data-i18n="sol_c5_f3"><i class="fas fa-check"></i> Course &amp; semester-based billing</li>
-                    <li data-i18n="sol_c5_f4"><i class="fas fa-check"></i> Parent payment portal</li>
-                </ul>
-            </div>
-            <div class="solution-card">
-                <div class="card-top">
-                    <div class="solution-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-people-arrows"></i></div>
-                    <span class="card-badge" data-i18n="sol_badge_market">Marketplace</span>
-                </div>
-                <h3 data-i18n="sol_c6_t">Platforms &amp; Marketplaces</h3>
-                <p data-i18n="sol_c6_d">Multi-party payment splitting, seller onboarding, and commission management for marketplace platforms.</p>
-                <ul class="feature-list">
-                    <li data-i18n="sol_c6_f1"><i class="fas fa-check"></i> Split payments &amp; seller onboarding</li>
-                    <li data-i18n="sol_c6_f2"><i class="fas fa-check"></i> Commission &amp; fee calculation</li>
-                    <li data-i18n="sol_c6_f3"><i class="fas fa-check"></i> Automated seller payouts</li>
-                    <li data-i18n="sol_c6_f4"><i class="fas fa-check"></i> Escrow-based dispute resolution</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div class="cta-section">
-    <div class="cta-banner">
-        <h2 data-i18n="sol_cta_t">Find your perfect solution</h2>
-        <p data-i18n="sol_cta_d">Talk to our team about which BillMe solution fits your business model.</p>
-        <a href="request_demo.html" class="btn-white"><i class="fas fa-calendar-check"></i> <span data-i18n="cta_btn_demo">Request a Demo</span></a>
-    </div>
-</div>
-
-<footer>
-    <div class="footer-inner">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h4 data-i18n="branding_name">BillMe</h4>
-                <p style="color:#bdc1c6;font-size:13px;line-height:1.7;margin-top:8px;"><span data-i18n="footer_desc">Next-generation billing and digital payment infrastructure for modern Indian businesses.</span></p>
-            </div>
-            <div class="footer-col">
-                <h4 data-i18n="nav_platform">Platform</h4>
+    <header>
+        <div class="header-container">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                <span>BillMeX</span>
+            </a>
+            <nav>
                 <ul>
+                    <li><a href="../index.html" data-i18n="nav_home">Home</a></li>
                     <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-                    <li><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
-                    <li><a href="Industries.html" data-i18n="nav_industries">Industries</a></li>
-                    <li><a href="request_demo.html" data-i18n="nav_getstarted">Request Demo</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4 data-i18n="nav_company">Company</h4>
-                <ul>
-                    <li><a href="company.html" data-i18n="nav_aboutus">About Us</a></li>
+                    <li class="active"><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
+                    <li><a href="resources.html" data-i18n="nav_resources">Resources</a></li>
+                    <li><a href="company.html" data-i18n="nav_company">Company</a></li>
                     <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
-                    <li><a href="#" data-i18n="nav_careers">Careers</a></li>
                 </ul>
+            </nav>
+            <div class="nav-actions">
+                <!-- Language Switcher -->
+                <div class="language-dropdown-container">
+                    <div class="language-switcher" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="language-dropdown" id="lang-menu">
+                        <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                        <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                        <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                    </div>
+                </div>
+                <a href="login.html" class="btn btn-outline" data-i18n="nav_signin">Sign In</a>
+                <a href="register.html" class="btn btn-primary" data-i18n="nav_getstarted">Get Started</a>
             </div>
-            <div class="footer-col">
-                <h4 data-i18n="nav_legal">Legal</h4>
-                <ul>
-                    <li><a href="#" data-i18n="link_privacy">Privacy Policy</a></li>
-                    <li><a href="#" data-i18n="link_terms">Terms of Service</a></li>
-                </ul>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-badge" data-i18n="sol_hero_badge"><i class="fas fa-layer-group"></i> BillMe Solutions · Built
+            for your business model</div>
+        <h1 data-i18n="sol_hero_title">Solutions for <span>Every Business</span></h1>
+        <p data-i18n="sol_hero_desc">From retail and healthcare to SaaS and B2B enterprises — BillMe adapts exactly to
+            how you sell and collect.</p>
+    </section>
+
+    <section class="solutions-section">
+        <div class="container">
+            <div class="section-label" data-i18n="sol_sect_label">Business Solutions</div>
+            <h2 class="section-title" data-i18n="sol_sect_title">Comprehensive Revenue Solutions</h2>
+            <p class="section-sub" data-i18n="sol_sect_desc">Tailored billing and payment solutions for every industry
+                and business model.</p>
+            <div class="solutions-grid">
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#e8f0fe;color:#1a73e8;"><i
+                                class="fas fa-store"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_retail">Retail</span>
+                    </div>
+                    <h3 data-i18n="sol_c1_t">Retail &amp; Quick Commerce</h3>
+                    <p data-i18n="sol_c1_d">Complete POS, invoicing, and payment collection for physical retail stores
+                        with barcode scanning and FacePay checkout.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c1_f1"><i class="fas fa-check"></i> POS barcode scanning integration</li>
+                        <li data-i18n="sol_c1_f2"><i class="fas fa-check"></i> Walk-in &amp; recurring customer
+                            invoicing</li>
+                        <li data-i18n="sol_c1_f3"><i class="fas fa-check"></i> UPI + FacePay dual checkout</li>
+                        <li data-i18n="sol_c1_f4"><i class="fas fa-check"></i> Daily sales analytics dashboard</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#fff3e0;color:#e65100;"><i
+                                class="fas fa-building"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_b2b">B2B</span>
+                    </div>
+                    <h3 data-i18n="sol_c2_t">B2B &amp; Enterprise</h3>
+                    <p data-i18n="sol_c2_d">Professional invoicing, GST compliance, and escrow-protected payments for
+                        business-to-business transactions.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c2_f1"><i class="fas fa-check"></i> PDF invoices with custom branding</li>
+                        <li data-i18n="sol_c2_f2"><i class="fas fa-check"></i> Net 30/60/90 terms with reminders</li>
+                        <li data-i18n="sol_c2_f3"><i class="fas fa-check"></i> Multi-party escrow settlements</li>
+                        <li data-i18n="sol_c2_f4"><i class="fas fa-check"></i> Audit-ready ledger reports</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#f3e5f5;color:#7b1fa2;"><i
+                                class="fas fa-sync-alt"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_recurring">Recurring</span>
+                    </div>
+                    <h3 data-i18n="sol_c3_t">SaaS &amp; Subscription</h3>
+                    <p data-i18n="sol_c3_d">Recurring billing, plan management, and automated dunning for
+                        subscription-based businesses.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c3_f1"><i class="fas fa-check"></i> Recurring billing with trial management
+                        </li>
+                        <li data-i18n="sol_c3_f2"><i class="fas fa-check"></i> Prorated upgrades &amp; downgrades</li>
+                        <li data-i18n="sol_c3_f3"><i class="fas fa-check"></i> MRR/ARR analytics</li>
+                        <li data-i18n="sol_c3_f4"><i class="fas fa-check"></i> Automated invoice delivery</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#e8f5e9;color:#2e7d32;"><i
+                                class="fas fa-hospital"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_health">Healthcare</span>
+                    </div>
+                    <h3 data-i18n="sol_c4_t">Healthcare &amp; Clinics</h3>
+                    <p data-i18n="sol_c4_d">Patient billing, appointment fee collection, and secure biometric identity
+                        verification for healthcare providers.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c4_f1"><i class="fas fa-check"></i> Patient identity via FacePay</li>
+                        <li data-i18n="sol_c4_f2"><i class="fas fa-check"></i> Copay &amp; consultation fee billing</li>
+                        <li data-i18n="sol_c4_f3"><i class="fas fa-check"></i> Recurring patient subscriptions</li>
+                        <li data-i18n="sol_c4_f4"><i class="fas fa-check"></i> GST-compliant medical invoices</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#e3f2fd;color:#0277bd;"><i
+                                class="fas fa-graduation-cap"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_edu">Education</span>
+                    </div>
+                    <h3 data-i18n="sol_c5_t">Education &amp; Coaching</h3>
+                    <p data-i18n="sol_c5_d">Fee collection, tuition installment plans, and automated receipts for
+                        schools, colleges, and coaching institutes.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c5_f1"><i class="fas fa-check"></i> Tuition installment plans</li>
+                        <li data-i18n="sol_c5_f2"><i class="fas fa-check"></i> Campus FacePay identification</li>
+                        <li data-i18n="sol_c5_f3"><i class="fas fa-check"></i> Course &amp; semester-based billing</li>
+                        <li data-i18n="sol_c5_f4"><i class="fas fa-check"></i> Parent payment portal</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-top">
+                        <div class="solution-icon" style="background:#fce4ec;color:#c62828;"><i
+                                class="fas fa-people-arrows"></i></div>
+                        <span class="card-badge" data-i18n="sol_badge_market">Marketplace</span>
+                    </div>
+                    <h3 data-i18n="sol_c6_t">Platforms &amp; Marketplaces</h3>
+                    <p data-i18n="sol_c6_d">Multi-party payment splitting, seller onboarding, and commission management
+                        for marketplace platforms.</p>
+                    <ul class="feature-list">
+                        <li data-i18n="sol_c6_f1"><i class="fas fa-check"></i> Split payments &amp; seller onboarding
+                        </li>
+                        <li data-i18n="sol_c6_f2"><i class="fas fa-check"></i> Commission &amp; fee calculation</li>
+                        <li data-i18n="sol_c6_f3"><i class="fas fa-check"></i> Automated seller payouts</li>
+                        <li data-i18n="sol_c6_f4"><i class="fas fa-check"></i> Escrow-based dispute resolution</li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="footer-copy" data-i18n="footer_copy">© 2025 BillMe · Fintech Merchant Infrastructure · Built for India</div>
-    </div>
-</footer>
-<!-- Chatbot -->
-<button class="chatbot-btn" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></button>
-<div class="chatbot-window" id="chatWindow">
-    <div class="chat-header">
-        <div>
-            <h4 style="margin:0">BillMe Assistant</h4>
-            <small style="opacity:0.8">Online · Response in < 1m</small>
-        </div>
-        <button onclick="toggleChat()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
-    </div>
-    <div class="chat-content" id="chatContent">
-        <div style="background:#e3f2fd; padding:12px 16px; border-radius:15px; border-bottom-left-radius:2px; margin-bottom:15px; font-size:14px; color:#1565c0; max-width:85%;">
-            Hi there! 👋 Which solution fits your business? Ask me anything!
+    </section>
+
+    <div class="cta-section">
+        <div class="cta-banner">
+            <h2 data-i18n="sol_cta_t">Find your perfect solution</h2>
+            <p data-i18n="sol_cta_d">Talk to our team about which BillMe solution fits your business model.</p>
+            <a href="request_demo.html" class="btn-white"><i class="fas fa-calendar-check"></i> <span
+                    data-i18n="cta_btn_demo">Request a Demo</span></a>
         </div>
     </div>
-    <div class="chat-input">
-        <input type="text" placeholder="Type your message..." id="chatInput">
-        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4 data-i18n="branding_name">BillMe</h4>
+                    <p style="color:#bdc1c6;font-size:13px;line-height:1.7;margin-top:8px;"><span
+                            data-i18n="footer_desc">Next-generation billing and digital payment infrastructure for
+                            modern Indian businesses.</span></p>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="nav_platform">Platform</h4>
+                    <ul>
+                        <li><a href="products.html" data-i18n="nav_products">Products</a></li>
+                        <li><a href="solutions.html" data-i18n="nav_solutions">Solutions</a></li>
+                        <li><a href="Industries.html" data-i18n="nav_industries">Industries</a></li>
+                        <li><a href="request_demo.html" data-i18n="nav_getstarted">Request Demo</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="nav_company">Company</h4>
+                    <ul>
+                        <li><a href="company.html" data-i18n="nav_aboutus">About Us</a></li>
+                        <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+                        <li><a href="#" data-i18n="nav_careers">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="nav_legal">Legal</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="link_privacy">Privacy Policy</a></li>
+                        <li><a href="#" data-i18n="link_terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-copy" data-i18n="footer_copy">© 2026 BillMeX · Next Generation Billing & Payment System ·
+                Built for India</div>
+        </div>
+    </footer>
+    <!-- Chatbot -->
+    <button class="chatbot-btn" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></button>
+    <div class="chatbot-window" id="chatWindow">
+        <div class="chat-header">
+            <div>
+                <h4 style="margin:0">BillMe Assistant</h4>
+                <small style="opacity:0.8">Online · Response in < 1m</small>
+            </div>
+            <button onclick="toggleChat()"
+                style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+        <div class="chat-content" id="chatContent">
+            <div
+                style="background:#e3f2fd; padding:12px 16px; border-radius:15px; border-bottom-left-radius:2px; margin-bottom:15px; font-size:14px; color:#1565c0; max-width:85%;">
+                Hi there! 👋 Which solution fits your business? Ask me anything!
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message..." id="chatInput">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
-</div>
 
-<script>
-    function toggleChat() {
-        document.getElementById('chatWindow').classList.toggle('active');
-    }
+    <script>
+        function toggleChat() {
+            document.getElementById('chatWindow').classList.toggle('active');
+        }
 
-    function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const content = document.getElementById('chatContent');
-        if (!input.value.trim()) return;
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const content = document.getElementById('chatContent');
+            if (!input.value.trim()) return;
 
-        const userMsg = document.createElement('div');
-        userMsg.style.cssText = "background:#fff; padding:12px 16px; border-radius:15px; border-bottom-right-radius:2px; margin-bottom:15px; font-size:14px; color:#333; max-width:85%; align-self:flex-end; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-left:auto;";
-        userMsg.innerText = input.value;
-        content.appendChild(userMsg);
+            const userMsg = document.createElement('div');
+            userMsg.style.cssText = "background:#fff; padding:12px 16px; border-radius:15px; border-bottom-right-radius:2px; margin-bottom:15px; font-size:14px; color:#333; max-width:85%; align-self:flex-end; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-left:auto;";
+            userMsg.innerText = input.value;
+            content.appendChild(userMsg);
 
-        const botMsg = document.createElement('div');
-        botMsg.style.cssText = "background:#e3f2fd; padding:12px 16px; border-radius:15px; border-bottom-left-radius:2px; margin-bottom:15px; font-size:14px; color:#1565c0; max-width:85%;";
-        botMsg.innerText = "Thanks for reaching out! Our team will get back to you shortly.";
-        
-        setTimeout(() => {
-            content.appendChild(botMsg);
+            const botMsg = document.createElement('div');
+            botMsg.style.cssText = "background:#e3f2fd; padding:12px 16px; border-radius:15px; border-bottom-left-radius:2px; margin-bottom:15px; font-size:14px; color:#1565c0; max-width:85%;";
+            botMsg.innerText = "Thanks for reaching out! Our team will get back to you shortly.";
+
+            setTimeout(() => {
+                content.appendChild(botMsg);
+                content.scrollTop = content.scrollHeight;
+            }, 600);
+
+            input.value = '';
             content.scrollTop = content.scrollHeight;
-        }, 600);
+        }
 
-        input.value = '';
-        content.scrollTop = content.scrollHeight;
-    }
-
-</script>
+    </script>
 </body>
+
 </html>
