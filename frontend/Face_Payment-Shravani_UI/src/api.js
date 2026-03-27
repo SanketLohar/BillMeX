@@ -47,6 +47,15 @@ async function apiCall(endpoint, options = {}) {
 
   // Attach JWT token
   const token = getToken();
+  const isPublicEndpoint = endpoint.startsWith("/auth/login") || 
+                           endpoint.startsWith("/auth/register") || 
+                           endpoint.startsWith("/public/");
+
+  if (!token && !isPublicEndpoint) {
+    console.warn("API CALL BLOCKED (NO TOKEN):", endpoint);
+    throw new Error("UNAUTHORIZED");
+  }
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
     console.log("API CALL AUTH HEADER ATTACHED:", endpoint);
@@ -75,6 +84,17 @@ async function apiCall(endpoint, options = {}) {
 
   if (response.status === 401) {
     console.warn("Session expired or unauthorized (401)");
+    if (window.Auth && window.Auth.logout) {
+        window.Auth.logout();
+    } else {
+        clearAuth();
+        let rootPath = window.location.pathname;
+        if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+        else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+        else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+        else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+        window.location.href = window.location.origin + rootPath + 'index.html';
+    }
     throw new Error("UNAUTHORIZED");
   }
 
@@ -123,6 +143,11 @@ async function apiDownload(endpoint) {
 
   const headers = {};
 
+  if (!token) {
+    console.warn("API CALL BLOCKED (NO TOKEN):", endpoint);
+    throw new Error("UNAUTHORIZED");
+  }
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -132,6 +157,18 @@ async function apiDownload(endpoint) {
   });
 
   if (response.status === 401) {
+    console.warn("Session expired or unauthorized (401)");
+    if (window.Auth && window.Auth.logout) {
+        window.Auth.logout();
+    } else {
+        clearAuth();
+        let rootPath = window.location.pathname;
+        if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+        else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+        else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+        else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+        window.location.href = window.location.origin + rootPath + 'index.html';
+    }
     throw new Error("UNAUTHORIZED");
   }
 
@@ -179,7 +216,12 @@ const API = {
           window.Auth.logout();
       } else {
           clearAuth();
-          window.location.href = "../index.html";
+          let rootPath = window.location.pathname;
+          if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+          else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+          else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+          else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+          window.location.href = window.location.origin + rootPath + 'index.html';
       }
     },
 

@@ -32,6 +32,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Initialize UI (Auth is handled by auth.js)
     initNavigation();
     
+    // Failsafe loader hide
+    setTimeout(() => {
+        const loader = document.getElementById('pageLoader');
+        const dash = document.getElementById('dashLayout');
+        if (loader) loader.style.display = 'none';
+        if (dash && dash.style.display !== 'flex') dash.style.display = 'flex';
+    }, 5000);
+
     // 2. Set Profile Data (from current session/token)
     try {
         const user = window.API.auth.getUser(); // Assumed helper or from localStorage
@@ -462,7 +470,7 @@ async function loadFraudAlerts() {
 
     try {
         const response = await fetch('/api/admin/fraud-check', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('billme_token')}` }
         });
         
         if (!response.ok) {

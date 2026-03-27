@@ -21,10 +21,21 @@
             localStorage.removeItem('billme_token');
             localStorage.removeItem('billme_role');
             localStorage.removeItem('billme_user_id');
+            localStorage.removeItem('billme_refresh');
             this.user = null;
             
-            // Single safe redirect to landing page (matches working customer flow)
-            window.location.href = '../index.html';
+            const path = window.location.pathname;
+            let rootPath = path;
+            if (path.includes('/dashboard/')) {
+                rootPath = path.substring(0, path.indexOf('/dashboard/') + 1);
+            } else if (path.includes('/src/')) {
+                rootPath = path.substring(0, path.indexOf('/src/') + 1);
+            } else if (path.includes('/payment/')) {
+                rootPath = path.substring(0, path.indexOf('/payment/') + 1);
+            } else {
+                rootPath = path.substring(0, path.lastIndexOf('/') + 1);
+            }
+            window.location.href = window.location.origin + rootPath + 'index.html';
         },
 
         getToken() {
@@ -134,9 +145,10 @@
             // 1. If no token, allow public pages, redirect dashboards to login
             if (!token) {
                 if (isDashboard) {
-                    const prefix = '../src/';
+                    let rootPath = path.substring(0, path.indexOf('/dashboard/') + 1);
+                    const loginUri = window.location.origin + rootPath + 'src/login.html';
                     console.warn("No token found, redirecting to login");
-                    window.location.href = prefix + 'login.html';
+                    window.location.href = loginUri;
                 }
                 return;
             }
@@ -145,10 +157,9 @@
             const role = (localStorage.getItem('billme_role') || '').toLowerCase();
             
             if (!role) {
-                // If token exists but no role, we might need a fallback or just allow it
-                // For safety, if no role, we don't redirect but logout if it's a dashboard?
-                // Actually, user said rely on billme_role.
-                console.warn("Token exists but no role found in localStorage");
+                console.warn("Token exists but no role found in localStorage. Forcing logout.");
+                this.logout();
+                return;
             }
 
             // Dynamically resolve absolute base URI
@@ -171,7 +182,11 @@
             };
 
             const target = dashboards[role];
-            if (!target) return;
+            if (!target) {
+                console.warn("Invalid role mapped. Forcing logout.");
+                this.logout();
+                return;
+            }
 
             const currentFile = path.split('/').pop().toLowerCase();
             const targetFile = target.split('/').pop().toLowerCase();

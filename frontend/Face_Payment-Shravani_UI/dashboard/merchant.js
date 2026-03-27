@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const yearEl = document.getElementById('currentYear');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+    // Failsafe loader hide
+    setTimeout(() => {
+        const loader = document.getElementById('pageLoader');
+        const dash = document.getElementById('dashLayout');
+        if (loader) loader.style.display = 'none';
+        if (dash && dash.style.display !== 'flex') dash.style.display = 'flex';
+    }, 5000);
+
     await loadDashboard();
     bindNav();
     bindSidebarToggle();
