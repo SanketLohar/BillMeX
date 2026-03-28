@@ -40,8 +40,45 @@
             overflow-y: auto;
         }
 
-        .sidebar.collapsed {
-            transform: translateX(calc(-1 * var(--sidebar-width)));
+        /* Mobile sidebar uses .open class – must match JS */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+            cursor: pointer;
+        }
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        .menu-toggle-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .menu-toggle-btn:hover { background: var(--bg); }
+
+        /* Mobile: sidebar hidden by default, shown with .open */
+        @media (max-width: 768px) {
+            .menu-toggle-btn { display: flex; align-items: center; justify-content: center; }
+            .sidebar {
+                transform: translateX(calc(-1 * var(--sidebar-width)));
+                z-index: 200;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            }
+            .main-content { margin-left: 0; }
+            .page-area { padding: 16px; }
         }
 
         .sidebar-logo {
@@ -394,7 +431,7 @@
     </style>
 </head>
 
-<body class="dashboard-page">
+<body class="flex-page-body">
 
     <div id="pageLoader">
         <div class="spinner"
@@ -405,7 +442,8 @@
     </div>
 
     <div class="dash-layout" id="dashLayout" style="display:none;">
-        <aside class="sidebar">
+        <div class="mobile-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <i class="fas fa-bolt"></i> BillMe
             </div>
@@ -437,9 +475,12 @@
             </div>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content flex-grow-1" id="mainContent">
             <div class="dashboard-topbar">
                 <div class="topbar-left">
+                    <button class="menu-toggle-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div class="topbar-title" id="pageTitle">Overview</div>
                 </div>
                 <div class="topbar-right">
@@ -679,6 +720,7 @@
             </button>
         </div>
     </div>
+    <!-- Navigation and sidebar are handled by customer.js -->
 </body>
 
 </html>

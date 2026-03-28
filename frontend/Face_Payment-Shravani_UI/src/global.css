@@ -61,6 +61,24 @@ body {
     --container-max:  1400px;
 }
 
+/* ── Layout Utilities ── */
+.flex-page-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-grow-1 {
+    flex: 1;
+}
+
+.chart-container {
+    width: 100%;
+    height: 300px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
 /* ── Typography ── */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
@@ -273,6 +291,15 @@ img, svg, video {
     background: rgba(255, 255, 255, 0.08);
 }
 
+.flex-page-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.flex-page-main {
+    flex: 1;
+}
+
 /* ── Universal Footer ── */
 .lp-footer {
     background: #202124;
@@ -281,6 +308,7 @@ img, svg, video {
     text-align: center;
     font-size: 14px;
     border-top: 1px solid rgba(255,255,255,0.05);
+    margin-top: auto;
 }
 
 .lp-footer a {
@@ -1016,18 +1044,26 @@ img, svg, video {
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .topbar-right {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-shrink: 0;
 }
 
 .topbar-title {
     font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .topbar-icon-btn {
@@ -1043,6 +1079,7 @@ img, svg, video {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .topbar-icon-btn:hover {
@@ -1062,6 +1099,26 @@ img, svg, video {
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ── Notification Container (dashboard topbar) ── */
+.notification-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.notification-container .language-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1050;
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
 }
 
 /* ============================================================
@@ -1118,4 +1175,159 @@ img, svg, video {
 .chart-container canvas {
     width: 100% !important;
     height: 100% !important;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE FIXES (NAVBAR, SIDEBAR, OVERLAY)
+   ============================================================ */
+
+/* Landing Page Mobile Navbar */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-primary);
+    cursor: pointer;
+    z-index: 1003;
+}
+
+.mobile-nav-drawer {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    z-index: 1002;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 80px 24px 24px;
+}
+.mobile-nav-drawer.active {
+    right: 0;
+}
+.mobile-nav-drawer a {
+    padding: 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+}
+.mobile-nav-drawer a:last-child {
+    border-bottom: none;
+}
+
+/* Global Mobile Overlay */
+.mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Dashboard Sidebar Mobile Fixes */
+.menu-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 8px;
+    margin-right: 12px;
+}
+
+@media (max-width: 900px) {
+    .lp-nav-links, .lp-nav-cta {
+        display: none !important;
+    }
+    .mobile-menu-btn {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktop-only { display: none !important; }
+    
+    /* Dashboards Sidebar Off-Canvas */
+    .sidebar {
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+    }
+    .sidebar.open {
+        transform: translateX(0) !important;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    .menu-toggle-btn {
+        display: block;
+    }
+    
+    /* Cards and Grids stacking */
+    .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Charts */
+    .chart-box, .chart-container {
+        height: 250px !important;
+    }
+    
+    .data-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Dashboard Topbar: Mobile Crowding Fix ── */
+
+    /* 1. Tighten topbar padding so more space is available */
+    .dashboard-topbar {
+        padding: 0 10px;
+    }
+
+    /* 2. Reduce gaps so icons don't crowd */
+    .topbar-left {
+        gap: 8px;
+    }
+    .topbar-right {
+        gap: 8px;
+    }
+
+    /* 3. Shrink title font on mobile */
+    .topbar-title {
+        font-size: 15px;
+    }
+
+    /* 4. Hide refresh button — not needed on mobile */
+    #refreshBtn {
+        display: none !important;
+    }
+
+    /* 5. Notification dropdown: fixed to viewport so it never bleeds off-screen.
+       position:fixed removes it from the topbar stacking context entirely,
+       anchoring it to the actual viewport edges instead of the bell icon's parent. */
+    .notification-container .language-dropdown,
+    #notifDropdown {
+        position: fixed !important;
+        top: var(--topbar-height, 64px) !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
+        max-height: 60vh !important;
+    }
 }

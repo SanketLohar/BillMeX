@@ -395,10 +395,59 @@
             height: 1px;
             background: var(--border);
         }
+        /* ── Mobile sidebar + overlay (REQUIRED for toggleSidebar to work) ── */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+            cursor: pointer;
+        }
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        .menu-toggle-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .menu-toggle-btn:hover {
+            background: var(--bg);
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .sidebar {
+                transform: translateX(calc(-1 * var(--sidebar-width)));
+                z-index: 200;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .page-area {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 
-<body>
+<body class="flex-page-body">
 
     <div id="pageLoader">
         <div class="spinner"
@@ -409,7 +458,8 @@
     </div>
 
     <div class="dash-layout" id="dashLayout" style="display:none;">
-        <aside class="sidebar">
+        <div class="mobile-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo"><i class="fas fa-bolt"></i> BillMe</div>
             <div class="sidebar-profile">
                 <img id="side-avatar" src="https://ui-avatars.com/api/?name=Admin&background=1a73e8&color=fff"
@@ -445,9 +495,12 @@
             </div>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content flex-grow-1" id="mainContent">
             <div class="dashboard-topbar">
                 <div class="topbar-left">
+                    <button class="menu-toggle-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div class="topbar-title" id="pageTitle">Dashboard</div>
                 </div>
                 <div class="topbar-right" style="display:flex; align-items:center; gap:20px;">
@@ -506,11 +559,12 @@
                         </div>
                     </div>
 
-                    <div class="card mb-4" style="height: 400px;">
+                    <div class="card mb-4">
                         <div class="card-header">
                             <h3>Revenue Flow</h3>
                         </div>
-                        <div style="padding: 24px; height: calc(100% - 70px);"><canvas id="revenueTrendChart"></canvas>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="revenueTrendChart"></canvas>
                         </div>
                     </div>
 
@@ -519,13 +573,17 @@
                             <div class="card-header">
                                 <h3>Payment Distribution</h3>
                             </div>
-                            <div style="padding: 24px; height: 350px;"><canvas id="payDistChart"></canvas></div>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="payDistChart"></canvas>
+                            </div>
                         </div>
                         <div class="card">
                             <div class="card-header">
                                 <h3>System Activity</h3>
                             </div>
-                            <div style="padding: 24px; height: 350px;"><canvas id="txTrendChart"></canvas></div>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="txTrendChart"></canvas>
+                            </div>
                         </div>
                     </div>
 
@@ -693,8 +751,8 @@
                                 <button class="btn btn-outline btn-sm" onclick="loadFraudAlerts()"><i
                                         class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="data-table-wrapper" style="max-height: 400px; overflow-y: auto;">
-                                <table class="data-table">
+                            <div class="data-table-wrapper" style="max-height: 400px; overflow-y: auto; overflow-x: auto; width: 100%;">
+                                <table class="data-table" style="min-width: 600px;">
                                     <thead>
                                         <tr>
                                             <th>Entity</th>
@@ -862,7 +920,7 @@
     </div>
 
     <script src="../src/notification.js"></script>
-    <script src="admin.js"></script>
+    <!-- <script src="admin.js"></script> -->
     <script>
         function toggleLangDropdown() { document.getElementById('lang-menu').classList.toggle('active'); }
         window.onclick = function (event) { if (!event.target.closest('.language-dropdown-container')) document.getElementById('lang-menu').classList.remove('active'); }
@@ -895,6 +953,21 @@
             </button>
         </div>
     </div>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(sidebar) sidebar.classList.toggle('open');
+            if(overlay) overlay.classList.toggle('active');
+        }
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if(window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

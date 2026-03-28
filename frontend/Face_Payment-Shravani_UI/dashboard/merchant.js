@@ -14,6 +14,29 @@ let currentInvId = null;  // for modal
 // ── Chart instances ──────────────────────────────────────────
 let chartStatus = null, chartPayment = null, chartActivity = null;
 
+// ── ✅ CRITICAL: toggleSidebar defined at TOP-LEVEL scope ────────
+// Must be here BEFORE DOMContentLoaded so inline onclick="toggleSidebar()"
+// on the menu button works on the FIRST click without any race condition.
+window.toggleSidebar = function(forcedState) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    console.log('Sidebar toggle clicked', 'forcedState:', forcedState, 'sidebar found:', !!sidebar);
+
+    if (!sidebar) {
+        console.error('[Merchant] Sidebar element not found! Check id="sidebar" in HTML.');
+        return;
+    }
+
+    if (typeof forcedState === 'boolean') {
+        sidebar.classList.toggle('open', forcedState);
+        if (overlay) overlay.classList.toggle('active', forcedState);
+    } else {
+        sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('active');
+    }
+    console.log('[Merchant] Sidebar state:', sidebar.classList.contains('open') ? 'OPEN' : 'CLOSED');
+};
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     // Dynamic year
@@ -952,42 +975,75 @@ async function loadTransactions() {
 
 // ── Section navigation ────────────────────────────────────────
 function bindNav() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function () {
-            const section = this.dataset.section;
+    document.querySelectorAll('.nav-item a').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const parent = this.closest('.nav-item');
+            const section = parent?.getAttribute('data-section');
+
+            console.log('[Merchant] Navigate →', section);
+
             if (!section) return;
+
+            // remove active from all
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
-            const sec = document.getElementById(`sec-${section}`);
-            if (sec) sec.classList.add('active');
-            document.getElementById('pageTitle').textContent =
-                this.querySelector('a').textContent.trim();
+            parent.classList.add('active');
 
-            // Load transactions on first visit
-            if (section === 'transactions') loadTransactions();
+            // show correct section
+            document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active'));
 
-            // Mobile: close sidebar
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
+            const target = document.getElementById(`sec-${section}`);
+            if (target) target.classList.add('active');
+
+            // update title
+            const title = document.getElementById('pageTitle');
+            if (title) title.textContent = section.charAt(0).toUpperCase() + section.slice(1);
+
+            // close sidebar on mobile
+            toggleSidebar(false);
         });
-    });
-
-    // Profile banner CTA
-    document.getElementById('bannerGoProfile')?.addEventListener('click', () => {
-        document.querySelector('[data-section="profile"]')?.click();
     });
 }
 
+// toggleSidebar is defined at the TOP of this file — see above.
+// No duplicate definition here.
+
 function bindSidebarToggle() {
-    document.getElementById('menuToggle')?.addEventListener('click', () => {
-        document.getElementById('sidebar').classList.toggle('open');
-    });
-    // Close sidebar on outside click (mobile)
-    document.getElementById('mainContent')?.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebar').classList.remove('open');
+    console.log('[Merchant] Binding sidebar toggle...');
+
+    const menuBtn = document.getElementById('menuToggleBtn');
+    const overlay = document.getElementById('sidebarOverlay');
+    const sidebar = document.getElementById('sidebar');
+
+    console.log('menuBtn:', menuBtn);
+    console.log('overlay:', overlay);
+    console.log('sidebar:', sidebar);
+
+    // ✅ MENU BUTTON FIX
+    if (menuBtn) {
+        menuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('[Merchant] Menu clicked');
+            toggleSidebar();
+        });
+    } else {
+        console.error('[Merchant] menuToggleBtn NOT FOUND');
+    }
+
+    // ✅ OVERLAY FIX
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            console.log('[Merchant] Overlay clicked');
+            toggleSidebar(false);
+        });
+    }
+
+    // ✅ SAFETY: close sidebar on resize (optional but pro)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && sidebar) {
+            sidebar.classList.remove('open');
+            overlay?.classList.remove('active');
         }
     });
 }
@@ -995,7 +1051,14 @@ function bindSidebarToggle() {
 function bindMisc() {
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         const rt = localStorage.getItem('billme_refresh');
-        if (rt) API.auth.logout(rt).catch(() => { });
+        if (rt) {
+            try {
+                const logoutResult = API.auth.logout(rt);
+                if (logoutResult && typeof logoutResult.then === 'function') {
+                    await logoutResult;
+                }
+            } catch (e) { /* logout errors are non-critical */ }
+        }
         clearAuth();
         window.location.href = '../index.html';
     });

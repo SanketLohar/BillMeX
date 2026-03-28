@@ -77,14 +77,14 @@
         }
     </style>
 </head>
-<body>
+<body class="flex-page-body">
 
     <!-- ── NAV ── -->
     <nav class="lp-nav">
         <div class="lp-nav__inner">
             <a href="../index.html" class="lp-logo">
                 <div class="lp-logo__icon"><i class="fas fa-bolt"></i></div>
-                <span data-i18n="nav_home">BillMe</span>
+                <span data-i18n="branding_name">BillMeX</span>
             </a>
             <ul class="lp-nav-links">
                 <li><a href="../index.html" data-i18n="nav_home">Home</a></li>
@@ -107,10 +107,28 @@
                         <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
                     </div>
                 </div>
-                <a href="login.html" class="lp-nav-cta-btn" data-i18n="nav_signin">Sign In</a>
+                <a href="login.html" class="btn btn-secondary btn-sm" data-i18n="nav_signin">Sign In</a>
+                <a href="register.html" class="btn btn-primary btn-sm" data-i18n="nav_getstarted">Get Started</a>
             </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+        <button onclick="toggleMobileMenu()" style="position:absolute; top:20px; right:20px; background:none; border:none; font-size:24px; color:var(--text-primary); cursor:pointer;"><i class="fas fa-times"></i></button>
+        <a href="../index.html" data-i18n="nav_home">Home</a>
+        <a href="products.html" data-i18n="nav_products">Products</a>
+        <a href="solutions.html" data-i18n="nav_solutions">Solutions</a>
+        <a href="resources.html" data-i18n="nav_resources">Resources</a>
+        <a href="company.html" data-i18n="nav_company">Company</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="login.html" data-i18n="nav_signin" style="color: var(--primary);">Sign In</a>
+        <a href="register.html" data-i18n="nav_getstarted" style="color: var(--primary); font-weight: 800;">Get Started</a>
+    </div>
 
     <!-- ── HERO ── -->
     <section class="hero">
@@ -220,6 +238,10 @@
     </footer>
 
     <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileNavDrawer').classList.toggle('active');
+            document.getElementById('mobileOverlay').classList.toggle('active');
+        }
     </script>
 </body>
 </html>

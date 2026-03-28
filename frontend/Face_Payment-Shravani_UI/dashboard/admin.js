@@ -73,35 +73,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 =========================================================== */
 
 function initNavigation() {
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+    console.log('[Admin] initNavigation() called');
+
+    // ✅ Bind on <a> tags inside nav-items (not the li itself)
+    // This avoids event propagation issues with nested anchors
+    document.querySelectorAll('.nav-item a').forEach(link => {
+        link.addEventListener('click', function(e) {
             e.preventDefault();
-            const sectionId = item.getAttribute('data-section');
+            e.stopPropagation();
+
+            const navItem = this.closest('.nav-item');
+            const sectionId = navItem ? navItem.getAttribute('data-section') : null;
+            console.log('[Admin] Nav link clicked → section:', sectionId);
+
             if (sectionId) {
-                window.location.hash = sectionId;
                 showSection(sectionId);
+                if (window.innerWidth <= 768) {
+                    toggleSidebar(false);
+                }
             }
         });
     });
 
-    // Listen for hash changes
-    window.addEventListener('hashchange', () => {
-        loadCurrentSection();
+    // Also bind directly on li for fallback
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            const sectionId = this.getAttribute('data-section');
+            if (!sectionId) return;
+            // Only fire if clicked directly on li (not on the <a>)
+            if (e.target === this) {
+                e.preventDefault();
+                console.log('[Admin] Nav item (li) clicked → section:', sectionId);
+                showSection(sectionId);
+                if (window.innerWidth <= 768) {
+                    toggleSidebar(false);
+                }
+            }
+        });
+    });
+
+    // Overlay also closes sidebar – already handled by inline onclick,
+    // but we register it via JS as a fallback for browsers that block inline events.
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+        toggleSidebar(false);
     });
 }
 
 function loadCurrentSection() {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
+    console.log('[Admin] loadCurrentSection() hash:', hash);
     showSection(hash);
 }
 
 function showSection(sectionId) {
-    // If navigating to transactions via sidebar (not from drawer), clear filter
-    const isSidebarNav = event && event.type === 'click' && event.currentTarget.classList.contains('nav-item');
-    if (isSidebarNav && sectionId === 'transactions') {
-        txnMerchantFilter = null;
-    }
+    console.log('[Admin] showSection() →', sectionId);
 
     // Update Sidebar Active State
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -113,12 +138,15 @@ function showSection(sectionId) {
     });
 
     // Update Section Visibility
+    let found = false;
     document.querySelectorAll('.section-page').forEach(sec => {
         sec.classList.remove('active');
         if (sec.id === `sec-${sectionId}`) {
             sec.classList.add('active');
+            found = true;
         }
     });
+    if (!found) console.warn('[Admin] No section found with id: sec-' + sectionId);
 
     // Update Topbar Title
     const titles = {
@@ -140,6 +168,35 @@ function showSection(sectionId) {
         case 'settings': loadCompliance(); break;
     }
 }
+
+/**
+ * Unified Sidebar Toggle — Works on FIRST click
+ * @param {boolean|undefined} forcedState - true=open, false=close, undefined=toggle
+ */
+window.toggleSidebar = function(forcedState) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    console.log('[Admin] toggleSidebar() called, forcedState:', forcedState, 'sidebar:', !!sidebar);
+
+    if (!sidebar) {
+        console.error('[Admin] SIDEBAR ELEMENT NOT FOUND! Check id="sidebar" in HTML.');
+        return;
+    }
+
+    if (typeof forcedState === 'boolean') {
+        if (forcedState) {
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+    } else {
+        sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('active');
+    }
+    console.log('[Admin] Sidebar classes now:', sidebar.className);
+};
 
 /* ===========================================================
    DASHBOARD OVERVIEW
@@ -472,7 +529,14 @@ async function loadFraudAlerts() {
         const response = await fetch('/api/admin/fraud-check', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('billme_token')}` }
         });
-        
+
+        // 404 means endpoint not yet implemented — silent fallback to mock
+        if (response.status === 404) {
+            console.info('[Admin] /api/admin/fraud-check not available, showing mock fraud data');
+            renderMockFraudAlerts();
+            return;
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
@@ -501,7 +565,7 @@ async function loadFraudAlerts() {
             </tr>
         `).join('');
     } catch (e) {
-        console.warn("Fraud API failed, showing mock data for compliance overview:", e.message);
+        console.info("[Admin] Fraud API unavailable, showing mock data:", e.message);
         renderMockFraudAlerts();
     }
 }

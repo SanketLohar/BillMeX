@@ -41,9 +41,33 @@
             transition: transform 0.3s;
             overflow-y: auto;
         }
+        /* ── Mobile sidebar: hide by default on mobile, show when .open  ── */
+        /* This MUST match what JS does: sidebar.classList.toggle('open')  */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+            cursor: pointer;
+        }
+        .mobile-overlay.active {
+            display: block;
+        }
 
-        .sidebar.collapsed {
-            transform: translateX(calc(-1 * var(--sidebar-width)));
+        .menu-toggle-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .menu-toggle-btn:hover {
+            background: var(--bg);
         }
 
         .sidebar-logo {
@@ -763,7 +787,7 @@
     </style>
 </head>
 
-<body>
+<body class="flex-page-body">
 
     <div id="pageLoader">
         <div class="spinner"
@@ -774,7 +798,7 @@
     </div>
 
     <div class="dash-layout" id="dashLayout" style="display:none;">
-
+<div class="mobile-overlay" id="sidebarOverlay"></div>
         <!-- ════ SIDEBAR ════ -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
@@ -830,7 +854,9 @@
             <!-- Top bar -->
             <div class="dashboard-topbar">
                 <div class="topbar-left">
-                    <button class="menu-toggle-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <button class="menu-toggle-btn" id="menuToggleBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div class="topbar-title" id="pageTitle">Overview</div>
                 </div>
                 <div class="topbar-right">
@@ -922,18 +948,24 @@
                         <div class="dash-card">
                             <div class="dash-card__title">Invoice Status Distribution</div>
                             <div class="dash-card__sub">Across all your invoices</div>
-                            <div class="chart-box"><canvas id="chartInvoiceStatus"></canvas></div>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="chartInvoiceStatus"></canvas>
+                            </div>
                         </div>
                         <div class="dash-card">
                             <div class="dash-card__title">Payment Methods</div>
                             <div class="dash-card__sub">How customers are paying</div>
-                            <div class="chart-box"><canvas id="chartPaymentMethods"></canvas></div>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="chartPaymentMethods"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="dash-card">
                         <div class="dash-card__title">Invoice Activity (Last 12 months)</div>
                         <div class="dash-card__sub">Number of invoices issued per month</div>
-                        <div class="chart-box" style="height:200px;"><canvas id="chartActivity"></canvas></div>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="chartActivity"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -1407,16 +1439,20 @@
             document.getElementById('lang-menu').classList.toggle('active');
         }
 
-        window.onclick = function (event) {
-            if (!event.target.closest('.language-dropdown-container')) {
-                document.getElementById('lang-menu').classList.remove('active');
-            }
-        }
-
         function toggleNotifications() {
             const dropdown = document.getElementById('notifDropdown');
             if (dropdown) dropdown.classList.toggle('active');
         }
+
+        // ✅ FIX: Use addEventListener instead of window.onclick assignment.
+        // window.onclick = function(){} KILLS all inline onclick= attributes
+        // on every element in the page (including the sidebar menu button).
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.language-dropdown-container')) {
+                const langMenu = document.getElementById('lang-menu');
+                if (langMenu) langMenu.classList.remove('active');
+            }
+        });
     </script>
     <script src="../src/chatbot.js"></script>
     <!-- Chatbot -->

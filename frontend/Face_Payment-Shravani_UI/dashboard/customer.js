@@ -56,13 +56,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function setupNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const section = item.getAttribute('data-section');
-            showSection(section);
+    console.log('[Customer] setupNavigation() called');
+
+    // ✅ Bind on <a> tags directly to avoid li propagation issues
+    document.querySelectorAll('.nav-item a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const navItem = this.closest('.nav-item');
+            const section = navItem ? navItem.getAttribute('data-section') : null;
+            console.log('[Customer] Nav link clicked → section:', section);
+
+            if (section) {
+                showSection(section);
+                if (window.innerWidth <= 768) toggleSidebar(false);
+            }
         });
     });
+
+    // Overlay: already handled by inline onclick on the element,
+    // but also bind here as a JS fallback
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+        console.log('[Customer] Overlay clicked → closing sidebar');
+        toggleSidebar(false);
+    });
 }
+
+/**
+ * Unified Sidebar Toggle
+ */
+window.toggleSidebar = function(forcedState) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    console.log('[Customer] toggleSidebar() forcedState:', forcedState, 'sidebar:', !!sidebar);
+
+    if (!sidebar) {
+        console.error('[Customer] SIDEBAR NOT FOUND! Check id="sidebar" in HTML.');
+        return;
+    }
+
+    if (typeof forcedState === 'boolean') {
+        if (forcedState) {
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+    } else {
+        sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('active');
+    }
+    console.log('[Customer] Sidebar classes now:', sidebar.className);
+};
 
 function setupLogout() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -77,21 +124,22 @@ function setupLogout() {
 }
 
 function showSection(sectionId) {
+    console.log('[Customer] showSection() →', sectionId);
+
     document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
 
     const section = document.getElementById('sec-' + sectionId);
-    if (section) section.classList.add('active');
+    if (section) {
+        section.classList.add('active');
+    } else {
+        console.warn('[Customer] No section found: sec-' + sectionId);
+    }
 
     const nav = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
     if (nav) nav.classList.add('active');
 
-    const titles = {
-        overview: 'Overview',
-        invoices: 'My Invoices',
-        profile: 'Profile Settings'
-    };
-
+    const titles = { overview: 'Overview', invoices: 'My Invoices', profile: 'Profile Settings' };
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.innerText = titles[sectionId] || 'Dashboard';
 }
@@ -144,6 +192,9 @@ function renderInvoices(invoices) {
     const allBody = document.getElementById('allInvoicesBody');
 
     if (!recentBody || !allBody) return;
+
+    // Cache for modal preview lookup
+    window._customerInvoiceList = invoices;
 
     const rows = invoices.map(inv => {
         const invoiceId = inv.id || inv.invoiceId;
@@ -217,9 +268,78 @@ function updateAnalytics(invoices) {
 
 // Global actions exposed to window
 window.previewInvoice = function(num, token) {
-    if (!num || !token) return;
-    window.location.href = `../pay-invoice.html?num=${num}&token=${token}`;
+    console.log('Modal opened', 'invoiceNum:', num, 'token:', token);
+
+    if (!num || !token) {
+        console.warn('[Customer] previewInvoice: missing num or token');
+        return;
+    }
+
+    // Build or reuse the modal
+    let modal = document.getElementById('invoicePreviewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'invoicePreviewModal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:3000; align-items:center; justify-content:center; padding:16px;';
+        modal.innerHTML = `
+            <div style="background:#fff; border-radius:16px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+                <div style="padding:20px 24px; border-bottom:1px solid var(--border,#e2e8f0); display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; font-size:17px; font-weight:700;">Invoice Details</h3>
+                    <button onclick="document.getElementById('invoicePreviewModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:20px;color:#64748b;">✕</button>
+                </div>
+                <div id="invoicePreviewBody" style="padding:24px;">
+                    <div style="text-align:center;padding:20px;color:#94a3b8;">Loading invoice details…</div>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        // Close on backdrop click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+
+    modal.style.display = 'flex';
+    const previewBody = document.getElementById('invoicePreviewBody');
+
+    // Try to find invoice data from the already-loaded list first (no extra API call)
+    const cachedInvoice = (window._customerInvoiceList || []).find(
+        inv => inv.invoiceNumber === num || String(inv.invoiceNumber) === String(num)
+    );
+
+    if (cachedInvoice) {
+        renderInvoicePreview(previewBody, cachedInvoice);
+    } else {
+        // Fallback: show what we know from the token/num
+        previewBody.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div><span style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;">Invoice #</span><div style="font-size:16px;font-weight:700;margin-top:3px;">${num}</div></div>
+                <div style="padding:14px;background:#f8fafc;border-radius:10px;text-align:center;color:#64748b;font-size:13px;">Full details unavailable offline. Use Pay Now to proceed.</div>
+                <button onclick="window.location.href='../pay-invoice.html?num=${encodeURIComponent(num)}&token=${encodeURIComponent(token)}'"
+                    style="background:var(--primary,#1a73e8);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;">
+                    <i class="fas fa-external-link-alt"></i> Open Invoice Page
+                </button>
+            </div>`;
+    }
 };
+
+function renderInvoicePreview(container, inv) {
+    const status = inv.status || 'UNKNOWN';
+    const statusColors = { PAID: '#16a34a', UNPAID: '#d97706', FAILED: '#dc2626', REFUNDED: '#6366f1', PENDING: '#d97706' };
+    const color = statusColors[status] || '#64748b';
+    container.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Invoice #</div><div style="font-weight:700;margin-top:3px;">${inv.invoiceNumber || '—'}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Status</div><div style="font-weight:700;color:${color};margin-top:3px;">${status}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Merchant</div><div style="font-weight:600;margin-top:3px;">${inv.merchantName || '—'}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Amount</div><div style="font-weight:700;font-size:18px;margin-top:3px;">₹${Number(inv.totalPayable||0).toFixed(2)}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Due Date</div><div style="margin-top:3px;">${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '—'}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Paid Date</div><div style="margin-top:3px;">${(status==='PAID' && inv.paidAt) ? new Date(inv.paidAt).toLocaleDateString() : '—'}</div></div>
+            </div>
+            ${inv.description ? `<div style="padding:12px;background:#f8fafc;border-radius:8px;font-size:13px;color:#475569;"><strong>Description:</strong> ${inv.description}</div>` : ''}
+            ${status === 'UNPAID' ? `<button onclick="window.payInvoice && payInvoice('${inv.invoiceNumber}','${inv.paymentToken}'); document.getElementById('invoicePreviewModal').style.display='none';" style="background:var(--primary,#1a73e8);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:15px;">Pay Now ₹${Number(inv.totalPayable||0).toFixed(2)}</button>` : ''}
+        </div>`;
+}
 
 window.downloadInvoice = async function(invoiceId) {
     if (!invoiceId || invoiceId === 'undefined') {
