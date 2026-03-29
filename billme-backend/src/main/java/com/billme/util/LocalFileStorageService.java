@@ -17,7 +17,7 @@ public class LocalFileStorageService implements FileStorageService {
 
     private final Path rootLocation;
 
-    @Value("${app.upload.base-url:http://localhost:8080/uploads}")
+    @Value("${app.upload.base-url:${app.backend.url}/uploads}")
     private String baseUrl;
 
     public LocalFileStorageService(@Value("${app.upload.dir:uploads}") String uploadDir) {

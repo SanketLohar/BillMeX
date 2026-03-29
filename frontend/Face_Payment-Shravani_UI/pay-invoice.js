@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!detection) throw new Error("No face detected");
 
 
-            const BASE_URL = "http://localhost:8080";
+            const BASE_URL = window.API_BASE_URL;
             const token = localStorage.getItem("billme_token");
 
             // ✅ CRITICAL FIX (ONLY THIS MATTERS)
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================
     document.getElementById('btn-upi')?.addEventListener('click', async () => {
         try {
-            const BASE_URL = "http://localhost:8080";
+            const BASE_URL = window.API_BASE_URL;
 
             // 1. Create Razorpay Order
             const token = localStorage.getItem("billme_token");

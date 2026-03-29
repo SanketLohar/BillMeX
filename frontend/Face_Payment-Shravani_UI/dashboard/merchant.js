@@ -832,7 +832,7 @@ async function submitInvoice() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
     try {
-        const response = await fetch("http://localhost:8080/merchant/invoices", {
+        const response = await fetch(window.API_BASE_URL + "/merchant/invoices", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

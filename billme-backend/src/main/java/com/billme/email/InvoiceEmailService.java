@@ -130,7 +130,7 @@ public class InvoiceEmailService {
             String htmlContent =
                     "<div style='font-family: Arial, sans-serif; max-width:600px;margin:auto'>" +
                             "<h2 style='color:#34a853'>Payment Successful</h2>" +
-                            "<p>Your payment for invoice <b>" + invoice.getInvoiceNumber() + "</b> has been successfully received.</p>" +
+                            "<p>Your payment for invoice <b>" + invoice.getInvoiceNumber() + "</b> has been successfully received.If you want refund then please visit your own dashboard and Request Refund on the Bill Me </p>" +
                             "<p><b>Amount Paid:</b> ₹" + invoice.getTotalPayable() + "</p>" +
                             "<p><b>Paid Date:</b> " + (invoice.getPaidAt() != null ? invoice.getPaidAt().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")) : "N/A") + "</p>" +
                             "<br>" +

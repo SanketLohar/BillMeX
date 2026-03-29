@@ -39,7 +39,13 @@
                     <p class="text-muted" style="font-size:14px;">Your financial position at a glance</p>
                 </div>
                 <div class="d-flex gap-1">
-                    <select id="periodFilter" class="form-input" style="width:auto;">
+                    <div class="period-toggle">
+                        <input type="radio" name="period" id="p-today" value="today"><label for="p-today">Today</label>
+                        <input type="radio" name="period" id="p-weekly" value="weekly"><label for="p-weekly">Weekly</label>
+                        <input type="radio" name="period" id="p-monthly" value="monthly" checked><label for="p-monthly">Monthly</label>
+                        <input type="radio" name="period" id="p-all" value="all"><label for="p-all">All Time</label>
+                    </div>
+                    <select id="periodFilter" class="form-input" style="width:auto; display:none;">
                         <option value="all">All Time</option>
                         <option value="month">This Month</option>
                         <option value="quarter">This Quarter</option>
@@ -81,6 +87,36 @@
                     <div class="stat-icon icon-purple"><i class="fas fa-percent"></i></div>
                     <div class="stat-val" id="bs-fees">₹0.00</div>
                     <div class="stat-label">Processing Fees</div>
+                </div>
+            </div>
+
+            <!-- NEW: Card-based Financial Summary -->
+            <div class="card mb-3" id="financialSummarySection">
+                <div class="card-header">
+                    <h3 style="font-size:16px;"><i class="fas fa-file-invoice-dollar" style="color:var(--primary);"></i> Performance Overview</h3>
+                    <div id="lastUpdated" style="font-size:12px;color:var(--text-secondary);">Last updated: Just now</div>
+                </div>
+                <div class="financial-summary-grid">
+                    <div class="financial-card revenue">
+                        <div class="f-card-label">Gross Revenue</div>
+                        <div class="f-card-value" id="fs-gross">₹0.00</div>
+                        <i class="fas fa-plus-circle f-icon"></i>
+                    </div>
+                    <div class="financial-card refund">
+                        <div class="f-card-label">Total Refunds</div>
+                        <div class="f-card-value" id="fs-refunds">₹0.00</div>
+                        <i class="fas fa-minus-circle f-icon"></i>
+                    </div>
+                    <div class="financial-card fee">
+                        <div class="f-card-label">Processing Fees</div>
+                        <div class="f-card-value" id="fs-fees">₹0.00</div>
+                        <i class="fas fa-percentage f-icon"></i>
+                    </div>
+                    <div class="financial-card settlement">
+                        <div class="f-card-label">Net Settlement</div>
+                        <div class="f-card-value" id="fs-net">₹0.00</div>
+                        <i class="fas fa-wallet f-icon"></i>
+                    </div>
                 </div>
             </div>
 
@@ -160,6 +196,13 @@
     </main>
 
     <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="balanceLoader" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:9000; align-items:center; justify-content:center; flex-direction:column;">
+        <div class="spinner"></div>
+        <div style="margin-top:16px; font-weight:600; color:var(--primary);">Refreshing Reports...</div>
+    </div>
+
     <script src="../src/api.js"></script>
     <script src="balance_sheet.js"></script>
 </body>

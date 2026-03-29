@@ -53,9 +53,7 @@ logs/
 # ======================
 # SECURITY
 # ======================
-application.properties
 application-dev.properties
-application-prod.properties
 application.yml
 *.key
 *.pem

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // API Call
         try {
-            const response = await fetch('http://localhost:8080/auth/forgot-password', {
+            const response = await fetch(window.API_BASE_URL + '/auth/forgot-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

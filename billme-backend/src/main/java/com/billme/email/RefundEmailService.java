@@ -4,7 +4,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,10 @@ import java.math.BigDecimal;
 public class RefundEmailService {
 
     private final JavaMailSender mailSender;
+
+    @Value("${app.backend.url}")
+    private String backendUrl;
+
 
     public void sendRefundRequestEmail(
             String merchantEmail,
@@ -33,8 +39,9 @@ public class RefundEmailService {
             helper.setTo(merchantEmail);
             helper.setSubject("Refund Request: " + invoiceNumber);
 
-            String approveUrl = "http://localhost:8080/api/refund/email/approve/" + approveToken;
-            String rejectUrl = "http://localhost:8080/api/refund/email/reject/" + rejectToken;
+            String approveUrl = backendUrl + "/api/refund/email/approve/" + approveToken;
+            String rejectUrl = backendUrl + "/api/refund/email/reject/" + rejectToken;
+
 
             String htmlContent = String.format("""
                 <html>
