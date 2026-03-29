@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loader = document.getElementById('pageLoader');
         const dash = document.getElementById('dashLayout');
         if (loader) loader.style.display = 'none';
-        if (dash && dash.style.display !== 'flex') dash.style.display = 'flex';
+        if (dash && dash.style.display !== 'contents') dash.style.display = 'contents';
     }, 5000);
 
     try {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const layout = document.getElementById('dashLayout');
 
         if (loader) loader.style.display = 'none';
-        if (layout) layout.style.display = 'flex';
+        if (layout) layout.style.display = 'contents';
 
         // Initialize Navigation
         setupNavigation();

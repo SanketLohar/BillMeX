@@ -12,16 +12,18 @@
     <script src="../src/auth.js"></script>
     <script src="../src/i18n.js" defer></script>
     <style>
-        body {
+        body.flex-page-body {
             background: var(--bg);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* ── Layout ── */
         .dash-layout {
-            display: flex;
-            min-height: 100vh;
+            display: contents; /* Ensures sidebar/main become direct flex items of body */
         }
 
         /* ── Sidebar ── */
@@ -172,12 +174,43 @@
 
         /* ── Main content ── */
         .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
+            flex: 1; /* Only this gets flex:1 */
             display: flex;
             flex-direction: column;
             transition: margin 0.3s;
+        }
+
+        .lp-footer {
+            margin-top: auto;
+            padding: 20px 28px;
+            border-top: 1px solid var(--border);
+            background: #fff;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Desktop Sidebar Offset */
+        @media (min-width: 769px) {
+            .main-content, .lp-footer {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .lp-footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                padding: 16px;
+                font-size: 12px;
+            }
+            .lp-footer div {
+                justify-content: center;
+            }
         }
 
         .topbar__title {
@@ -677,8 +710,7 @@
     </div>
 
     <!-- Final Footer -->
-    <footer
-        style="padding: 20px 28px; border-top: 1px solid var(--border); background: #fff; font-size: 13px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; margin-left: var(--sidebar-width);">
+    <footer class="lp-footer">
         <div>&copy; <span id="currentYear">2026</span> BillMe — Customer Dashboard</div>
         <div style="display: flex; gap: 16px;">
             <span data-i18n="footer_secure"><i class="fas fa-shield-halved"></i> Secure Payments</span>
