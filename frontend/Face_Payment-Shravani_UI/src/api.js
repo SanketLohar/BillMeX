@@ -117,18 +117,35 @@ async function apiCall(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-  console.error("❌ API ERROR:", {
-    url,
-    status: response.status,
-    response: data
-  });
+    console.error("❌ API ERROR:", {
+      url,
+      status: response.status,
+      response: data
+    });
 
-  throw new Error(
-    typeof data === "string"
-      ? data
-      : data?.message || JSON.stringify(data) || `Request failed (${response.status})`
-  );
-}
+    // Extract clean error message from various Spring error shapes:
+    // { message: "..." }  → Spring service exceptions
+    // { error: "..." }    → Spring ResponseStatusException / security errors
+    // plain text          → simple string responses
+    let errorMessage;
+    if (typeof data === "string") {
+      errorMessage = data;
+    } else if (data?.message) {
+      errorMessage = data.message;
+    } else if (data?.error) {
+      // Translate backend-speak to user-friendly language
+      const raw = data.error;
+      if (raw === "Bad credentials" || raw === "Unauthorized" || raw === "Forbidden") {
+        errorMessage = "Invalid email or password. Please try again.";
+      } else {
+        errorMessage = raw;
+      }
+    } else {
+      errorMessage = `Request failed (${response.status})`;
+    }
+
+    throw new Error(errorMessage);
+  }
 
   return data;
 }
@@ -306,11 +323,11 @@ const API = {
         method: "POST"
       }),
     approveRefund: (invoiceId) =>
-      apiCall(`/api/payments/refund/${invoiceId}`, {
+      apiCall(`/api/refund/${invoiceId}`, {
         method: "POST"
       }),
     rejectRefund: (invoiceId) =>
-      apiCall(`/api/payments/refund/reject/${invoiceId}`, {
+      apiCall(`/api/refund/reject/${invoiceId}`, {
         method: "POST"
       }),
     retryPayment: (invoiceId) =>

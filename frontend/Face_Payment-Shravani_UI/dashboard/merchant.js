@@ -582,24 +582,37 @@ function renderRefundRequests() {
 }
 
 async function approveRefund(id) {
-    if (!confirm("Are you sure you want to approve this refund and return money to the customer?")) return;
+    const inv = invoiceList.find(i => i.invoiceId === id);
+    const method = inv?.paymentMethod || 'payment';
+    const methodLabel = method === 'FACE_PAY' ? 'FACE PAY (wallet refund)' :
+                        method === 'UPI_PAY'  ? 'UPI (Razorpay refund)'    :
+                        method === 'CARD'     ? 'Card (Razorpay refund)'   : method;
+
+    if (!confirm(`Approve refund for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nMethod: ${methodLabel}\n\nThis will reverse the payment to the customer.`)) return;
+
     try {
         await API.payment.approveRefund(id);
-        showToast('Refund approved successfully!', 'success');
-        loadDashboard(); // Refresh all data to update balance sheet & state
+        showToast('Refund approved and processed successfully!', 'success');
+        loadDashboard();
     } catch (e) {
-        showToast(e.message || 'Error occurred while approving refund', 'error');
+        console.error('[approveRefund] error:', e);
+        const msg = e.message || 'Error occurred while approving refund';
+        showToast(msg, 'error');
     }
 }
 
 async function rejectRefund(id) {
-    if (!confirm("Are you sure you want to reject this refund request?")) return;
+    const inv = invoiceList.find(i => i.invoiceId === id);
+    if (!confirm(`Reject refund request for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nThe customer will be notified.`)) return;
+
     try {
         await API.payment.rejectRefund(id);
-        showToast('Refund rejected.', 'info');
-        loadDashboard(); // Refresh data
+        showToast('Refund request rejected. Customer has been notified.', 'info');
+        loadDashboard();
     } catch (e) {
-        showToast(e.message || 'Error occurred while rejecting refund', 'error');
+        console.error('[rejectRefund] error:', e);
+        const msg = e.message || 'Error occurred while rejecting refund';
+        showToast(msg, 'error');
     }
 }
 

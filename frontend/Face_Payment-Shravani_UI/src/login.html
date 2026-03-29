@@ -559,6 +559,22 @@
             const errorMsg = document.getElementById("errorMsg");
 
             if (toast && errorMsg) {
+                // Humanize any backend-speak that may slip through
+                const rawLower = (msg || "").toLowerCase();
+                if (
+                    rawLower.includes("bad credentials") ||
+                    rawLower.includes("user not found") ||
+                    rawLower.includes("unauthorized") ||
+                    rawLower.includes("invalid email or password")
+                ) {
+                    msg = "Invalid email or password. Please try again.";
+                }
+
+                // Strip raw JSON blobs — if msg still looks like JSON, replace it
+                if (msg.trim().startsWith("{") || msg.trim().startsWith("[")) {
+                    msg = "Login failed. Please check your credentials.";
+                }
+
                 errorMsg.innerText = msg;
                 toast.classList.add("show");
                 setTimeout(() => toast.classList.remove("show"), 5000);
@@ -622,7 +638,28 @@
             } catch (err) {
 
                 console.error("Login error:", err);
-                showError(err.message || "Login failed.");
+
+                // Map known backend errors → friendly copy
+                const raw = err.message || "";
+                const rawLower = raw.toLowerCase();
+                let friendlyMsg;
+
+                if (
+                    rawLower.includes("bad credentials") ||
+                    rawLower.includes("user not found") ||
+                    rawLower.includes("unauthorized") ||
+                    rawLower.includes("invalid email or password")
+                ) {
+                    friendlyMsg = "Invalid email or password. Please try again.";
+                } else if (rawLower.includes("account locked")) {
+                    friendlyMsg = "Account temporarily locked. Please try again in 15 minutes.";
+                } else if (rawLower.includes("backend not reachable")) {
+                    friendlyMsg = "Service unavailable. Please try again later.";
+                } else {
+                    friendlyMsg = raw || "Login failed. Please try again.";
+                }
+
+                showError(friendlyMsg);
 
             } finally {
 
