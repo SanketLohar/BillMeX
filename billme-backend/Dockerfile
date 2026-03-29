@@ -1,10 +1,12 @@
-# Use correct Java image
 FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copy all files
-COPY . .
+# Copy only backend folder
+COPY billme-backend /app
+
+# Go inside backend
+WORKDIR /app
 
 # Build project
 RUN chmod +x mvnw
