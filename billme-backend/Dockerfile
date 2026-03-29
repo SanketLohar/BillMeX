@@ -1,16 +1,19 @@
 FROM eclipse-temurin:17-jdk
 
+# Set working dir
 WORKDIR /app
 
-# Copy only backend folder
-COPY billme-backend /app
+# Copy backend project ONLY
+COPY billme-backend/ .
 
-# Go inside backend
-WORKDIR /app
+# Debug (optional but useful)
+RUN ls -la
+
+# Make mvnw executable
+RUN chmod +x ./mvnw
 
 # Build project
-RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# Run app
+# Run jar
 CMD ["java", "-jar", "target/*.jar"]
