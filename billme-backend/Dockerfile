@@ -1,9 +1,14 @@
-FROM openjdk:17-jdk-slim
+# Use correct Java image
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-COPY target/*.jar app.jar
+# Copy all files
+COPY . .
 
-EXPOSE 8080
+# Build project
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
 
-ENTRYPOINT ["java","-jar","app.jar"]
+# Run app
+CMD ["java", "-jar", "target/*.jar"]
