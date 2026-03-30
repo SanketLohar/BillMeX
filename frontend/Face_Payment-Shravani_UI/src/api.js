@@ -7,7 +7,7 @@ window.API_BASE_URL = (() => {
   if (host === "localhost" || host === "127.0.0.1") {
     return "http://localhost:8080";
   }
-  return "https://billme-backend-final.onrender.com";
+  return "https://billmex.onrender.com";
 })();
 const API_BASE_URL = window.API_BASE_URL;
 
@@ -55,9 +55,10 @@ async function apiCall(endpoint, options = {}) {
 
   // Attach JWT token
   const token = getToken();
-  const isPublicEndpoint = endpoint.startsWith("/auth/login") || 
-                           endpoint.startsWith("/auth/register") || 
-                           endpoint.startsWith("/public/");
+  const isPublicEndpoint = endpoint.startsWith("/auth/login") ||
+    endpoint.startsWith("/auth/register") ||
+    endpoint.startsWith("/public/") ||
+    endpoint.startsWith("/api/chatbot");
 
   if (!token && !isPublicEndpoint) {
     console.warn("API CALL BLOCKED (NO TOKEN):", endpoint);
@@ -93,15 +94,15 @@ async function apiCall(endpoint, options = {}) {
   if (response.status === 401) {
     console.warn("Session expired or unauthorized (401)");
     if (window.Auth && window.Auth.logout) {
-        window.Auth.logout();
+      window.Auth.logout();
     } else {
-        clearAuth();
-        let rootPath = window.location.pathname;
-        if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
-        else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
-        else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
-        else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
-        window.location.href = window.location.origin + rootPath + 'index.html';
+      clearAuth();
+      let rootPath = window.location.pathname;
+      if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+      else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+      else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+      else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+      window.location.href = window.location.origin + rootPath + 'index.html';
     }
     throw new Error("UNAUTHORIZED");
   }
@@ -114,14 +115,10 @@ async function apiCall(endpoint, options = {}) {
 
   let data;
 
-  if (contentType.includes("application/json")) {
-
-    data = await response.json();
-
-  } else {
-
-    data = await response.text();
-
+  try {
+    data = await response.json();   // ✅ ALWAYS parse JSON first
+  } catch (e) {
+    data = await response.text();   // fallback
   }
 
   if (!response.ok) {
@@ -184,15 +181,15 @@ async function apiDownload(endpoint) {
   if (response.status === 401) {
     console.warn("Session expired or unauthorized (401)");
     if (window.Auth && window.Auth.logout) {
-        window.Auth.logout();
+      window.Auth.logout();
     } else {
-        clearAuth();
-        let rootPath = window.location.pathname;
-        if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
-        else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
-        else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
-        else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
-        window.location.href = window.location.origin + rootPath + 'index.html';
+      clearAuth();
+      let rootPath = window.location.pathname;
+      if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+      else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+      else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+      else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+      window.location.href = window.location.origin + rootPath + 'index.html';
     }
     throw new Error("UNAUTHORIZED");
   }
@@ -238,15 +235,15 @@ const API = {
 
     logout: () => {
       if (window.Auth && window.Auth.logout) {
-          window.Auth.logout();
+        window.Auth.logout();
       } else {
-          clearAuth();
-          let rootPath = window.location.pathname;
-          if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
-          else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
-          else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
-          else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
-          window.location.href = window.location.origin + rootPath + 'index.html';
+        clearAuth();
+        let rootPath = window.location.pathname;
+        if (rootPath.includes('/dashboard/')) rootPath = rootPath.substring(0, rootPath.indexOf('/dashboard/') + 1);
+        else if (rootPath.includes('/src/')) rootPath = rootPath.substring(0, rootPath.indexOf('/src/') + 1);
+        else if (rootPath.includes('/payment/')) rootPath = rootPath.substring(0, rootPath.indexOf('/payment/') + 1);
+        else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
+        window.location.href = window.location.origin + rootPath + 'index.html';
       }
     },
 
@@ -378,7 +375,7 @@ const API = {
 
   chatbot: {
 
-    ask: (data) => 
+    ask: (data) =>
       apiCall("/api/chatbot/ask", {
         method: "POST",
         body: data
@@ -393,7 +390,7 @@ const API = {
   admin: {
 
     getStats: () => apiCall("/api/admin/stats"),
-    
+
     getRevenue: () => apiCall("/api/admin/revenue"),
 
     getDashboard: () => API.admin.getStats(),
@@ -421,19 +418,19 @@ const API = {
     markRead: (id) => apiCall(`/api/notifications/${id}/read`, { method: "POST" })
   },
 
-    /* ======================
-       USER
-    ====================== */
-    user: {
-      uploadProfilePhoto: (formData) =>
-        apiCall("/api/user/profile-photo", {
-          method: "POST",
-          body: formData,
-          // Note: Browser sets Content-Type to multipart/form-data with boundary when body is FormData
-          headers: {} 
-        })
-    }
-  };
+  /* ======================
+     USER
+  ====================== */
+  user: {
+    uploadProfilePhoto: (formData) =>
+      apiCall("/api/user/profile-photo", {
+        method: "POST",
+        body: formData,
+        // Note: Browser sets Content-Type to multipart/form-data with boundary when body is FormData
+        headers: {}
+      })
+  }
+};
 
 /* ===========================================================
    AUTH HELPERS
@@ -467,13 +464,13 @@ function showToast(message, type = "info") {
   toast.className = `toast toast-${type}`;
   toast.innerText = message;
   toast.style.cssText = "position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:8px; color:#fff; z-index:9999; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.15);";
-  
+
   if (type === "success") toast.style.backgroundColor = "#34a853";
   else if (type === "error") toast.style.backgroundColor = "#ea4335";
   else toast.style.backgroundColor = "#4285f4";
 
   document.body.appendChild(toast);
-  
+
   setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transition = "opacity 0.5s";

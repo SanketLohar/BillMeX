@@ -8,9 +8,8 @@ target/
 *.war
 *.ear
 *.iml
-.mvn/
-mvnw
-mvnw.cmd
+
+
 
 # IntelliJ
 .idea/

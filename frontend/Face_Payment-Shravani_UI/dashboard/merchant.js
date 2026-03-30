@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     bindProfileForm();
     bindProductForm();
     bindInvoiceForm();
+    bindTransactions();
     bindMisc();
 
     // Export global functions heavily used by row buttons
@@ -938,6 +939,7 @@ async function loadTransactions() {
             status: document.getElementById('txFilter-status').value || undefined,
         };
         const data = await API.wallet.getTransactions(params);
+        console.log("RAW RESPONSE:", data);
         console.log("txPage:", txPage, "totalPages:", data?.totalPages);
 
         txTotalPages = Math.max(1, data?.totalPages || 1);
@@ -948,11 +950,11 @@ async function loadTransactions() {
         if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
 
         console.log("Next disabled (before force):", btnNext ? btnNext.disabled : "null");
-        txTotalPages = 5; // FORCE TEST
+        // txTotalPages = 5; // FORCE TEST
         if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
         console.log("Forced txTotalPages to 5, Next disabled:", btnNext ? btnNext.disabled : "null");
 
-        if (!data || !data.content || !data.content.length) {
+        if (!data || !Array.isArray(data.content) || data.content.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">No transactions found.</td></tr>';
             return;
         }
@@ -1015,8 +1017,19 @@ function bindNav() {
 
             // close sidebar on mobile
             toggleSidebar(false);
+
+            // 🔄 LOAD TRANSACTIONS IF SECTION OPENED
+            if (section === 'transactions') {
+                loadTransactions();
+            }
         });
     });
+
+    // Handle initial section state (on load)
+    const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
+    if (activeSection === 'transactions') {
+        loadTransactions();
+    }
 }
 
 // toggleSidebar is defined at the TOP of this file — see above.
