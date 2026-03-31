@@ -91,19 +91,24 @@ public class RefundService {
 
         User merchantUser = invoice.getMerchant().getUser();
 
-        // Send Email
+        // 🎟️ Generate Tokens for Action Buttons in Email
         String approveToken = refundTokenService.generateRefundToken(invoice.getId(), invoice.getMerchant().getId());
         String rejectToken = refundTokenService.generateRefundToken(invoice.getId(), invoice.getMerchant().getId());
-        
-        refundEmailService.sendRefundRequestEmail(
-                merchantUser.getEmail(),
-                invoice.getInvoiceNumber(),
-                invoice.getCustomer() != null ? invoice.getCustomer().getName() : "Customer",
-                invoice.getTotalPayable(),
-                invoice.getPaymentMethod().name(),
-                approveToken,
-                rejectToken
-        );
+
+        // Send Email (Non-blocking failure)
+        try {
+            refundEmailService.sendRefundRequestEmail(
+                    merchantUser.getEmail(),
+                    invoice.getInvoiceNumber(),
+                    invoice.getCustomer() != null ? invoice.getCustomer().getName() : "Customer",
+                    invoice.getTotalPayable(),
+                    invoice.getPaymentMethod().name(),
+                    approveToken,
+                    rejectToken
+            );
+        } catch (Exception e) {
+            log.error("❌ Failed to send refund request email for Invoice {}. Refund processing is NOT affected.", invoice.getInvoiceNumber(), e);
+        }
     }
 
     @Transactional
@@ -118,11 +123,16 @@ public class RefundService {
         invoice.setStatus(InvoiceStatus.REFUND_REJECTED);
         invoiceRepository.save(invoice);
 
-        // Notify Customer
+        // Notify Customer (Soft failure for emails)
         if (invoice.getCustomer() != null && invoice.getCustomer().getUser() != null) {
             String msg = "Your refund request for Invoice " + invoice.getInvoiceNumber() + " was rejected by the merchant.";
             notificationService.createNotification(invoice.getCustomer().getUser(), msg, NotificationType.ERROR);
-            refundEmailService.sendRefundRejectedEmail(invoice.getCustomer().getUser().getEmail(), invoice.getInvoiceNumber(), "Merchant policy / already processed.");
+            
+            try {
+                refundEmailService.sendRefundRejectedEmail(invoice.getCustomer().getUser().getEmail(), invoice.getInvoiceNumber(), "Merchant policy / already processed.");
+            } catch (Exception e) {
+                log.error("❌ Failed to send refund rejection email for Invoice {}. Status update remains successful.", invoice.getInvoiceNumber(), e);
+            }
         }
 
         // Notify Merchant
