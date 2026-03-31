@@ -17,7 +17,7 @@ let chartStatus = null, chartPayment = null, chartActivity = null;
 // ── ✅ CRITICAL: toggleSidebar defined at TOP-LEVEL scope ────────
 // Must be here BEFORE DOMContentLoaded so inline onclick="toggleSidebar()"
 // on the menu button works on the FIRST click without any race condition.
-window.toggleSidebar = function(forcedState) {
+window.toggleSidebar = function (forcedState) {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     console.log('Sidebar toggle clicked', 'forcedState:', forcedState, 'sidebar found:', !!sidebar);
@@ -280,22 +280,49 @@ function renderCharts(invoices, paymentMethods) {
         }
     });
 
-    if (chartPayment) chartPayment.destroy();
-    chartPayment = new Chart(document.getElementById('chartPaymentMethods'), {
-        type: 'pie',
-        data: {
-            labels: Object.keys(methodCounts),
-            datasets: [{
-                data: Object.values(methodCounts),
-                backgroundColor: ['#1a73e8', '#34a853', '#fbbc04'],
-                borderWidth: 2, borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
+    // ✅ SAFE Payment Chart Rendering (Production-proof)
+    const paymentCanvas = document.getElementById('chartPaymentMethods');
+
+    if (!paymentCanvas) {
+    console.warn('[Chart] Payment canvas not found');
+    return;
+}
+
+const safeMethodCounts = {
+    UPI: Number(methodCounts?.UPI || 0),
+    FacePay: Number(methodCounts?.FacePay || 0),
+    Card: Number(methodCounts?.Card || 0)
+};
+
+const hasData = Object.values(safeMethodCounts).some(v => v > 0);
+
+// Log only (no blocking)
+if (!hasData) {
+    console.warn('[Chart] No payment data available — rendering empty chart');
+}
+
+// Always render chart (even if empty)
+if (chartPayment) chartPayment.destroy();
+
+chartPayment = new Chart(paymentCanvas, {
+    type: 'pie',
+    data: {
+        labels: Object.keys(safeMethodCounts),
+        datasets: [{
+            data: Object.values(safeMethodCounts),
+            backgroundColor: ['#1a73e8', '#34a853', '#fbbc04'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' }
         }
-    });
+    }
+});
 
     if (chartActivity) chartActivity.destroy();
     chartActivity = new Chart(document.getElementById('chartActivity'), {
@@ -586,8 +613,8 @@ async function approveRefund(id) {
     const inv = invoiceList.find(i => i.invoiceId === id);
     const method = inv?.paymentMethod || 'payment';
     const methodLabel = method === 'FACE_PAY' ? 'FACE PAY (wallet refund)' :
-                        method === 'UPI_PAY'  ? 'UPI (Razorpay refund)'    :
-                        method === 'CARD'     ? 'Card (Razorpay refund)'   : method;
+        method === 'UPI_PAY' ? 'UPI (Razorpay refund)' :
+            method === 'CARD' ? 'Card (Razorpay refund)' : method;
 
     if (!confirm(`Approve refund for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nMethod: ${methodLabel}\n\nThis will reverse the payment to the customer.`)) return;
 
@@ -923,7 +950,7 @@ function bindTransactions() {
 let isTxLoading = false;
 async function loadTransactions() {
     if (isTxLoading) return;
-    
+
     isTxLoading = true;
     const btnNext = document.getElementById('txNext');
     const btnPrev = document.getElementById('txPrev');
@@ -945,7 +972,7 @@ async function loadTransactions() {
         txTotalPages = Math.max(1, data?.totalPages || 1);
         document.getElementById('txPageInfo').textContent =
             `Page ${txPage + 1} of ${txTotalPages} (${data?.totalElements || 0} total)`;
-        
+
         if (btnPrev) btnPrev.disabled = txPage === 0;
         if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
 
