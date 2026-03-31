@@ -23,7 +23,8 @@
 
         /* ── Layout ── */
         .dash-layout {
-            display: contents; /* Ensures sidebar/main become direct flex items of body */
+            display: contents;
+            /* Ensures sidebar/main become direct flex items of body */
         }
 
         /* ── Sidebar ── */
@@ -47,10 +48,11 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             z-index: 99;
             cursor: pointer;
         }
+
         .mobile-overlay.active {
             display: block;
         }
@@ -66,21 +68,36 @@
             border-radius: 6px;
             transition: background 0.2s;
         }
-        .menu-toggle-btn:hover { background: var(--bg); }
+
+        .menu-toggle-btn:hover {
+            background: var(--bg);
+        }
 
         /* Mobile: sidebar hidden by default, shown with .open */
         @media (max-width: 768px) {
-            .menu-toggle-btn { display: flex; align-items: center; justify-content: center; }
+            .menu-toggle-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .sidebar {
                 transform: translateX(calc(-1 * var(--sidebar-width)));
                 z-index: 200;
             }
+
             .sidebar.open {
                 transform: translateX(0);
-                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             }
-            .main-content { margin-left: 0; }
-            .page-area { padding: 16px; }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-area {
+                padding: 16px;
+            }
         }
 
         .sidebar-logo {
@@ -174,7 +191,8 @@
 
         /* ── Main content ── */
         .main-content {
-            flex: 1; /* Only this gets flex:1 */
+            flex: 1;
+            /* Only this gets flex:1 */
             display: flex;
             flex-direction: column;
             transition: margin 0.3s;
@@ -194,7 +212,9 @@
 
         /* Desktop Sidebar Offset */
         @media (min-width: 769px) {
-            .main-content, .lp-footer {
+
+            .main-content,
+            .lp-footer {
                 margin-left: var(--sidebar-width);
             }
         }
@@ -208,6 +228,7 @@
                 padding: 16px;
                 font-size: 12px;
             }
+
             .lp-footer div {
                 justify-content: center;
             }
@@ -443,15 +464,30 @@
         .chat-input {
             padding: 15px;
             border-top: 1px solid #eee;
-            display: flex; gap: 10px; background: white;
+            display: flex;
+            gap: 10px;
+            background: white;
         }
 
         .chat-input input {
-            flex: 1; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; outline: none;
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 20px;
+            outline: none;
         }
 
         .chat-input button {
-            background: #007bff; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            background: #007bff;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @media (max-width: 768px) {
@@ -470,7 +506,7 @@
         <div class="spinner"
             style="border-top-color:white;border-color:rgba(255,255,255,0.3);width:50px;height:50px;border-width:5px;">
         </div>
-        <h2 style="margin-top:16px;">BillMe</h2>
+        <h2 style="margin-top:16px;">BillMeX</h2>
         <p style="opacity:0.8;">Loading your dashboard...</p>
     </div>
 
@@ -478,7 +514,7 @@
         <div class="mobile-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
-                <i class="fas fa-bolt"></i> BillMe
+                <i class="fas fa-bolt"></i> BillMeX
             </div>
             <div class="sidebar-profile">
                 <img id="side-avatar" src="https://ui-avatars.com/api/?name=Customer&background=1a73e8&color=fff"
@@ -713,7 +749,7 @@
 
     <!-- Final Footer -->
     <footer class="lp-footer">
-        <div>&copy; <span id="currentYear">2026</span> BillMe — Customer Dashboard</div>
+        <div>&copy; <span id="currentYear">2026</span> BillMeX — Customer Dashboard</div>
         <div style="display: flex; gap: 16px;">
             <span data-i18n="footer_secure"><i class="fas fa-shield-halved"></i> Secure Payments</span>
         </div>
