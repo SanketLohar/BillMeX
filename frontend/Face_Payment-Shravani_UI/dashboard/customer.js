@@ -183,6 +183,9 @@ async function loadCustomerData() {
         updateAnalytics(invoices || []);
     } catch (err) {
         console.error("Data load error:", err);
+        if (window.API && window.API.showToast) {
+            window.API.showToast("Failed to refresh data. Please check your connection.", "error");
+        }
         throw err;
     }
 }
@@ -431,8 +434,12 @@ window.requestRefund = async function(invoiceId) {
 
         if (window.API && window.API.showToast) window.API.showToast('Refund request submitted successfully', 'success');
         
-        // 🔄 Background sync (optional/delayed to ensure DB consistency)
-        // await loadCustomerData(); 
+        // 🔄 FORCE CONSISTENCY SYNC: Wait 2s then refresh from server to ensure state matches
+        setTimeout(() => {
+            console.log("🔄 Background sync started...");
+            loadCustomerData().catch(e => console.warn("Sync failed, but UI remains optimistic."));
+        }, 2000);
+
     } catch (err) {
         console.error('Refund request failed:', err);
         if (window.API && window.API.showToast) window.API.showToast(err.message || 'Failed to request refund', 'error');

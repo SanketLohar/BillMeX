@@ -9,6 +9,7 @@ window.API_BASE_URL = (() => {
   }
   return "https://billmex-production.up.railway.app";
 })();
+console.log("🚀 [BillMeX] Using production API: " + API_BASE_URL);
 const API_BASE_URL = window.API_BASE_URL;
 
 
