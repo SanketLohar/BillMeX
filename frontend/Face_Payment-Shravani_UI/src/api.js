@@ -111,14 +111,13 @@ async function apiCall(endpoint, options = {}) {
      RESPONSE PARSING
   ====================== */
 
-  const contentType = response.headers.get("content-type") || "";
-
   let data;
+  const rawText = await response.text(); // ✅ Read stream ONLY ONCE
 
   try {
-    data = await response.json();   // ✅ ALWAYS parse JSON first
+    data = JSON.parse(rawText); // ✅ Attempt JSON parse
   } catch (e) {
-    data = await response.text();   // fallback
+    data = rawText; // ✅ Fallback to plain text
   }
 
   if (!response.ok) {
@@ -129,9 +128,6 @@ async function apiCall(endpoint, options = {}) {
     });
 
     // Extract clean error message from various Spring error shapes:
-    // { message: "..." }  → Spring service exceptions
-    // { error: "..." }    → Spring ResponseStatusException / security errors
-    // plain text          → simple string responses
     let errorMessage;
     if (typeof data === "string") {
       errorMessage = data;

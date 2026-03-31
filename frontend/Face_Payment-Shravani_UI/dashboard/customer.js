@@ -234,6 +234,11 @@ function renderInvoices(invoices) {
             <td>${inv.merchantName || "Merchant"}</td>
             <td class="fw-600">₹${amount.toFixed(2)}</td>
             <td>
+                <span class="badge badge-outline" style="font-size:10px; border-color:var(--border);">
+                    ${inv.paymentMethod ? inv.paymentMethod.replace('_', ' ') : '—'}
+                </span>
+            </td>
+            <td>
                 <span class="badge badge-${statusBadgeClass}">
                     ${status.replace('_', ' ')}
                 </span>
@@ -333,6 +338,7 @@ function renderInvoicePreview(container, inv) {
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Status</div><div style="font-weight:700;color:${color};margin-top:3px;">${status}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Merchant</div><div style="font-weight:600;margin-top:3px;">${inv.merchantName || '—'}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Amount</div><div style="font-weight:700;font-size:18px;margin-top:3px;">₹${Number(inv.totalPayable||0).toFixed(2)}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Payment Method</div><div style="font-weight:600;margin-top:3px;">${inv.paymentMethod || '—'}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Due Date</div><div style="margin-top:3px;">${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '—'}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Paid Date</div><div style="margin-top:3px;">${(status==='PAID' && inv.paidAt) ? new Date(inv.paidAt).toLocaleDateString() : '—'}</div></div>
             </div>
@@ -411,8 +417,22 @@ window.requestRefund = async function(invoiceId) {
     try {
         if (window.API && window.API.showToast) window.API.showToast('Initiating refund request...', 'info');
         await window.API.payment.requestRefund(invoiceId);
+        
+        // ✅ OPTIMISTIC UI UPDATE: Update local state for instant feedback
+        if (window._customerInvoiceList) {
+            const index = window._customerInvoiceList.findIndex(inv => 
+                (inv.id || inv.invoiceId).toString() === invoiceId.toString()
+            );
+            if (index !== -1) {
+                window._customerInvoiceList[index].status = 'REFUND_REQUESTED';
+                renderInvoices(window._customerInvoiceList);
+            }
+        }
+
         if (window.API && window.API.showToast) window.API.showToast('Refund request submitted successfully', 'success');
-        await loadCustomerData();
+        
+        // 🔄 Background sync (optional/delayed to ensure DB consistency)
+        // await loadCustomerData(); 
     } catch (err) {
         console.error('Refund request failed:', err);
         if (window.API && window.API.showToast) window.API.showToast(err.message || 'Failed to request refund', 'error');

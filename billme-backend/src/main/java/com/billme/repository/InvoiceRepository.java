@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
+    @EntityGraph(attributePaths = {"items", "merchant", "customer", "customer.user", "merchant.user"})
+    Optional<Invoice> findWithDetailsById(Long id);
 
     // Customer invoice fetch
     List<Invoice> findByCustomer_User_Id(Long userId);

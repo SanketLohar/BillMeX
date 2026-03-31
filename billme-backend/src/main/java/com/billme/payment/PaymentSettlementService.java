@@ -39,8 +39,8 @@ public class PaymentSettlementService {
 
     @Transactional
     public void settlePayment(Long invoiceId, String externalRef) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+        Invoice invoice = invoiceRepository.findWithDetailsById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with full details"));
 
         log.info("🚀 [SETTLEMENT START] Invoice: {} | Method: {} | Ref: {}", 
                 invoice.getInvoiceNumber(), invoice.getPaymentMethod(), externalRef);

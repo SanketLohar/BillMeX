@@ -98,6 +98,7 @@
         <div><b>Date:</b> <span th:text="${invoiceDate}"></span></div>
         <div><b>Due Date:</b> <span th:text="${dueDate}"></span></div>
         <div th:if="${paidDate != null}"><b>Paid Date:</b> <span th:text="${paidDate}"></span></div>
+        <div><b>Payment Method:</b> <span th:text="${paymentMethod}"></span></div>
         <div><b>Status:</b> <span th:text="${status}"></span></div>
     </div>
 </div>

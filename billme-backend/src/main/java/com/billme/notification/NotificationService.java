@@ -86,13 +86,14 @@ public class NotificationService {
                     log.info("📧 Attempting to send synchronized emails for Invoice {}", invoice.getInvoiceNumber());
                     
                     // 1. Customer Email
-                    if (finalCustomerEmail != null) {
+                    // 🚨 REMOVED REDUNDANT SIMPLE EMAIL. Detailed PDF email is sent via InvoiceEmailService.
+                    /* if (finalCustomerEmail != null) {
                         try {
                             emailService.sendCustomerPaymentSuccessEmail(invoice);
                         } catch (Exception e) {
                             log.error("🚨 Failed to send customer email after commit: {}", e.getMessage());
                         }
-                    }
+                    } */
 
                     // 2. Merchant Email
                     if (finalMerchantEmail != null) {

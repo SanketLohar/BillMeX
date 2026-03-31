@@ -44,6 +44,11 @@ public class InvoiceTemplateService {
                         ? invoice.getStatus().name()
                         : "");
 
+        context.setVariable("paymentMethod",
+                invoice.getPaymentMethod() != null
+                        ? invoice.getPaymentMethod().name().replace('_', ' ')
+                        : "—");
+
         context.setVariable("paidDate",
                 (invoice.getStatus() != null && invoice.getStatus().name().equals("PAID") && invoice.getPaidAt() != null)
                         ? invoice.getPaidAt().format(formatter)

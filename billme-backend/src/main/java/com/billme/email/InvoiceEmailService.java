@@ -40,7 +40,9 @@ public class InvoiceEmailService {
 
         try {
             // ✅ Generate PDF
+            log.info("📄 [PDF START] Generating PDF for Invoice #{}", invoice.getInvoiceNumber());
             byte[] pdf = pdfService.generateInvoicePdf(invoice);
+            log.info("📄 [PDF SUCCESS] PDF generated successfully for Invoice #{}. Size: {} bytes", invoice.getInvoiceNumber(), pdf.length);
 
             // ✅ Create email
             MimeMessage message = mailSender.createMimeMessage();
@@ -111,8 +113,9 @@ public class InvoiceEmailService {
 
         try {
             // ✅ Generate UPDATED PAID PDF
+            log.info("📄 [PDF START] Generating PAID PDF for Invoice #{}", invoice.getInvoiceNumber());
             byte[] pdf = pdfService.generateInvoicePdf(invoice);
-            log.info("PDF SIZE: {}", pdf.length);
+            log.info("📄 [PDF SUCCESS] PAID PDF generated successfully for Invoice #{}. Size: {} bytes", invoice.getInvoiceNumber(), pdf.length);
 
             // ✅ Create email
             MimeMessage message = mailSender.createMimeMessage();

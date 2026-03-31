@@ -95,57 +95,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    document.getElementById('btn-verify')?.addEventListener('click', async () => {
+    document.getElementById('btn-verify')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        if (btn.disabled) return; // Prevent duplicate clicks
+
         try {
+            // 1. Initial Processing State
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            showToast('Processing payment...', 'info');
+
             const detection = await faceapi
                 .detectSingleFace(video)
                 .withFaceLandmarks()
                 .withFaceDescriptor();
 
-            if (!detection) throw new Error("No face detected");
-
+            if (!detection) throw new Error("No face detected. Please look into the camera.");
 
             const BASE_URL = window.API_BASE_URL;
-            const token = localStorage.getItem("billme_token");
-
-            // ✅ CRITICAL FIX (ONLY THIS MATTERS)
             const embedding = Array.from(detection.descriptor).map(Number);
 
-            // ✅ HARD VALIDATION
-            if (!Array.isArray(embedding)) throw new Error("Embedding not array");
-            if (embedding.length !== 128) throw new Error("Invalid embedding size");
-
-            // ✅ DEBUG
-            console.log("✅ FINAL ARRAY:", embedding);
-            console.log("✅ TYPE:", typeof embedding[0]);
-
-            // ✅ STRINGIFY SAFELY
-            const payload = JSON.stringify({ embedding });
-
-            console.log("🚀 PAYLOAD:", payload);
-
+            // Fetch call with timeout/error safety
             const res = await fetch(`${BASE_URL}/public/pay/face`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        invoiceNumber: invoiceNumber,
-        token: tokenParam,
-        embedding: embedding
-    })
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    invoiceNumber: invoiceNumber,
+                    token: tokenParam,
+                    embedding: embedding
+                })
+            });
 
             if (!res.ok) {
                 const errText = await res.text();
-                throw new Error(errText);
+                throw new Error(errText || "Payment verification failed");
             }
 
-            showSuccess();
+            // 2. Success Scenario
+            showToast('Payment successful', 'success');
+            
+            // Short delay to let user see success toast before redirecting
+            setTimeout(() => {
+                showSuccess();
+            }, 1000);
 
         } catch (err) {
             console.error(err);
-            showToast(err.message, 'error');
+            
+            // 3. Error/Exception Scenarios
+            const userMsg = err.message || "Something went wrong. Please try again.";
+            showToast(userMsg, 'error');
+
+            // Re-enable button on failure
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-fingerprint"></i> Verify & Pay';
         }
     });
 

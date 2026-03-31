@@ -471,6 +471,7 @@ public class InvoiceService {
         return CustomerInvoiceResponse.builder()
                 .invoiceId(invoice.getId())
                 .invoiceNumber(invoice.getInvoiceNumber())
+                .merchantName(invoice.getMerchant() != null ? invoice.getMerchant().getBusinessName() : "Merchant")
                 .amount(invoice.getTotalPayable())
                 .subtotal(invoice.getSubtotal())
                 .processingFee(invoice.getProcessingFee())

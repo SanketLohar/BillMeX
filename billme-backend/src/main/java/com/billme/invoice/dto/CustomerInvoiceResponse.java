@@ -13,6 +13,7 @@ public class CustomerInvoiceResponse {
 
     private Long invoiceId;
     private String invoiceNumber;
+    private String merchantName;
     private BigDecimal amount;
     private String status;
     private String paymentMethod;
