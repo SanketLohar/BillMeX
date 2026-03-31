@@ -13,4 +13,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByMerchantAndBarcode(MerchantProfile merchant, String barcode);
     Optional<Product> findByMerchantAndBarcode(MerchantProfile merchant, String barcode);
+
+    List<Product> findByMerchantAndBarcodeIn(MerchantProfile merchant, List<String> barcodes);
 }

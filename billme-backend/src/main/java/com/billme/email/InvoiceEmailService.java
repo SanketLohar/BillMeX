@@ -28,7 +28,7 @@ public class InvoiceEmailService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-//    @Async
+    @Async
     public void sendInvoiceEmail(Invoice invoice) {
 
         if (invoice == null) {
@@ -94,16 +94,12 @@ public class InvoiceEmailService {
             log.info("✅ Email sent successfully: {}", invoice.getInvoiceNumber());
 
         } catch (Exception e) {
-
-            // ✅ DO NOT BREAK FLOW
-            log.error("❌ Email failed for {}: {}",
-                    invoice.getInvoiceNumber(), e.getMessage());
-
-            // DO NOT throw exception
+            log.error("❌ [ASYNC EMAIL ERROR] Failed to send invoice email for #{}: {}", 
+                    invoice.getInvoiceNumber(), e.getMessage(), e);
         }
     }
 
-    // @Async
+    @Async
     public void sendPaymentSuccessEmail(Invoice invoice) {
         log.info("EMAIL METHOD TRIGGERED");
         if (invoice == null) {
@@ -151,9 +147,8 @@ public class InvoiceEmailService {
             log.info("✅ Payment success email sent successfully: {}", invoice.getInvoiceNumber());
 
         } catch (Exception e) {
-            // ✅ DO NOT BREAK FLOW
-            log.error("EMAIL ERROR", e);
-            log.error("❌ Receipt email failed for {}: {}", invoice.getInvoiceNumber(), e.getMessage());
+            log.error("❌ [ASYNC EMAIL ERROR] Failed to send payment success email for #{}: {}", 
+                    invoice.getInvoiceNumber(), e.getMessage(), e);
         }
     }
 }

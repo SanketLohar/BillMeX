@@ -2,6 +2,7 @@ package com.billme.repository;
 
 import com.billme.invoice.Invoice;
 import com.billme.invoice.InvoiceStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,8 +22,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     Optional<Invoice> findByIdAndCustomer_User_Id(Long invoiceId, Long userId);
     Optional<Invoice> findByRazorpayOrderId(String razorpayOrderId);
     // Merchant invoice fetch
+    @EntityGraph(attributePaths = {"items", "customer"})
     List<Invoice> findByMerchant_User_Id(Long userId);
 
+    @EntityGraph(attributePaths = {"items", "customer"})
     org.springframework.data.domain.Page<Invoice> findByMerchant_User_Id(
             Long userId, 
             org.springframework.data.domain.Pageable pageable
@@ -34,6 +37,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             Long userId,
             InvoiceStatus status
     );
+    @EntityGraph(attributePaths = {"items", "merchant"})
     List<Invoice> findByCustomerUserEmail(String email);
     @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Invoice i WHERE i.merchant.id = :merchantId AND i.status = :status")
     BigDecimal sumAmountByMerchantIdAndStatus(@org.springframework.data.repository.query.Param("merchantId") Long merchantId, @org.springframework.data.repository.query.Param("status") InvoiceStatus status);

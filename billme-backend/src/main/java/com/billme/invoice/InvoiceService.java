@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Isolation; // For strict trans
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.math.RoundingMode;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +67,7 @@ public class InvoiceService {
     // =====================================================
     @Transactional
     public void createInvoice(CreateInvoiceRequest request) {
+        long start = System.currentTimeMillis();
         User user = getLoggedInUser();
         MerchantProfile merchant = merchantProfileRepository
                 .findByUser_Id(user.getId())
@@ -77,21 +78,56 @@ public class InvoiceService {
         Invoice invoice = new Invoice();
         invoice.setMerchant(merchant);
         
-        calculateAndPopulate(invoice, request);
+        // 🔥 OPTIMIZATION: BATCH FETCH PRODUCTS
+        Map<Long, Product> productMap = batchFetchProducts(request, merchant);
+        
+        calculateAndPopulate(invoice, request, productMap);
         
         invoice.setPaymentToken(generatePaymentToken());
+        invoice.setDueDate(LocalDate.now().plusDays(7)); // default 7 days
+        
         Invoice savedInvoice = invoiceRepository.save(invoice);
         
+        log.info("⏱️ [PERF] Invoice creation DB phase took {}ms", (System.currentTimeMillis() - start));
+
         // 🔔 In-App Notification (BEST EFFORT)
-        if (savedInvoice.getCustomer() != null && savedInvoice.getCustomer().getUser() != null) {
-            String msg = String.format("A new invoice #%s for ₹%s has been created for you by %s.",
-                    savedInvoice.getInvoiceNumber(), savedInvoice.getTotalPayable(), savedInvoice.getMerchant().getBusinessName());
-            notificationService.createNotification(savedInvoice.getCustomer().getUser(), msg, NotificationType.INVOICE_CREATED);
-            log.info("🔔 [NOTIFICATION] In-app notification created for new Invoice {}", savedInvoice.getInvoiceNumber());
+        try {
+            if (savedInvoice.getCustomer() != null && savedInvoice.getCustomer().getUser() != null) {
+                String msg = String.format("A new invoice #%s for ₹%s has been created for you by %s.",
+                        savedInvoice.getInvoiceNumber(), savedInvoice.getTotalPayable(), savedInvoice.getMerchant().getBusinessName());
+                notificationService.createNotification(savedInvoice.getCustomer().getUser(), msg, NotificationType.INVOICE_CREATED);
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ Notification failed: {}", e.getMessage());
         }
 
-        invoice.setDueDate(LocalDate.now().plusDays(7)); // default 7 days
+        // 📧 ASYNC EMAIL (NON-BLOCKING)
         invoiceEmailService.sendInvoiceEmail(savedInvoice);
+    }
+
+    private Map<Long, Product> batchFetchProducts(CreateInvoiceRequest request, MerchantProfile merchant) {
+        Set<Long> productIds = request.getItems().stream()
+                .map(CreateInvoiceItemRequest::getProductId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<String> barcodes = request.getItems().stream()
+                .map(CreateInvoiceItemRequest::getBarcode)
+                .filter(b -> b != null && !b.isBlank())
+                .toList();
+
+        Map<Long, Product> productMap = new HashMap<>();
+        
+        if (!productIds.isEmpty()) {
+            productRepository.findAllById(productIds).forEach(p -> productMap.put(p.getId(), p));
+        }
+        
+        if (!barcodes.isEmpty()) {
+            productRepository.findByMerchantAndBarcodeIn(merchant, barcodes)
+                    .forEach(p -> productMap.put(p.getId(), p));
+        }
+        
+        return productMap;
     }
 
     @Transactional
@@ -109,9 +145,13 @@ public class InvoiceService {
         invoice.setPaymentInProgress(false);
         invoice.setPaymentStartedAt(null);
 
+        // 🔥 OPTIMIZATION: BATCH FETCH PRODUCTS
+        MerchantProfile merchant = invoice.getMerchant();
+        Map<Long, Product> productMap = batchFetchProducts(request, merchant);
+
         // Clear items and recalculate
         invoice.getItems().clear();
-        calculateAndPopulate(invoice, request);
+        calculateAndPopulate(invoice, request, productMap);
 
         // 🔥 Generate NEW payment token to invalidate old links
         invoice.setPaymentToken(generatePaymentToken());
@@ -119,13 +159,17 @@ public class InvoiceService {
         invoiceRepository.save(invoice);
         
         // 🔔 In-App Notification (BEST EFFORT)
-        if (invoice.getCustomer() != null && invoice.getCustomer().getUser() != null) {
-            String msg = String.format("A new invoice #%s for ₹%s has been created for you by %s.",
-                    invoice.getInvoiceNumber(), invoice.getTotalPayable(), invoice.getMerchant().getBusinessName());
-            notificationService.createNotification(invoice.getCustomer().getUser(), msg, NotificationType.INVOICE_CREATED);
-            log.info("🔔 [NOTIFICATION] In-app notification created for Invoice {}", invoice.getInvoiceNumber());
+        try {
+            if (invoice.getCustomer() != null && invoice.getCustomer().getUser() != null) {
+                String msg = String.format("A new invoice #%s for ₹%s has been created for you by %s.",
+                        invoice.getInvoiceNumber(), invoice.getTotalPayable(), invoice.getMerchant().getBusinessName());
+                notificationService.createNotification(invoice.getCustomer().getUser(), msg, NotificationType.INVOICE_CREATED);
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ Notification failed: {}", e.getMessage());
         }
 
+        // 📧 ASYNC EMAIL (NON-BLOCKING)
         invoiceEmailService.sendInvoiceEmail(invoice);
     }
 
@@ -139,7 +183,7 @@ public class InvoiceService {
         }
     }
 
-    private void calculateAndPopulate(Invoice invoice, CreateInvoiceRequest request) {
+    private void calculateAndPopulate(Invoice invoice, CreateInvoiceRequest request, Map<Long, Product> productMap) {
 
         MerchantProfile merchant = invoice.getMerchant();
 
@@ -156,10 +200,12 @@ public class InvoiceService {
                 request.getCustomerName() != null ? request.getCustomerName() : "Customer"
         );
 
-        // Link customer if exists
-        userRepository.findByEmail(request.getCustomerEmail()).ifPresent(u -> {
-            customerProfileRepository.findByUser_Id(u.getId()).ifPresent(invoice::setCustomer);
-        });
+        // Link customer if exists - Reusing user check to avoid duplicate hits
+        if (request.getCustomerEmail() != null) {
+            userRepository.findByEmail(request.getCustomerEmail()).ifPresent(u -> {
+                customerProfileRepository.findByUser_Id(u.getId()).ifPresent(invoice::setCustomer);
+            });
+        }
 
         // ================= PLACE OF SUPPLY =================
         String placeOfSupply = request.getCustomerState();
@@ -189,7 +235,7 @@ public class InvoiceService {
                 throw new RuntimeException("Quantity must be greater than zero");
             }
 
-            Product product = resolveProduct(itemRequest, merchant);
+            Product product = resolveProductFromMap(itemRequest, merchant, productMap);
 
             if (!product.isActive()) {
                 throw new RuntimeException("Product is not active: " + product.getName());
@@ -273,27 +319,30 @@ public class InvoiceService {
     // =====================================================
     // PRODUCT RESOLUTION (ID OR BARCODE)
     // =====================================================
-    private Product resolveProduct(CreateInvoiceItemRequest itemRequest,
-                                   MerchantProfile merchant) {
+    private Product resolveProductFromMap(CreateInvoiceItemRequest itemRequest,
+                                          MerchantProfile merchant,
+                                          Map<Long, Product> productMap) {
 
+        Product product = null;
         if (itemRequest.getProductId() != null) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
-
-            if (!product.getMerchant().getId().equals(merchant.getId())) {
-                throw new RuntimeException("Unauthorized product access");
-            }
-
-            return product;
+            product = productMap.get(itemRequest.getProductId());
+        } else if (itemRequest.getBarcode() != null) {
+            product = productMap.values().stream()
+                    .filter(p -> itemRequest.getBarcode().equals(p.getBarcode()))
+                    .findFirst()
+                    .orElse(null);
         }
 
-        if (itemRequest.getBarcode() != null && !itemRequest.getBarcode().isBlank()) {
-            return productRepository
-                    .findByMerchantAndBarcode(merchant, itemRequest.getBarcode())
-                    .orElseThrow(() -> new RuntimeException("Product not found for barcode"));
+        if (product == null) {
+            throw new RuntimeException("Product not found: " + 
+                (itemRequest.getProductId() != null ? itemRequest.getProductId() : itemRequest.getBarcode()));
         }
 
-        throw new RuntimeException("Product identifier (productId or barcode) required");
+        if (!product.getMerchant().getId().equals(merchant.getId())) {
+            throw new RuntimeException("Unauthorized product access");
+        }
+
+        return product;
     }
 
     // =====================================================
