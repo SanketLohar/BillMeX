@@ -2,15 +2,15 @@
 // BillMe — Centralized API Client
 // ============================================================
 
-window.API_BASE_URL = (() => {
+const API_BASE_URL = (() => {
   const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1") {
     return "http://localhost:8080";
   }
   return "https://billmex-production.up.railway.app";
 })();
+window.API_BASE_URL = API_BASE_URL;
 console.log("🚀 [BillMeX] Using production API: " + API_BASE_URL);
-const API_BASE_URL = window.API_BASE_URL;
 
 
 
