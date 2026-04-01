@@ -240,11 +240,20 @@ function renderCharts(invoices, paymentMethods) {
     });
 
     // Payment method distribution from API (SAFE ACCESS)
-    const methodCounts = {
-        UPI: paymentMethods?.UPI || paymentMethods?.upi || 0,
-        FacePay: paymentMethods?.FACE_PAY || paymentMethods?.facepay || 0,
-        Card: paymentMethods?.CARD || paymentMethods?.card || 0
-    };
+   const methodCounts = {
+    UPI: paymentMethods?.UPI 
+        || paymentMethods?.upi 
+        || paymentMethods?.UPI_PAY 
+        || 0,
+
+    FacePay: paymentMethods?.FACE_PAY 
+        || paymentMethods?.facepay 
+        || 0,
+
+    Card: paymentMethods?.CARD 
+        || paymentMethods?.card 
+        || 0
+};
 
     // Monthly activity
     const monthLabels = [];
