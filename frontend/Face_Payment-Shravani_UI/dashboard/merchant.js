@@ -232,12 +232,29 @@ function renderStatCards(products, invoices, balanceSheet, wallet) {
 // ── Charts (use API payment methods and invoice counts) ─
 function renderCharts(invoices, paymentMethods) {
     // Invoice status distribution
-    const statusCounts = { PAID: 0, PENDING: 0, UNPAID: 0, CANCELLED: 0 };
-    invoices.forEach(inv => {
-        const s = inv.status?.toUpperCase() || 'UNPAID';
-        if (s in statusCounts) statusCounts[s]++;
-        else statusCounts.UNPAID++;
-    });
+    const statusCounts = {
+    PAID: 0,
+    PENDING: 0,
+    UNPAID: 0,
+    CANCELLED: 0,
+    REFUND_REQUESTED: 0,
+    REFUNDED: 0
+};
+
+invoices.forEach(inv => {
+    const s = inv.status?.toUpperCase();
+
+    if (!s) {
+        statusCounts.UNPAID++;
+        return;
+    }
+
+    if (statusCounts.hasOwnProperty(s)) {
+        statusCounts[s]++;
+    } else {
+        console.warn('[Chart] Unknown status:', s);
+    }
+});
 
     // Payment method distribution from API (SAFE ACCESS)
    const methodCounts = {
@@ -279,7 +296,14 @@ function renderCharts(invoices, paymentMethods) {
             labels: Object.keys(statusCounts),
             datasets: [{
                 data: Object.values(statusCounts),
-                backgroundColor: ['#34a853', '#fbbc04', '#ea4335', '#9aa0a6'],
+               backgroundColor: [
+    '#34a853', // PAID (green)
+    '#fbbc04', // PENDING (yellow)
+    '#ea4335', // UNPAID (red)
+    '#9aa0a6', // CANCELLED (gray)
+    '#4285f4', // REFUND_REQUESTED (blue)
+    '#8e24aa'  // REFUNDED (purple)
+],
                 borderWidth: 2, borderColor: '#fff'
             }]
         },
