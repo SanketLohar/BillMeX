@@ -4,5 +4,6 @@ public enum LedgerEntryType {
     CREDIT,
     DEBIT,
     ESCROW_CREDIT,
-    ESCROW_SETTLE
+    ESCROW_SETTLE,
+    ESCROW_RELEASE
 }

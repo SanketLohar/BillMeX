@@ -24,4 +24,9 @@ public class LedgerService {
                 .build();
         ledgerEntryRepository.save(entry);
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByWalletAndReferenceAndType(Long walletId, String referenceId, LedgerEntryType type) {
+        return ledgerEntryRepository.existsByWalletIdAndReferenceIdAndType(walletId, referenceId, type);
+    }
 }

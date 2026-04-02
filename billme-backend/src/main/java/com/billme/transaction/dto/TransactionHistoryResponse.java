@@ -26,4 +26,8 @@ public class TransactionHistoryResponse {
     private String counterparty; // email or business name
 
     private LocalDateTime timestamp;
+
+    // Optional fields for enhanced UI visibility (Zero-Regression Safe)
+    private com.billme.invoice.InvoiceStatus invoiceStatus;
+    private String invoiceNumber;
 }

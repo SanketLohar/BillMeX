@@ -150,4 +150,47 @@ public class WalletService {
         return walletRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Wallet not found for user: " + user.getId()));
     }
+
+    /**
+     * Refund Rejected: (Merchant Escrow Debit -> Merchant Balance Credit)
+     * 🛡️ IDEMPOTENT: Prevents double wallet credit by checking for existing ledger entry.
+     */
+    @Transactional
+    public void releaseFromEscrow(User merchant, BigDecimal amount, String ref) {
+        Wallet wallet = walletRepository.findByUserWithLock(merchant.getId())
+                .orElseThrow(() -> new RuntimeException("Merchant wallet not found"));
+
+        // 1. Idempotency Check (Production Safe)
+        boolean alreadyReleased = ledgerService.existsByWalletAndReferenceAndType(
+                wallet.getId(), ref, LedgerEntryType.ESCROW_RELEASE
+        );
+        
+        if (alreadyReleased) {
+            log.warn("⚠️ [IDEMPOTENCY] Escrow already released for Ref: {}. Skipping balance update.", ref);
+            return;
+        }
+
+        log.info("[ESCROW RELEASE BEFORE] MerchantID: {} Escrow: ₹{} | Balance: ₹{} | Ref: {}", 
+                merchant.getId(), wallet.getEscrowBalance(), wallet.getBalance(), ref);
+
+        // 2. Balance Guard
+        if (wallet.getEscrowBalance().compareTo(amount) < 0) {
+            log.error("❌ Insufficient escrow: Attempted to release ₹{} but only ₹{} available. Ref: {}", 
+                    amount, wallet.getEscrowBalance(), ref);
+            throw new RuntimeException("Insufficient merchant escrow for release");
+        }
+
+        // 3. Atomic State Update
+        wallet.setEscrowBalance(wallet.getEscrowBalance().subtract(amount));
+        wallet.setBalance(wallet.getBalance().add(amount));
+
+        walletRepository.saveAndFlush(wallet);
+
+        log.info("[ESCROW RELEASE AFTER] MerchantID: {} Escrow: ₹{} | Balance: ₹{} | Ref: {}", 
+                merchant.getId(), wallet.getEscrowBalance(), wallet.getBalance(), ref);
+
+        // 4. Record Audit Trail
+        ledgerService.record(wallet.getId(), amount, LedgerEntryType.ESCROW_RELEASE, wallet.getEscrowBalance(), ref);
+        ledgerService.record(wallet.getId(), amount, LedgerEntryType.CREDIT, wallet.getBalance(), ref);
+    }
 }

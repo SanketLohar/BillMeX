@@ -643,7 +643,11 @@ function renderRefundRequests() {
 }
 
 async function approveRefund(id) {
-    const inv = invoiceList.find(i => i.invoiceId === id);
+    const invIndex = invoiceList.findIndex(i => i.invoiceId === id);
+    const inv = invoiceList[invIndex];
+    if (!inv) return;
+
+    const oldStatus = inv.status;
     const method = inv?.paymentMethod || 'payment';
     const methodLabel = method === 'FACE_PAY' ? 'FACE PAY (wallet refund)' :
         method === 'UPI_PAY' ? 'UPI (Razorpay refund)' :
@@ -651,27 +655,47 @@ async function approveRefund(id) {
 
     if (!confirm(`Approve refund for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nMethod: ${methodLabel}\n\nThis will reverse the payment to the customer.`)) return;
 
+    // ⚡ OPTIMISTIC UPDATE
+    inv.status = 'REFUNDED';
+    renderInvoices();
+
     try {
         await API.payment.approveRefund(id);
         showToast('Refund approved and processed successfully!', 'success');
-        loadDashboard();
+        // Final sync for full wallet consistency
+        loadDashboard(); 
     } catch (e) {
         console.error('[approveRefund] error:', e);
+        // 🔙 FALLBACK
+        inv.status = oldStatus;
+        renderInvoices();
         const msg = e.message || 'Error occurred while approving refund';
         showToast(msg, 'error');
     }
 }
 
 async function rejectRefund(id) {
-    const inv = invoiceList.find(i => i.invoiceId === id);
+    const invIndex = invoiceList.findIndex(i => i.invoiceId === id);
+    const inv = invoiceList[invIndex];
+    if (!inv) return;
+
+    const oldStatus = inv.status;
     if (!confirm(`Reject refund request for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nThe customer will be notified.`)) return;
+
+    // ⚡ OPTIMISTIC UPDATE
+    inv.status = 'REFUND_REJECTED';
+    renderInvoices();
 
     try {
         await API.payment.rejectRefund(id);
         showToast('Refund request rejected. Customer has been notified.', 'info');
+        // Final sync for balance release update
         loadDashboard();
     } catch (e) {
         console.error('[rejectRefund] error:', e);
+        // 🔙 FALLBACK
+        inv.status = oldStatus;
+        renderInvoices();
         const msg = e.message || 'Error occurred while rejecting refund';
         showToast(msg, 'error');
     }
@@ -1021,6 +1045,15 @@ async function loadTransactions() {
 
         tbody.innerHTML = data.content.map(tx => {
             const isCredit = tx.direction === 'CREDIT';
+            const displayStatus = (tx.invoiceStatus && tx.invoiceStatus !== 'PAID') ? tx.invoiceStatus : tx.status;
+            
+            let statusClass = 'badge-success';
+            if (displayStatus === 'PENDING') statusClass = 'badge-warning';
+            else if (displayStatus === 'FAILED') statusClass = 'badge-danger';
+            else if (displayStatus === 'REFUND_REQUESTED') statusClass = 'badge-info';
+            else if (displayStatus === 'REFUND_REJECTED') statusClass = 'badge-danger';
+            else if (displayStatus === 'REFUNDED') statusClass = 'badge-secondary';
+
             return `
             <tr>
                 <td><code style="font-size:12px;">#${tx.transactionId || '—'}</code></td>
@@ -1034,7 +1067,7 @@ async function loadTransactions() {
                     ${isCredit ? '+' : '-'}₹${(tx.amount || 0).toFixed(2)}
                 </strong></td>
                 <td>${tx.type || '—'}</td>
-                <td><span class="badge ${tx.status === 'SUCCESS' ? 'badge-success' : tx.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}">${tx.status || '—'}</span></td>
+                <td><span class="badge ${statusClass}">${displayStatus || '—'}</span></td>
                 <td>${esc(tx.counterparty || '—')}</td>
                 <td>${tx.timestamp ? new Date(tx.timestamp).toLocaleString('en-IN') : '—'}</td>
             </tr>`;

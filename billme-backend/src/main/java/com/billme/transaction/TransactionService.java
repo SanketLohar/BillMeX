@@ -101,6 +101,8 @@ public class TransactionService {
                 .status(transaction.getStatus())
                 .counterparty(counterparty)
                 .timestamp(transaction.getCreatedAt())
+                .invoiceStatus(transaction.getInvoice() != null ? transaction.getInvoice().getStatus() : null)
+                .invoiceNumber(transaction.getInvoice() != null ? transaction.getInvoice().getInvoiceNumber() : null)
                 .build();
     }
 

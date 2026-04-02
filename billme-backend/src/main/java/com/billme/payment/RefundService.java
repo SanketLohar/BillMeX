@@ -123,6 +123,16 @@ public class RefundService {
         invoice.setStatus(InvoiceStatus.REFUND_REJECTED);
         invoiceRepository.save(invoice);
 
+        // 💰 ESCROW RELEASE: Return funds to merchant wallet balance
+        log.info("💰 [REFUND REJECTED] Releasing ₹{} from escrow to merchant balance for Invoice {}", 
+                invoice.getTotalPayable(), invoice.getInvoiceNumber());
+        
+        walletService.releaseFromEscrow(
+                invoice.getMerchant().getUser(),
+                invoice.getTotalPayable() != null ? invoice.getTotalPayable() : invoice.getAmount(),
+                "RELEASE-" + invoice.getInvoiceNumber()
+        );
+
         // Notify Customer (Soft failure for emails)
         if (invoice.getCustomer() != null && invoice.getCustomer().getUser() != null) {
             String msg = "Your refund request for Invoice " + invoice.getInvoiceNumber() + " was rejected by the merchant.";
