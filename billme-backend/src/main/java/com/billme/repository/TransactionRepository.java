@@ -18,10 +18,14 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     @Query("""
-        SELECT t FROM Transaction t
+        SELECT DISTINCT t FROM Transaction t
         WHERE 
-            (t.senderWallet.user.id = :userId 
-             OR t.receiverWallet.user.id = :userId)
+            (
+                (t.senderWallet.user.id = :userId)
+                OR (t.receiverWallet.user.id = :userId)
+                OR (t.invoice IS NOT NULL AND t.senderWallet IS NULL AND t.invoice.customer.user.id = :userId)
+                OR (t.invoice IS NOT NULL AND t.receiverWallet IS NULL AND t.invoice.merchant.user.id = :userId)
+            )
         AND (:type IS NULL OR t.transactionType = :type)
         AND (:status IS NULL OR t.status = :status)
         AND (:fromDate IS NULL OR t.createdAt >= :fromDate)

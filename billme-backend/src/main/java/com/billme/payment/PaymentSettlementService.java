@@ -80,9 +80,14 @@ public class PaymentSettlementService {
                 : TransactionType.UPI_PAY;
 
         // 3. Create Transaction Ledger
+        Wallet receiverWallet = walletService.getWalletByUser(invoice.getMerchant().getUser());
+        Wallet senderWallet = (invoice.getCustomer() != null) 
+                ? walletService.getWalletByUser(invoice.getCustomer().getUser()) 
+                : null;
+
         Transaction ledgerTransaction = Transaction.builder()
-                .senderWallet(null) 
-                .receiverWallet(null)
+                .senderWallet(senderWallet) 
+                .receiverWallet(receiverWallet)
                 .amount(amount)
                 .invoiceAmount(amount)
                 .processingFee(processingFee)
@@ -113,4 +118,4 @@ public class PaymentSettlementService {
         // 6. Trigger Payment Success Email
         invoiceEmailService.sendPaymentSuccessEmail(invoice);
     }
-}
+}
