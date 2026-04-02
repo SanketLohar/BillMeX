@@ -599,21 +599,24 @@ function renderInvoices() {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:32px;"><i class="fas fa-file-invoice" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.3;"></i>No invoices yet.</td></tr>';
         return;
     }
-    tbody.innerHTML = invoiceList.map(inv => `
+    tbody.innerHTML = invoiceList.map(inv => {
+        const id = (inv.id || inv.invoiceId)?.toString();
+        if (!id) return '';
+        return `
         <tr>
-            <td><strong>${esc(inv.invoiceNumber || '#' + inv.invoiceId)}</strong></td>
+            <td><strong>${esc(inv.invoiceNumber || '#' + id)}</strong></td>
             <td>₹${(inv.amount || 0).toFixed(2)}</td>
             <td><span class="invoice-status inv-${inv.status}">${inv.status || '—'}</span></td>
             <td>${inv.paymentMethod || '<span class="text-muted">—</span>'}</td>
             <td>${inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString('en-IN') : '—'}</td>
             <td>
-                <button class="action-btn blue" onclick="previewInvoice(${inv.invoiceId})" title="View Details"><i class="fas fa-info-circle"></i></button>
+                <button class="action-btn blue" onclick="previewInvoice('${id}')" title="View Details"><i class="fas fa-info-circle"></i></button>
                 <button class="action-btn purple" onclick="copyPaymentLink('${inv.invoiceNumber}', '${inv.paymentToken}')" title="Copy Payment Link"><i class="fas fa-copy"></i></button>
-                ${inv.status === 'UNPAID' ? `<button class="action-btn orange" onclick="editInvoice(${inv.invoiceId})" title="Edit"><i class="fas fa-edit"></i></button>` : ''}
-                <button class="action-btn green" onclick="downloadInvoicePdf(${inv.invoiceId},'${esc(inv.invoiceNumber || inv.invoiceId)}')" title="Download PDF"><i class="fas fa-download"></i></button>
+                ${inv.status === 'UNPAID' ? `<button class="action-btn orange" onclick="editInvoice('${id}')" title="Edit"><i class="fas fa-edit"></i></button>` : ''}
+                <button class="action-btn green" onclick="downloadInvoicePdf('${id}','${esc(inv.invoiceNumber || id)}')" title="Download PDF"><i class="fas fa-download"></i></button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 
     renderRefundRequests();
 }
@@ -628,26 +631,29 @@ function renderRefundRequests() {
         return;
     }
 
-    tbody.innerHTML = reqs.map(inv => `
+    tbody.innerHTML = reqs.map(inv => {
+        const id = (inv.id || inv.invoiceId)?.toString();
+        if (!id) return '';
+        return `
         <tr>
-            <td><strong>${esc(inv.invoiceNumber || '#' + inv.invoiceId)}</strong></td>
+            <td><strong>${esc(inv.invoiceNumber || '#' + id)}</strong></td>
             <td>₹${(inv.amount || 0).toFixed(2)}</td>
             <td>${inv.paymentMethod || '—'}</td>
             <td>${inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString() : '—'}</td>
             <td>
-                <button class="btn btn-success btn-sm" style="margin-right: 5px;" onclick="approveRefund(${inv.invoiceId})">Approve</button>
-                <button class="btn btn-danger btn-sm" onclick="rejectRefund(${inv.invoiceId})">Reject</button>
+                <button class="btn btn-success btn-sm" style="margin-right: 5px;" onclick="approveRefund('${id}')">Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectRefund('${id}')">Reject</button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 async function approveRefund(id) {
-    const invIndex = invoiceList.findIndex(i => i.invoiceId === id);
+    const invIndex = invoiceList.findIndex(i => (i.id || i.invoiceId)?.toString() === id.toString());
     const inv = invoiceList[invIndex];
     if (!inv) return;
 
-    const oldStatus = inv.status;
+    const snapshotStatus = inv.status;
     const method = inv?.paymentMethod || 'payment';
     const methodLabel = method === 'FACE_PAY' ? 'FACE PAY (wallet refund)' :
         method === 'UPI_PAY' ? 'UPI (Razorpay refund)' :
@@ -655,54 +661,81 @@ async function approveRefund(id) {
 
     if (!confirm(`Approve refund for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nMethod: ${methodLabel}\n\nThis will reverse the payment to the customer.`)) return;
 
-    // ⚡ OPTIMISTIC UPDATE
-    inv.status = 'REFUNDED';
-    renderInvoices();
+    // Snapshot for possible rollback
+    const prevInvoices = JSON.parse(JSON.stringify(invoiceList));
 
     try {
-        await API.payment.approveRefund(id);
-        showToast('Refund approved and processed successfully!', 'success');
-        // Final sync for full wallet consistency
-        loadDashboard(); 
-    } catch (e) {
-        console.error('[approveRefund] error:', e);
-        // 🔙 FALLBACK
-        inv.status = oldStatus;
+        // ⚡ CONTROLLED OPTIMISTIC UPDATE
+        inv.status = 'REFUNDED';
         renderInvoices();
-        const msg = e.message || 'Error occurred while approving refund';
-        showToast(msg, 'error');
+
+        await API.payment.approveRefund(id);
+        showToast('Refund approved successfully!', 'success');
+        
+        // Lightweight sync for financial stats & transactions
+        await refreshWalletStats();
+        if (typeof loadTransactions === 'function') {
+            await loadTransactions();
+        }
+    } catch (e) {
+        console.error('[Merchant] approveRefund failed:', e);
+        // 🔙 ROLLBACK
+        invoiceList = prevInvoices;
+        renderInvoices();
+        showToast(e.message || 'Error occurred while approving refund', 'error');
     }
 }
 
 async function rejectRefund(id) {
-    const invIndex = invoiceList.findIndex(i => i.invoiceId === id);
+    const invIndex = invoiceList.findIndex(i => (i.id || i.invoiceId)?.toString() === id.toString());
     const inv = invoiceList[invIndex];
     if (!inv) return;
 
-    const oldStatus = inv.status;
     if (!confirm(`Reject refund request for Invoice ${inv?.invoiceNumber || '#' + id}?\n\nThe customer will be notified.`)) return;
 
-    // ⚡ OPTIMISTIC UPDATE
-    inv.status = 'REFUND_REJECTED';
-    renderInvoices();
+    const prevInvoices = JSON.parse(JSON.stringify(invoiceList));
 
     try {
-        await API.payment.rejectRefund(id);
-        showToast('Refund request rejected. Customer has been notified.', 'info');
-        // Final sync for balance release update
-        loadDashboard();
-    } catch (e) {
-        console.error('[rejectRefund] error:', e);
-        // 🔙 FALLBACK
-        inv.status = oldStatus;
+        // ⚡ CONTROLLED OPTIMISTIC UPDATE
+        inv.status = 'REFUND_REJECTED';
         renderInvoices();
-        const msg = e.message || 'Error occurred while rejecting refund';
-        showToast(msg, 'error');
+
+        await API.payment.rejectRefund(id);
+        showToast('Refund request rejected.', 'info');
+        
+        // Lightweight sync for financial stats & transactions
+        await refreshWalletStats();
+        if (typeof loadTransactions === 'function') {
+            await loadTransactions();
+        }
+    } catch (e) {
+        console.error('[Merchant] rejectRefund failed:', e);
+        // 🔙 ROLLBACK
+        invoiceList = prevInvoices;
+        renderInvoices();
+        showToast(e.message || 'Error occurred while rejecting refund', 'error');
+    }
+}
+
+/**
+ * Lightweight Wallet Refresh (Zero-Regression)
+ */
+async function refreshWalletStats() {
+    try {
+        console.log("[Merchant] [API] Refreshing wallet stats...");
+        const [bs, wl] = await Promise.all([
+            API.wallet.getBalanceSheet().catch(() => null),
+            API.wallet.getWallet().catch(() => ({ balance: 0, escrowBalance: 0 }))
+        ]);
+        renderStatCards(productList, invoiceList, bs, wl);
+        console.log("[Merchant] [API] Wallet stats refreshed.");
+    } catch (e) {
+        console.error("[Merchant] [API] Failed to refresh wallet stats:", e);
     }
 }
 
 function previewInvoice(id) {
-    const inv = invoiceList.find(i => i.invoiceId === id);
+    const inv = invoiceList.find(i => (i.id || i.invoiceId)?.toString() === id.toString());
     if (!inv) return;
     currentInvId = id;
 
@@ -1023,27 +1056,46 @@ async function loadTransactions() {
             status: document.getElementById('txFilter-status').value || undefined,
         };
         const data = await API.wallet.getTransactions(params);
-        console.log("RAW RESPONSE:", data);
-        console.log("txPage:", txPage, "totalPages:", data?.totalPages);
+        console.log("[Merchant] [API] RAW TX RESPONSE:", data);
 
-        txTotalPages = Math.max(1, data?.totalPages || 1);
+        // 🛡️ ROBUST RESPONSE PARSING
+        let txArray = [];
+        let totalPages = 1;
+        let totalElements = 0;
+
+        if (data && Array.isArray(data.content)) {
+            // Spring Page format
+            txArray = data.content;
+            totalPages = data.totalPages || 1;
+            totalElements = data.totalElements || 0;
+        } else if (data && Array.isArray(data.transactions)) {
+            // Alternative wrapper format
+            txArray = data.transactions;
+            totalPages = data.totalPages || 1;
+            totalElements = data.totalElements || txArray.length;
+        } else if (Array.isArray(data)) {
+            // Naked array format
+            txArray = data;
+            totalPages = 1; // Cannot determine pagination from raw array unless API changed
+            totalElements = txArray.length;
+        } else {
+            console.error("[Merchant] [API] UNKNOWN TX FORMAT:", data);
+            txArray = [];
+        }
+
+        txTotalPages = Math.max(1, totalPages);
         document.getElementById('txPageInfo').textContent =
-            `Page ${txPage + 1} of ${txTotalPages} (${data?.totalElements || 0} total)`;
+            `Page ${txPage + 1} of ${txTotalPages} (${totalElements} total)`;
 
         if (btnPrev) btnPrev.disabled = txPage === 0;
         if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
 
-        console.log("Next disabled (before force):", btnNext ? btnNext.disabled : "null");
-        // txTotalPages = 5; // FORCE TEST
-        if (btnNext) btnNext.disabled = txPage >= txTotalPages - 1;
-        console.log("Forced txTotalPages to 5, Next disabled:", btnNext ? btnNext.disabled : "null");
-
-        if (!data || !Array.isArray(data.content) || data.content.length === 0) {
+        if (txArray.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">No transactions found.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = data.content.map(tx => {
+        tbody.innerHTML = txArray.map(tx => {
             const isCredit = tx.direction === 'CREDIT';
             const displayStatus = (tx.invoiceStatus && tx.invoiceStatus !== 'PAID') ? tx.invoiceStatus : tx.status;
             
@@ -1064,7 +1116,7 @@ async function loadTransactions() {
                     </span>
                 </td>
                 <td><strong style="color:${isCredit ? 'var(--secondary)' : 'var(--danger)'};">
-                    ${isCredit ? '+' : '-'}₹${(tx.amount || 0).toFixed(2)}
+                    ${isCredit ? '+' : '-'}₹${(Number(tx.amount) || 0).toFixed(2)}
                 </strong></td>
                 <td>${tx.type || '—'}</td>
                 <td><span class="badge ${statusClass}">${displayStatus || '—'}</span></td>
@@ -1073,6 +1125,7 @@ async function loadTransactions() {
             </tr>`;
         }).join('');
     } catch (e) {
+        console.error("[Merchant] [API] TX LOAD ERR:", e);
         tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">Failed to load transactions: ${e.message}</td></tr>`;
         if (btnPrev) btnPrev.disabled = txPage === 0;
         if (btnNext) btnNext.disabled = true;
@@ -1216,7 +1269,7 @@ function esc(str) {
 // Expose globals used in inline HTML
 window.previewInvoice = previewInvoice;
 window.editInvoice = function (id) {
-    const inv = invoiceList.find(i => i.invoiceId === id);
+    const inv = invoiceList.find(i => (i.id || i.invoiceId)?.toString() === id.toString());
     if (!inv) return;
     if (inv.status !== 'UNPAID') {
         showToast('Only UNPAID invoices can be edited.', 'warning');

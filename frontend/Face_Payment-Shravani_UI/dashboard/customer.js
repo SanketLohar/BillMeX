@@ -10,7 +10,7 @@ function safeErrorMessage(e) {
     if (e.message) return e.message;
     if (e.error) return e.error;
     if (typeof e === 'object') {
-        try { return JSON.stringify(e); } catch(s) { return "Something went wrong"; }
+        try { return JSON.stringify(e); } catch (s) { return "Something went wrong"; }
     }
     return "Something went wrong";
 }
@@ -60,7 +60,7 @@ function setupNavigation() {
 
     // ✅ Bind on <a> tags directly to avoid li propagation issues
     document.querySelectorAll('.nav-item a').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -86,7 +86,7 @@ function setupNavigation() {
 /**
  * Unified Sidebar Toggle
  */
-window.toggleSidebar = function(forcedState) {
+window.toggleSidebar = function (forcedState) {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     console.log('[Customer] toggleSidebar() forcedState:', forcedState, 'sidebar:', !!sidebar);
@@ -162,13 +162,13 @@ async function loadCustomerData() {
             setText('prof-email', profile.email);
             setText('prof-id', '#' + (profile.id || 'CUST'));
             setText('prof-location', profile.location || 'Not Set');
-            
+
             setText('prof-join', profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '-');
             setText('prof-active', profile.lastActive ? new Date(profile.lastActive).toLocaleDateString() : 'Active Now');
 
             setImage('side-avatar', avatarUrl);
             setImage('prof-avatar', avatarUrl);
-            
+
             // Also update the harmonized preview container if it exists
             const previewContainer = document.getElementById('profile-preview-container');
             if (previewContainer) {
@@ -213,7 +213,7 @@ function renderInvoices(invoices) {
         if (status === 'FAILED') statusBadgeClass = 'danger';
 
         let actionsHtml = `<button class="btn btn-secondary btn-sm" onclick="previewInvoice('${inv.invoiceNumber}', '${inv.paymentToken}')" title="Preview"><i class="fas fa-eye"></i></button>`;
-        
+
         if (status === 'UNPAID') {
             actionsHtml += `<button class="btn btn-primary btn-sm" onclick="payInvoice('${inv.invoiceNumber}', '${inv.paymentToken}')">Pay Now</button>`;
         } else if (status === 'PENDING' || status === 'FAILED') {
@@ -221,7 +221,7 @@ function renderInvoices(invoices) {
         } else if (status === 'PAID') {
             const now = new Date();
             const expiry = inv.refundWindowExpiry ? new Date(inv.refundWindowExpiry) : null;
-            
+
             if (!expiry || expiry > now) {
                 actionsHtml += `<button class="btn btn-outline-danger btn-sm" onclick="requestRefund('${invoiceId}')">Request Refund</button>`;
             } else {
@@ -229,6 +229,8 @@ function renderInvoices(invoices) {
             }
         } else if (status === 'REFUND_REQUESTED') {
             actionsHtml += `<span class="badge badge-info" style="font-size:11px;">Pending Refund</span>`;
+        } else if (status === 'REFUNDED') {
+            actionsHtml += `<span class="badge badge-secondary" style="font-size:11px;">Refunded</span>`;
         }
 
         return `
@@ -275,7 +277,7 @@ function updateAnalytics(invoices) {
 }
 
 // Global actions exposed to window
-window.previewInvoice = function(num, token) {
+window.previewInvoice = function (num, token) {
     console.log('Modal opened', 'invoiceNum:', num, 'token:', token);
 
     if (!num || !token) {
@@ -301,7 +303,7 @@ window.previewInvoice = function(num, token) {
             </div>`;
         document.body.appendChild(modal);
         // Close on backdrop click
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === modal) modal.style.display = 'none';
         });
     }
@@ -340,17 +342,17 @@ function renderInvoicePreview(container, inv) {
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Invoice #</div><div style="font-weight:700;margin-top:3px;">${inv.invoiceNumber || '—'}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Status</div><div style="font-weight:700;color:${color};margin-top:3px;">${status}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Merchant</div><div style="font-weight:600;margin-top:3px;">${inv.merchantName || '—'}</div></div>
-                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Amount</div><div style="font-weight:700;font-size:18px;margin-top:3px;">₹${Number(inv.totalPayable||0).toFixed(2)}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Amount</div><div style="font-weight:700;font-size:18px;margin-top:3px;">₹${Number(inv.totalPayable || 0).toFixed(2)}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Payment Method</div><div style="font-weight:600;margin-top:3px;">${inv.paymentMethod || '—'}</div></div>
                 <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Due Date</div><div style="margin-top:3px;">${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '—'}</div></div>
-                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Paid Date</div><div style="margin-top:3px;">${(status==='PAID' && inv.paidAt) ? new Date(inv.paidAt).toLocaleDateString() : '—'}</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;">Paid Date</div><div style="margin-top:3px;">${(status === 'PAID' && inv.paidAt) ? new Date(inv.paidAt).toLocaleDateString() : '—'}</div></div>
             </div>
             ${inv.description ? `<div style="padding:12px;background:#f8fafc;border-radius:8px;font-size:13px;color:#475569;"><strong>Description:</strong> ${inv.description}</div>` : ''}
-            ${status === 'UNPAID' ? `<button onclick="window.payInvoice && payInvoice('${inv.invoiceNumber}','${inv.paymentToken}'); document.getElementById('invoicePreviewModal').style.display='none';" style="background:var(--primary,#1a73e8);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:15px;">Pay Now ₹${Number(inv.totalPayable||0).toFixed(2)}</button>` : ''}
+            ${status === 'UNPAID' ? `<button onclick="window.payInvoice && payInvoice('${inv.invoiceNumber}','${inv.paymentToken}'); document.getElementById('invoicePreviewModal').style.display='none';" style="background:var(--primary,#1a73e8);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:15px;">Pay Now ₹${Number(inv.totalPayable || 0).toFixed(2)}</button>` : ''}
         </div>`;
 }
 
-window.downloadInvoice = async function(invoiceId) {
+window.downloadInvoice = async function (invoiceId) {
     if (!invoiceId || invoiceId === 'undefined') {
         if (window.API && window.API.showToast) window.API.showToast('Invalid Invoice ID', 'error');
         return;
@@ -376,7 +378,7 @@ window.downloadInvoice = async function(invoiceId) {
     }
 };
 
-window.payInvoice = function(invoiceNumber, token) {
+window.payInvoice = function (invoiceNumber, token) {
     if (!invoiceNumber || invoiceNumber === 'undefined') {
         if (window.API && window.API.showToast) window.API.showToast('Invalid Invoice', 'error');
         return;
@@ -384,7 +386,7 @@ window.payInvoice = function(invoiceNumber, token) {
     window.location.href = `../pay-invoice.html?num=${invoiceNumber}&token=${token}`;
 };
 
-window.retryPayment = async function(invoiceId) {
+window.retryPayment = async function (invoiceId) {
     if (!invoiceId || invoiceId === 'undefined') {
         if (window.API && window.API.showToast) window.API.showToast('Invalid Invoice ID', 'error');
         return;
@@ -394,11 +396,11 @@ window.retryPayment = async function(invoiceId) {
         if (window.API && window.API.showToast) window.API.showToast('Refreshing payment session...', 'info');
         const orderId = await window.API.payment.retryPayment(invoiceId);
         if (window.API && window.API.showToast) window.API.showToast('Payment session refreshed. Redirecting...', 'success');
-        
+
         // Find the invoice details to get the number and token
         const invoices = await window.API.customer.getInvoices();
-        const inv = invoices.find(i => (i.id || i.invoiceId).toString() === invoiceId.toString());
-        
+        const inv = invoices.find(i => (i.id || i.invoiceId)?.toString() === invoiceId.toString());
+
         if (inv) {
             window.location.href = `../pay-invoice.html?num=${inv.invoiceNumber}&token=${inv.paymentToken}`;
         } else {
@@ -410,39 +412,56 @@ window.retryPayment = async function(invoiceId) {
     }
 };
 
-window.requestRefund = async function(invoiceId) {
+window.requestRefund = async function (invoiceId) {
     if (!invoiceId || invoiceId === 'undefined') {
         if (window.API && window.API.showToast) window.API.showToast('Invalid Invoice ID', 'error');
         return;
     }
     if (!confirm('Are you sure you want to request a refund for this invoice?')) return;
 
+    // Snapshot for rollback: deep copy
+    const previousInvoices = JSON.parse(JSON.stringify(window._customerInvoiceList || []));
+    const targetId = invoiceId.toString();
+
     try {
-        if (window.API && window.API.showToast) window.API.showToast('Initiating refund request...', 'info');
-        await window.API.payment.requestRefund(invoiceId);
-        
-        // ✅ OPTIMISTIC UI UPDATE: Update local state for instant feedback
+        // ✅ CONTROLLED OPTIMISTIC UPDATE: Direct mutation + re-render
         if (window._customerInvoiceList) {
-            const index = window._customerInvoiceList.findIndex(inv => 
-                (inv.id || inv.invoiceId).toString() === invoiceId.toString()
+            const index = window._customerInvoiceList.findIndex(inv =>
+                (inv.id || inv.invoiceId)?.toString() === targetId
             );
             if (index !== -1) {
                 window._customerInvoiceList[index].status = 'REFUND_REQUESTED';
+                console.log("[Customer] Optimistic status updated for:", targetId);
                 renderInvoices(window._customerInvoiceList);
+                updateAnalytics(window._customerInvoiceList);
+            } else {
+                console.warn("[Customer] Invoice for refund not found in local state:", targetId);
             }
         }
 
+        if (window.API && window.API.showToast) window.API.showToast('Initiating refund request...', 'info');
+
+        // Execute API call
+        await window.API.payment.requestRefund(invoiceId);
+
         if (window.API && window.API.showToast) window.API.showToast('Refund request submitted successfully', 'success');
-        
+
         // 🔄 FORCE CONSISTENCY SYNC: Wait 2s then refresh from server to ensure state matches
         setTimeout(() => {
-            console.log("🔄 Background sync started...");
-            loadCustomerData().catch(e => console.warn("Sync failed, but UI remains optimistic."));
+            console.log("[Customer] Background sync started...");
+            loadCustomerData().catch(e => console.warn("[Customer] Sync failed, but UI remains optimistic."));
         }, 2000);
 
     } catch (err) {
-        console.error('Refund request failed:', err);
-        if (window.API && window.API.showToast) window.API.showToast(err.message || 'Failed to request refund', 'error');
+        console.error('[Customer] Refund request failed:', err);
+
+        // 🔙 ROLLBACK: Restore previous state if API fails
+        window._customerInvoiceList = previousInvoices;
+        renderInvoices(window._customerInvoiceList);
+
+        if (window.API && window.API.showToast) {
+            window.API.showToast(err.message || 'Failed to request refund', 'error');
+        }
     }
 };
 

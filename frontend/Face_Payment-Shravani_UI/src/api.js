@@ -10,7 +10,7 @@ const API_BASE_URL = (() => {
   return "https://billmex-production.up.railway.app";
 })();
 window.API_BASE_URL = API_BASE_URL;
-console.log("🚀 [BillMeX] Using production API: " + API_BASE_URL);
+console.log("🚀 [BillMeX] [API] Using base URL: " + API_BASE_URL);
 
 
 
@@ -62,15 +62,15 @@ async function apiCall(endpoint, options = {}) {
     endpoint.startsWith("/api/chatbot");
 
   if (!token && !isPublicEndpoint) {
-    console.warn("API CALL BLOCKED (NO TOKEN):", endpoint);
+    console.warn("[API] CALL BLOCKED (NO TOKEN):", endpoint);
     throw new Error("UNAUTHORIZED");
   }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
-    console.log("API CALL AUTH HEADER ATTACHED:", endpoint);
+    console.log("[API] AUTH ATTACHED:", endpoint);
   } else {
-    console.warn("API CALL NO TOKEN FOUND:", endpoint);
+    console.warn("[API] NO TOKEN FOUND:", endpoint);
   }
 
   let response;
@@ -83,8 +83,8 @@ async function apiCall(endpoint, options = {}) {
     });
 
   } catch (err) {
-
-    throw new Error("Backend not reachable (port 8080)");
+    console.error("[API] FETCH FAILED:", endpoint, err);
+    throw new Error("Backend not reachable. Please check your connection.");
 
   }
 
@@ -93,7 +93,7 @@ async function apiCall(endpoint, options = {}) {
   ====================== */
 
   if (response.status === 401) {
-    console.warn("Session expired or unauthorized (401)");
+    console.warn("[API] Session expired or unauthorized (401)");
     if (window.Auth && window.Auth.logout) {
       window.Auth.logout();
     } else {
@@ -105,7 +105,7 @@ async function apiCall(endpoint, options = {}) {
       else rootPath = rootPath.substring(0, rootPath.lastIndexOf('/') + 1);
       window.location.href = window.location.origin + rootPath + 'index.html';
     }
-    throw new Error("UNAUTHORIZED");
+    throw new Error("SESSION_EXPIRED");
   }
 
   /* ======================
@@ -113,16 +113,16 @@ async function apiCall(endpoint, options = {}) {
   ====================== */
 
   let data;
-  const rawText = await response.text(); // ✅ Read stream ONLY ONCE
+  const rawText = await response.text(); 
 
   try {
-    data = JSON.parse(rawText); // ✅ Attempt JSON parse
+    data = rawText ? JSON.parse(rawText) : null; 
   } catch (e) {
-    data = rawText; // ✅ Fallback to plain text
+    data = rawText; 
   }
 
   if (!response.ok) {
-    console.error("❌ API ERROR:", {
+    console.error("[API] ERR:", {
       url,
       status: response.status,
       response: data
