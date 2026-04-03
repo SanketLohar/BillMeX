@@ -18,20 +18,23 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     @Query("""
-        SELECT DISTINCT t FROM Transaction t
-        WHERE 
-            (
-                (t.senderWallet.user.id = :userId)
-                OR (t.receiverWallet.user.id = :userId)
-                OR (t.invoice IS NOT NULL AND t.senderWallet IS NULL AND t.invoice.customer.user.id = :userId)
-                OR (t.invoice IS NOT NULL AND t.receiverWallet IS NULL AND t.invoice.merchant.user.id = :userId)
-            )
-        AND (:type IS NULL OR t.transactionType = :type)
-        AND (:status IS NULL OR t.status = :status)
-        AND (:fromDate IS NULL OR t.createdAt >= :fromDate)
-        AND (:toDate IS NULL OR t.createdAt <= :toDate)
-        ORDER BY t.createdAt DESC
-    """)
+SELECT DISTINCT t FROM Transaction t
+LEFT JOIN FETCH t.invoice i
+LEFT JOIN FETCH i.customer c
+LEFT JOIN FETCH i.merchant m
+WHERE 
+(
+    (t.senderWallet.user.id = :userId)
+    OR (t.receiverWallet.user.id = :userId)
+    OR (t.invoice IS NOT NULL AND t.senderWallet IS NULL AND t.invoice.customer.user.id = :userId)
+    OR (t.invoice IS NOT NULL AND t.receiverWallet IS NULL AND t.invoice.merchant.user.id = :userId)
+)
+AND (:type IS NULL OR t.transactionType = :type)
+AND (:status IS NULL OR t.status = :status)
+AND (:fromDate IS NULL OR t.createdAt >= :fromDate)
+AND (:toDate IS NULL OR t.createdAt <= :toDate)
+ORDER BY t.createdAt DESC
+""")
     Page<Transaction> findUserTransactions(
             @Param("userId") Long userId,
             @Param("type") TransactionType type,
