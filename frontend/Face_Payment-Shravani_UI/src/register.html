@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BillMeX — Create Account</title>
-    <meta name="description" content="Register your BillMeX merchant or customer account. GST-compliant invoicing and escrowed settlements for India's digital economy.">
+    <meta name="description"
+        content="Register your BillMeX merchant or customer account. GST-compliant invoicing and escrowed settlements for India's digital economy.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,13 +21,17 @@
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
     <style>
-        body { background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 40%, #34a853 100%); min-height: 100vh; }
+        body {
+            background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 40%, #34a853 100%);
+            min-height: 100vh;
+        }
 
         /* ── Page header ── */
         .reg-header {
             width: 100%;
             padding: 18px 0;
         }
+
         .reg-header__inner {
             max-width: 1200px;
             margin: 0 auto;
@@ -34,6 +40,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .reg-logo {
             display: flex;
             align-items: center;
@@ -43,16 +50,32 @@
             color: white;
             text-decoration: none;
         }
+
         .reg-logo__icon {
-            width: 38px; height: 38px;
-            background: rgba(255,255,255,0.2);
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
         }
-        .reg-header__link { color: rgba(255,255,255,0.85); font-size: 14px; }
-        .reg-header__link:hover { color: white; }
-        .reg-header__link a { color: white; font-weight: 600; }
+
+        .reg-header__link {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+        }
+
+        .reg-header__link:hover {
+            color: white;
+        }
+
+        .reg-header__link a {
+            color: white;
+            font-weight: 600;
+        }
 
         /* ── Main card ── */
         .reg-card {
@@ -60,7 +83,7 @@
             margin: 0 auto 48px;
             background: #fff;
             border-radius: 20px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             overflow: hidden;
         }
 
@@ -70,45 +93,70 @@
             color: white;
             text-align: center;
         }
-        .reg-card__hero h1 { font-size: 24px; margin-bottom: 6px; }
-        .reg-card__hero p  { font-size: 15px; opacity: 0.9; }
+
+        .reg-card__hero h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .reg-card__hero p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
 
         /* ── Tabs ── */
         .reg-tabs {
             display: flex;
             gap: 6px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             padding: 4px;
             margin: 20px auto 0;
             max-width: 340px;
         }
+
         .reg-tab {
             flex: 1;
             padding: 10px 16px;
             border: none;
             background: transparent;
-            color: rgba(255,255,255,0.85);
+            color: rgba(255, 255, 255, 0.85);
             font-weight: 600;
             font-size: 14px;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.25s;
         }
+
         .reg-tab.active {
             background: white;
             color: #1a73e8;
         }
 
         /* ── Form body ── */
-        .reg-body { padding: 32px; }
+        .reg-body {
+            padding: 32px;
+        }
 
-        .reg-tab-pane { display: none; }
-        .reg-tab-pane.active { display: block; animation: fadeUp 0.3s ease; }
+        .reg-tab-pane {
+            display: none;
+        }
+
+        .reg-tab-pane.active {
+            display: block;
+            animation: fadeUp 0.3s ease;
+        }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Step indicator */
@@ -117,12 +165,14 @@
             align-items: center;
             margin-bottom: 28px;
         }
+
         .step-indicator__item {
             display: flex;
             align-items: center;
             gap: 8px;
             flex: 1;
         }
+
         .step-indicator__item:not(:last-child)::after {
             content: '';
             flex: 1;
@@ -132,24 +182,61 @@
             border-radius: 2px;
             transition: background 0.3s;
         }
-        .step-indicator__item.done::after { background: #34a853; }
-        .step-dot {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700;
-            background: #e8eaed; color: #5f6368;
-            flex-shrink: 0; transition: all 0.25s;
+
+        .step-indicator__item.done::after {
+            background: #34a853;
         }
-        .step-indicator__item.active .step-dot  { background: #1a73e8; color: white; }
-        .step-indicator__item.done   .step-dot  { background: #34a853; color: white; }
-        .step-label { font-size: 12px; font-weight: 500; color: #5f6368; white-space: nowrap; }
-        .step-indicator__item.active .step-label { color: #1a73e8; font-weight: 600; }
-        .step-indicator__item.done   .step-label { color: #34a853; }
+
+        .step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            background: #e8eaed;
+            color: #5f6368;
+            flex-shrink: 0;
+            transition: all 0.25s;
+        }
+
+        .step-indicator__item.active .step-dot {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .step-indicator__item.done .step-dot {
+            background: #34a853;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            white-space: nowrap;
+        }
+
+        .step-indicator__item.active .step-label {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+
+        .step-indicator__item.done .step-label {
+            color: #34a853;
+        }
 
         /* Form step  */
-        .form-step { display: none; }
-        .form-step.active { display: block; animation: fadeUp 0.3s ease; }
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeUp 0.3s ease;
+        }
 
         /* Input row */
         .input-row {
@@ -157,17 +244,30 @@
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
-        @media (max-width: 500px) { .input-row { grid-template-columns: 1fr; } }
 
-        .input-wrap { position: relative; }
-        .input-wrap .form-input { padding-right: 40px; }
+        @media (max-width: 500px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap .form-input {
+            padding-right: 40px;
+        }
+
         .input-icon {
             position: absolute;
-            right: 14px; top: 50%;
+            right: 14px;
+            top: 50%;
             transform: translateY(-50%);
             color: #9aa0a6;
             pointer-events: none;
         }
+
         .input-toggle {
             pointer-events: all;
             cursor: pointer;
@@ -191,7 +291,12 @@
         }
 
         /* Submit btn full width */
-        .btn-submit { width: 100%; justify-content: center; padding: 13px; font-size: 15px; }
+        .btn-submit {
+            width: 100%;
+            justify-content: center;
+            padding: 13px;
+            font-size: 15px;
+        }
 
         /* Success state */
         .success-state {
@@ -199,23 +304,49 @@
             padding: 20px 0;
             display: none;
         }
-        .success-state.show { display: block; animation: fadeUp 0.4s ease; }
+
+        .success-state.show {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+
         .success-icon {
-            width: 72px; height: 72px;
+            width: 72px;
+            height: 72px;
             background: linear-gradient(135deg, #34a853, #2e7d32);
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px; color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
             margin: 0 auto 20px;
             animation: popIn 0.5s ease;
         }
+
         @keyframes popIn {
-            0%   { transform: scale(0); }
-            70%  { transform: scale(1.12); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0);
+            }
+
+            70% {
+                transform: scale(1.12);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
-        .success-state h2 { font-size: 22px; margin-bottom: 8px; }
-        .success-state p  { color: #5f6368; margin-bottom: 24px; }
+
+        .success-state h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .success-state p {
+            color: #5f6368;
+            margin-bottom: 24px;
+        }
 
         /* Switch link */
         .switch-link {
@@ -224,7 +355,11 @@
             color: #5f6368;
             margin-top: 20px;
         }
-        .switch-link a { font-weight: 600; color: #1a73e8; }
+
+        .switch-link a {
+            font-weight: 600;
+            color: #1a73e8;
+        }
 
         /* Face capture area */
         .face-area {
@@ -233,7 +368,12 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        .face-area h4 { font-size: 15px; margin-bottom: 12px; }
+
+        .face-area h4 {
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
         .video-box {
             position: relative;
             border-radius: 10px;
@@ -242,8 +382,21 @@
             margin-bottom: 14px;
             max-height: 260px;
         }
-        #faceVideo { width: 100%; height: 260px; object-fit: cover; transform: scaleX(-1); display: block; }
-        .face-canvas { position: absolute; top: 0; left: 0; transform: scaleX(-1); }
+
+        #faceVideo {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            transform: scaleX(-1);
+            display: block;
+        }
+
+        .face-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: scaleX(-1);
+        }
 
         .pose-grid {
             display: grid;
@@ -251,6 +404,7 @@
             gap: 8px;
             margin-bottom: 14px;
         }
+
         .pose-cell {
             border: 2px solid #e8eaed;
             border-radius: 8px;
@@ -266,19 +420,39 @@
             overflow: hidden;
             position: relative;
         }
-        .pose-cell.captured { border-color: #34a853; }
-        .pose-cell img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 6px; }
+
+        .pose-cell.captured {
+            border-color: #34a853;
+        }
+
+        .pose-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            border-radius: 6px;
+        }
+
         .pose-cell .pose-label {
-            position: relative; z-index: 1;
-            background: rgba(0,0,0,0.55);
+            position: relative;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.55);
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 10px;
             align-self: flex-end;
         }
-        .pose-cell .pose-icon { font-size: 20px; color: #9aa0a6; }
-        .pose-cell.captured .pose-icon { display: none; }
+
+        .pose-cell .pose-icon {
+            font-size: 20px;
+            color: #9aa0a6;
+        }
+
+        .pose-cell.captured .pose-icon {
+            display: none;
+        }
 
         .face-instruction {
             background: #1a73e8;
@@ -292,722 +466,745 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- Header -->
-<header class="reg-header">
-    <div class="reg-header__inner">
-        <a href="../index.html" class="reg-logo">
-            <div class="reg-logo__icon"><i class="fas fa-bolt"></i></div>
-            <span data-i18n="branding_name">BillMeX</span>
-        </a>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <!-- Language Switcher -->
-            <div class="language-dropdown-container">
-                <div class="language-switcher" onclick="toggleLangDropdown()">
-                    <i class="fas fa-globe"></i>
-                    <span id="current-lang">EN</span>
-                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+    <!-- Header -->
+    <header class="reg-header">
+        <div class="reg-header__inner">
+            <a href="../index.html" class="reg-logo">
+                <div class="reg-logo__icon"><i class="fas fa-bolt"></i></div>
+                <span data-i18n="branding_name">BillMeX</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <!-- Language Switcher -->
+                <div class="language-dropdown-container">
+                    <div class="language-switcher" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="language-dropdown" id="lang-menu">
+                        <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
+                        <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
+                        <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
+                    </div>
                 </div>
-                <div class="language-dropdown" id="lang-menu">
-                    <div class="lang-option" onclick="setLanguage('en')">English (EN)</div>
-                    <div class="lang-option" onclick="setLanguage('hi')">हिन्दी (HI)</div>
-                    <div class="lang-option" onclick="setLanguage('mr')">मराठी (MR)</div>
-                </div>
-            </div>
-            <span class="reg-header__link">
-                <span data-i18n="auth_already_have">Already have an account?</span> <a href="login.html" data-i18n="nav_signin">Sign in</a>
-            </span>
-        </div>
-    </div>
-</header>
-
-<!-- Registration Card -->
-<div class="app-container">
-    <div class="reg-card">
-        <!-- Card hero -->
-        <div class="reg-card__hero">
-            <h1 data-i18n="reg_title">Create your BillMe Account</h1>
-            <p data-i18n="reg_subtitle">Merchant or Customer — choose your account type below.</p>
-            <div class="reg-tabs">
-                <button class="reg-tab active" data-tab="merchant">
-                    <i class="fas fa-store"></i> <span data-i18n="tab_merchant">Merchant</span>
-                </button>
-                <button class="reg-tab" data-tab="customer">
-                    <i class="fas fa-user"></i> <span data-i18n="tab_customer">Customer</span>
-                </button>
+                <span class="reg-header__link">
+                    <span data-i18n="auth_already_have">Already have an account?</span> <a href="login.html"
+                        data-i18n="nav_signin">Sign in</a>
+                </span>
             </div>
         </div>
+    </header>
 
-        <!-- Form body -->
-        <div class="reg-body">
+    <!-- Registration Card -->
+    <div class="app-container">
+        <div class="reg-card">
+            <!-- Card hero -->
+            <div class="reg-card__hero">
+                <h1 data-i18n="reg_title">Create your BillMe Account</h1>
+                <p data-i18n="reg_subtitle">Merchant or Customer — choose your account type below.</p>
+                <div class="reg-tabs">
+                    <button class="reg-tab active" data-tab="merchant">
+                        <i class="fas fa-store"></i> <span data-i18n="tab_merchant">Merchant</span>
+                    </button>
+                    <button class="reg-tab" data-tab="customer">
+                        <i class="fas fa-user"></i> <span data-i18n="tab_customer">Customer</span>
+                    </button>
+                </div>
+            </div>
 
-            <!-- ═══════════════════════════════════════════════
+            <!-- Form body -->
+            <div class="reg-body">
+
+                <!-- ═══════════════════════════════════════════════
                  MERCHANT REGISTRATION
                  Fields: email, password, businessName, ownerName, dob
                  Backend: POST /auth/register/merchant
             ═══════════════════════════════════════════════ -->
-            <div class="reg-tab-pane active" id="merchant-pane">
-                <form id="merchantForm" novalidate autocomplete="off">
+                <div class="reg-tab-pane active" id="merchant-pane">
+                    <form id="merchantForm" novalidate autocomplete="off">
 
-                    <div class="input-row">
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label class="form-label" for="m-businessName">
+                                    <span data-i18n="label_biz_name">Business Name</span> <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="input-wrap">
+                                    <input type="text" id="m-businessName" class="form-input" placeholder="Acme Traders"
+                                        data-i18n="label_biz_name" required>
+                                    <i class="fas fa-building input-icon"></i>
+                                </div>
+                                <div class="err-msg" id="m-businessName-err"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="m-ownerName">
+                                    <span data-i18n="label_owner_name">Owner Full Name</span> <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="input-wrap">
+                                    <input type="text" id="m-ownerName" class="form-input" placeholder="Ramesh Kumar"
+                                        data-i18n="label_owner_name" required>
+                                    <i class="fas fa-user input-icon"></i>
+                                </div>
+                                <div class="err-msg" id="m-ownerName-err"></div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label class="form-label" for="m-businessName">
-                                <span data-i18n="label_biz_name">Business Name</span> <span class="required">*</span>
+                            <label class="form-label" for="m-email">
+                                <span data-i18n="label_biz_email">Business Email</span> <span class="required">*</span>
                             </label>
                             <div class="input-wrap">
-                                <input type="text" id="m-businessName" class="form-input"
-                                    placeholder="Acme Traders" data-i18n="label_biz_name" required>
-                                <i class="fas fa-building input-icon"></i>
+                                <input type="email" id="m-email" class="form-input" placeholder="you@business.com"
+                                    data-i18n="label_biz_email" required>
+                                <i class="fas fa-envelope input-icon"></i>
                             </div>
-                            <div class="err-msg" id="m-businessName-err"></div>
+                            <div class="err-msg" id="m-email-err"></div>
                         </div>
+
                         <div class="form-group">
-                            <label class="form-label" for="m-ownerName">
-                                <span data-i18n="label_owner_name">Owner Full Name</span> <span class="required">*</span>
+                            <label class="form-label" for="m-dob">
+                                <span data-i18n="label_dob">Date of Birth</span> <span class="required">*</span>
                             </label>
-                            <div class="input-wrap">
-                                <input type="text" id="m-ownerName" class="form-input"
-                                    placeholder="Ramesh Kumar" data-i18n="label_owner_name" required>
-                                <i class="fas fa-user input-icon"></i>
+                            <input type="date" id="m-dob" class="form-input" max="" required>
+                            <div class="err-msg" id="m-dob-err"></div>
+                            <div class="form-hint" data-i18n="hint_age">Owner must be 18+ years old.</div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label class="form-label" for="m-password">
+                                    <span data-i18n="label_password">Password</span> <span class="required">*</span>
+                                </label>
+                                <div class="input-wrap">
+                                    <input type="password" id="m-password" class="form-input"
+                                        placeholder="Min 6 characters" data-i18n="label_password" required
+                                        minlength="6">
+                                    <i class="fas fa-eye input-icon input-toggle" id="m-pwd-toggle"></i>
+                                </div>
+                                <div class="err-msg" id="m-password-err"></div>
                             </div>
-                            <div class="err-msg" id="m-ownerName-err"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="m-email">
-                            <span data-i18n="label_biz_email">Business Email</span> <span class="required">*</span>
-                        </label>
-                        <div class="input-wrap">
-                            <input type="email" id="m-email" class="form-input"
-                                placeholder="you@business.com" data-i18n="label_biz_email" required>
-                            <i class="fas fa-envelope input-icon"></i>
-                        </div>
-                        <div class="err-msg" id="m-email-err"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="m-dob">
-                            <span data-i18n="label_dob">Date of Birth</span> <span class="required">*</span>
-                        </label>
-                        <input type="date" id="m-dob" class="form-input"
-                            max="" required>
-                        <div class="err-msg" id="m-dob-err"></div>
-                        <div class="form-hint" data-i18n="hint_age">Owner must be 18+ years old.</div>
-                    </div>
-
-                    <div class="input-row">
-                        <div class="form-group">
-                            <label class="form-label" for="m-password">
-                                <span data-i18n="label_password">Password</span> <span class="required">*</span>
-                            </label>
-                            <div class="input-wrap">
-                                <input type="password" id="m-password" class="form-input"
-                                    placeholder="Min 6 characters" data-i18n="label_password" required minlength="6">
-                                <i class="fas fa-eye input-icon input-toggle" id="m-pwd-toggle"></i>
+                            <div class="form-group">
+                                <label class="form-label" for="m-confirmPassword">
+                                    <span data-i18n="label_confirm_password">Confirm Password</span> <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="input-wrap">
+                                    <input type="password" id="m-confirmPassword" class="form-input"
+                                        placeholder="Repeat password" data-i18n="label_confirm_password" required>
+                                    <i class="fas fa-eye input-icon input-toggle" id="m-cpwd-toggle"></i>
+                                </div>
+                                <div class="err-msg" id="m-confirmPassword-err"></div>
                             </div>
-                            <div class="err-msg" id="m-password-err"></div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="m-confirmPassword">
-                                <span data-i18n="label_confirm_password">Confirm Password</span> <span class="required">*</span>
-                            </label>
-                            <div class="input-wrap">
-                                <input type="password" id="m-confirmPassword" class="form-input"
-                                    placeholder="Repeat password" data-i18n="label_confirm_password" required>
-                                <i class="fas fa-eye input-icon input-toggle" id="m-cpwd-toggle"></i>
-                            </div>
-                            <div class="err-msg" id="m-confirmPassword-err"></div>
-                        </div>
+
+                        <div id="m-global-err" class="alert alert-danger mt-2" style="display:none;"></div>
+
+                        <button type="submit" class="btn btn-primary btn-submit mt-3" id="m-submit-btn">
+                            <span data-i18n="btn_create_merchant">Create Merchant Account</span>
+                        </button>
+                    </form>
+
+                    <div class="success-state" id="m-success">
+                        <div class="success-icon"><i class="fas fa-check"></i></div>
+                        <h2 data-i18n="reg_success_t">Account Created!</h2>
+                        <p data-i18n="reg_success_d_m">Your merchant account is ready. Complete your profile to start
+                            invoicing.</p>
+                        <button class="btn btn-primary btn-submit" id="m-go-dashboard">
+                            <i class="fas fa-tachometer-alt"></i> <span data-i18n="btn_go_dash">Go to Dashboard</span>
+                        </button>
                     </div>
 
-                    <div id="m-global-err" class="alert alert-danger mt-2" style="display:none;"></div>
-
-                    <button type="submit" class="btn btn-primary btn-submit mt-3" id="m-submit-btn">
-                        <i class="fas fa-rocket"></i> <span data-i18n="btn_create_merchant">Create Merchant Account</span>
-                    </button>
-                </form>
-
-                <div class="success-state" id="m-success">
-                    <div class="success-icon"><i class="fas fa-check"></i></div>
-                    <h2 data-i18n="reg_success_t">Account Created!</h2>
-                    <p data-i18n="reg_success_d_m">Your merchant account is ready. Complete your profile to start invoicing.</p>
-                    <button class="btn btn-primary btn-submit" id="m-go-dashboard">
-                        <i class="fas fa-tachometer-alt"></i> <span data-i18n="btn_go_dash">Go to Dashboard</span>
-                    </button>
+                    <div class="switch-link mt-2">
+                        <span data-i18n="auth_already_reg">Already registered?</span> <a href="login.html"
+                            data-i18n="link_signin_here">Sign in here</a>
+                    </div>
                 </div>
 
-                <div class="switch-link mt-2">
-                    <span data-i18n="auth_already_reg">Already registered?</span> <a href="login.html" data-i18n="link_signin_here">Sign in here</a>
-                </div>
-            </div>
-
-            <!-- ═══════════════════════════════════════════════
+                <!-- ═══════════════════════════════════════════════
                  CUSTOMER REGISTRATION
                  Step 1: email, password, name, dob, contactNumber, address, state, city, pinCode
                  Step 2: Face capture (faceEmbeddings)
                  Backend: POST /auth/register/customer
             ═══════════════════════════════════════════════ -->
-            <div class="reg-tab-pane" id="customer-pane">
+                <div class="reg-tab-pane" id="customer-pane">
 
-                <!-- Step indicator (only for customer) -->
-                <div class="step-indicator" id="c-step-indicator">
-                    <div class="step-indicator__item active" data-step="1">
-                        <div class="step-dot">1</div>
-                        <span class="step-label" data-i18n="step_details">Account Details</span>
-                    </div>
-                    <div class="step-indicator__item" data-step="2">
-                        <div class="step-dot">2</div>
-                        <span class="step-label" data-i18n="step_face">Face Setup</span>
-                    </div>
-                </div>
-
-                <form id="customerForm" novalidate autocomplete="off">
-
-                    <!-- Step 1 -->
-                    <div class="form-step active" id="c-step-1">
-                        <div class="input-row">
-                            <div class="form-group">
-                                <label class="form-label" for="c-name">
-                                    <span data-i18n="label_full_name">Full Name</span> <span class="required">*</span>
-                                </label>
-                                <div class="input-wrap">
-                                    <input type="text" id="c-name" class="form-input"
-                                        placeholder="Your full name" data-i18n="label_full_name" required>
-                                    <i class="fas fa-user input-icon"></i>
-                                </div>
-                                <div class="err-msg" id="c-name-err"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="c-email">
-                                    <span data-i18n="label_email">Email Address</span> <span class="required">*</span>
-                                </label>
-                                <div class="input-wrap">
-                                    <input type="email" id="c-email" class="form-input"
-                                        placeholder="you@example.com" data-i18n="label_email" required>
-                                    <i class="fas fa-envelope input-icon"></i>
-                                </div>
-                                <div class="err-msg" id="c-email-err"></div>
-                            </div>
+                    <!-- Step indicator (only for customer) -->
+                    <div class="step-indicator" id="c-step-indicator">
+                        <div class="step-indicator__item active" data-step="1">
+                            <div class="step-dot">1</div>
+                            <span class="step-label" data-i18n="step_details">Account Details</span>
                         </div>
-
-                        <div class="input-row">
-                            <div class="form-group">
-                                <label class="form-label" for="c-password">
-                                    <span data-i18n="label_password">Password</span> <span class="required">*</span>
-                                </label>
-                                <div class="input-wrap">
-                                    <input type="password" id="c-password" class="form-input"
-                                        placeholder="Min 6 characters" data-i18n="label_password" required minlength="6">
-                                    <i class="fas fa-eye input-icon input-toggle" id="c-pwd-toggle"></i>
-                                </div>
-                                <div class="err-msg" id="c-password-err"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="c-confirmPassword">
-                                    <span data-i18n="label_confirm_password">Confirm Password</span> <span class="required">*</span>
-                                </label>
-                                <div class="input-wrap">
-                                    <input type="password" id="c-confirmPassword" class="form-input"
-                                        placeholder="Repeat password" data-i18n="label_confirm_password" required>
-                                    <i class="fas fa-eye input-icon input-toggle" id="c-cpwd-toggle"></i>
-                                </div>
-                                <div class="err-msg" id="c-confirmPassword-err"></div>
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="form-group">
-                                <label class="form-label" for="c-dob">
-                                    <span data-i18n="label_dob">Date of Birth</span> <span class="required">*</span>
-                                </label>
-                                <input type="date" id="c-dob" class="form-input" required>
-                                <div class="err-msg" id="c-dob-err"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="c-contactNumber">
-                                    <span data-i18n="label_phone">Contact Number</span> <span class="required">*</span>
-                                </label>
-                                <div class="input-wrap">
-                                    <input type="tel" id="c-contactNumber" class="form-input"
-                                        placeholder="+91 9876543210" data-i18n="label_phone" required>
-                                    <i class="fas fa-phone input-icon"></i>
-                                </div>
-                                <div class="err-msg" id="c-contactNumber-err"></div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="c-address">
-                                <span data-i18n="label_address">Address</span> <span class="required">*</span>
-                            </label>
-                            <input type="text" id="c-address" class="form-input"
-                                placeholder="House/Flat no., Street" data-i18n="label_address" required>
-                            <div class="err-msg" id="c-address-err"></div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="form-group">
-                                <label class="form-label" for="c-city">
-                                    <span data-i18n="label_city">City</span> <span class="required">*</span>
-                                </label>
-                                <input type="text" id="c-city" class="form-input"
-                                    placeholder="Mumbai" data-i18n="label_city" required>
-                                <div class="err-msg" id="c-city-err"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="c-state">
-                                    <span data-i18n="label_state">State</span> <span class="required">*</span>
-                                </label>
-                                <input type="text" id="c-state" class="form-input"
-                                    placeholder="Maharashtra" data-i18n="label_state" required>
-                                <div class="err-msg" id="c-state-err"></div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="c-pinCode">
-                                <span data-i18n="label_pincode">PIN Code</span> <span class="required">*</span>
-                            </label>
-                            <input type="text" id="c-pinCode" class="form-input"
-                                placeholder="400001" data-i18n="label_pincode" required maxlength="6" pattern="[0-9]{6}">
-                            <div class="err-msg" id="c-pinCode-err"></div>
-                        </div>
-
-                        <div class="form-footer">
-                            <div></div>
-                            <button type="button" class="btn btn-primary" id="c-to-step2">
-                                <span data-i18n="btn_next_face">Next — Face Setup</span> <i class="fas fa-arrow-right"></i>
-                            </button>
+                        <div class="step-indicator__item" data-step="2">
+                            <div class="step-dot">2</div>
+                            <span class="step-label" data-i18n="step_face">Face Setup</span>
                         </div>
                     </div>
 
-                    <!-- Step 2: Face Capture -->
-                    <div class="form-step" id="c-step-2">
-                        <div class="face-area">
-                            <h4><i class="fas fa-camera" style="color:#1a73e8"></i> <span data-i18n="face_title">Biometric Face Registration</span></h4>
-                            <p class="form-hint mb-2" data-i18n="face_hint">Capture 6 poses to enable FacePay payments. Click "Capture" for each pose.</p>
+                    <form id="customerForm" novalidate autocomplete="off">
 
-                            <div class="face-instruction" id="faceInstruction" data-i18n="face_instr_init">
-                                Point your face at the camera and click Capture
+                        <!-- Step 1 -->
+                        <div class="form-step active" id="c-step-1">
+                            <div class="input-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="c-name">
+                                        <span data-i18n="label_full_name">Full Name</span> <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="input-wrap">
+                                        <input type="text" id="c-name" class="form-input" placeholder="Your full name"
+                                            data-i18n="label_full_name" required>
+                                        <i class="fas fa-user input-icon"></i>
+                                    </div>
+                                    <div class="err-msg" id="c-name-err"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="c-email">
+                                        <span data-i18n="label_email">Email Address</span> <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="input-wrap">
+                                        <input type="email" id="c-email" class="form-input"
+                                            placeholder="you@example.com" data-i18n="label_email" required>
+                                        <i class="fas fa-envelope input-icon"></i>
+                                    </div>
+                                    <div class="err-msg" id="c-email-err"></div>
+                                </div>
                             </div>
 
-                            <div class="video-box">
-                                <video id="faceVideo" autoplay playsinline muted></video>
-                                <canvas id="faceCanvas" class="face-canvas"></canvas>
+                            <div class="input-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="c-password">
+                                        <span data-i18n="label_password">Password</span> <span class="required">*</span>
+                                    </label>
+                                    <div class="input-wrap">
+                                        <input type="password" id="c-password" class="form-input"
+                                            placeholder="Min 6 characters" data-i18n="label_password" required
+                                            minlength="6">
+                                        <i class="fas fa-eye input-icon input-toggle" id="c-pwd-toggle"></i>
+                                    </div>
+                                    <div class="err-msg" id="c-password-err"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="c-confirmPassword">
+                                        <span data-i18n="label_confirm_password">Confirm Password</span> <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="input-wrap">
+                                        <input type="password" id="c-confirmPassword" class="form-input"
+                                            placeholder="Repeat password" data-i18n="label_confirm_password" required>
+                                        <i class="fas fa-eye input-icon input-toggle" id="c-cpwd-toggle"></i>
+                                    </div>
+                                    <div class="err-msg" id="c-confirmPassword-err"></div>
+                                </div>
                             </div>
 
-                            <div class="pose-grid" id="poseGrid">
-                                <!-- Populated by JS -->
+                            <div class="input-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="c-dob">
+                                        <span data-i18n="label_dob">Date of Birth</span> <span class="required">*</span>
+                                    </label>
+                                    <input type="date" id="c-dob" class="form-input" required>
+                                    <div class="err-msg" id="c-dob-err"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="c-contactNumber">
+                                        <span data-i18n="label_phone">Contact Number</span> <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="input-wrap">
+                                        <input type="tel" id="c-contactNumber" class="form-input"
+                                            placeholder="9876543210" data-i18n="label_phone" maxlength="10"
+                                            inputmode="numeric" pattern="[0-9]{10}"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                        <i class="fas fa-phone input-icon"></i>
+                                    </div>
+                                    <div class="err-msg" id="c-contactNumber-err"></div>
+                                </div>
                             </div>
 
-                            <div class="d-flex gap-1 flex-wrap justify-between">
-                                <button type="button" class="btn btn-secondary btn-sm" id="restartCapture">
-                                    <i class="fas fa-redo"></i> <span data-i18n="btn_restart">Restart</span>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" id="captureBtn">
-                                    <i class="fas fa-camera"></i> <span data-i18n="btn_capture">Capture Pose</span>
+                            <div class="form-group">
+                                <label class="form-label" for="c-address">
+                                    <span data-i18n="label_address">Address</span> <span class="required">*</span>
+                                </label>
+                                <input type="text" id="c-address" class="form-input"
+                                    placeholder="House/Flat no., Street" data-i18n="label_address" required>
+                                <div class="err-msg" id="c-address-err"></div>
+                            </div>
+
+                            <div class="input-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="c-city">
+                                        <span data-i18n="label_city">City</span> <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="c-city" class="form-input" placeholder="Mumbai"
+                                        data-i18n="label_city" required>
+                                    <div class="err-msg" id="c-city-err"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="c-state">
+                                        <span data-i18n="label_state">State</span> <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="c-state" class="form-input" placeholder="Maharashtra"
+                                        data-i18n="label_state" required>
+                                    <div class="err-msg" id="c-state-err"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="c-pinCode">
+                                    <span data-i18n="label_pincode">PIN Code</span> <span class="required">*</span>
+                                </label>
+                                <input type="text" id="c-pinCode" class="form-input" placeholder="400001"
+                                    data-i18n="label_pincode" required maxlength="6" pattern="[0-9]{6}">
+                                <div class="err-msg" id="c-pinCode-err"></div>
+                            </div>
+
+                            <div class="form-footer">
+                                <div></div>
+                                <button type="button" class="btn btn-primary" id="c-to-step2">
+                                    <span data-i18n="btn_next_face">Next — Face Setup</span> <i
+                                        class="fas fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="c-global-err" class="alert alert-danger" style="display:none;"></div>
+                        <!-- Step 2: Face Capture -->
+                        <div class="form-step" id="c-step-2">
+                            <div class="face-area">
+                                <h4><i class="fas fa-camera" style="color:#1a73e8"></i> <span
+                                        data-i18n="face_title">Biometric Face Registration</span></h4>
+                                <p class="form-hint mb-2" data-i18n="face_hint">Capture 6 poses to enable FacePay
+                                    payments. Click "Capture" for each pose.</p>
 
-                        <div class="form-footer">
-                            <button type="button" class="btn btn-secondary" id="c-to-step1">
-                                <i class="fas fa-arrow-left"></i> Back
-                            </button>
-                            <button type="submit" class="btn btn-success" id="c-submit-btn">
-                                <i class="fas fa-check"></i> <span data-i18n="btn_complete_reg">Complete Registration</span>
-                            </button>
+                                <div class="face-instruction" id="faceInstruction" data-i18n="face_instr_init">
+                                    Point your face at the camera and click Capture
+                                </div>
+
+                                <div class="video-box">
+                                    <video id="faceVideo" autoplay playsinline muted></video>
+                                    <canvas id="faceCanvas" class="face-canvas"></canvas>
+                                </div>
+
+                                <div class="pose-grid" id="poseGrid">
+                                    <!-- Populated by JS -->
+                                </div>
+
+                                <div class="d-flex gap-1 flex-wrap justify-between">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="restartCapture">
+                                        <i class="fas fa-redo"></i> <span data-i18n="btn_restart">Restart</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" id="captureBtn">
+                                        <i class="fas fa-camera"></i> <span data-i18n="btn_capture">Capture Pose</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="c-global-err" class="alert alert-danger" style="display:none;"></div>
+
+                            <div class="form-footer">
+                                <button type="button" class="btn btn-secondary" id="c-to-step1">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                                <button type="submit" class="btn btn-success" id="c-submit-btn">
+                                    <i class="fas fa-check"></i> <span data-i18n="btn_complete_reg">Complete
+                                        Registration</span>
+                                </button>
+                            </div>
                         </div>
+
+                    </form>
+
+                    <div class="success-state" id="c-success">
+                        <div class="success-icon"><i class="fas fa-check"></i></div>
+                        <h2 data-i18n="reg_success_t">Welcome to BillMe!</h2>
+                        <p data-i18n="reg_success_d_c">Your account is ready. You can now use FacePay at participating
+                            merchants.</p>
+                        <button class="btn btn-primary btn-submit" id="c-go-dashboard">
+                            <i class="fas fa-tachometer-alt"></i> <span data-i18n="btn_go_dash">Go to Dashboard</span>
+                        </button>
                     </div>
 
-                </form>
-
-                <div class="success-state" id="c-success">
-                    <div class="success-icon"><i class="fas fa-check"></i></div>
-                    <h2 data-i18n="reg_success_t">Welcome to BillMe!</h2>
-                    <p data-i18n="reg_success_d_c">Your account is ready. You can now use FacePay at participating merchants.</p>
-                    <button class="btn btn-primary btn-submit" id="c-go-dashboard">
-                        <i class="fas fa-tachometer-alt"></i> <span data-i18n="btn_go_dash">Go to Dashboard</span>
-                    </button>
+                    <div class="switch-link mt-2">
+                        Already registered? <a href="login.html">Sign in here</a>
+                    </div>
                 </div>
 
-                <div class="switch-link mt-2">
-                    Already registered? <a href="login.html">Sign in here</a>
-                </div>
-            </div>
+            </div><!-- /.reg-body -->
+        </div><!-- /.reg-card -->
+    </div><!-- /.app-container -->
 
-        </div><!-- /.reg-body -->
-    </div><!-- /.reg-card -->
-</div><!-- /.app-container -->
+    <div id="toast-container" class="toast-container"></div>
 
-<div id="toast-container" class="toast-container"></div>
+    <script>
+        // ════════════════════════════════════════════════════════════
+        //  BillMe Registration — register.html
+        // ════════════════════════════════════════════════════════════
 
-<script>
-// ════════════════════════════════════════════════════════════
-//  BillMe Registration — register.html
-// ════════════════════════════════════════════════════════════
+        // ── Set max DOB (today) ──────────────────────────────────────
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('m-dob').setAttribute('max', today);
+        document.getElementById('c-dob').setAttribute('max', today);
 
-// ── Set max DOB (today) ──────────────────────────────────────
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('m-dob').setAttribute('max', today);
-document.getElementById('c-dob').setAttribute('max', today);
+        // ── Tab switching ────────────────────────────────────────────
+        document.querySelectorAll('.reg-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.reg-tab').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.reg-tab-pane').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-pane').classList.add('active');
+            });
+        });
 
-// ── Tab switching ────────────────────────────────────────────
-document.querySelectorAll('.reg-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.reg-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.reg-tab-pane').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab + '-pane').classList.add('active');
-    });
-});
-
-// ── Password toggle ──────────────────────────────────────────
-function initPwdToggle(toggleId, inputId) {
-    const toggle = document.getElementById(toggleId);
-    const input  = document.getElementById(inputId);
-    if (!toggle || !input) return;
-    toggle.addEventListener('click', () => {
-        const show = input.type === 'password';
-        input.type = show ? 'text' : 'password';
-        toggle.classList.toggle('fa-eye', !show);
-        toggle.classList.toggle('fa-eye-slash', show);
-    });
-}
-initPwdToggle('m-pwd-toggle',  'm-password');
-initPwdToggle('m-cpwd-toggle', 'm-confirmPassword');
-initPwdToggle('c-pwd-toggle',  'c-password');
-initPwdToggle('c-cpwd-toggle', 'c-confirmPassword');
-
-// ── Validation helpers ───────────────────────────────────────
-function setErr(fieldId, msg) {
-    const el = document.getElementById(fieldId + '-err');
-    if (!el) return;
-    el.textContent = msg;
-}
-function clearErr(fieldId) { setErr(fieldId, ''); }
-
-function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-function validatePhone(v) { return /^[+]?[0-9\s\-().]{7,15}$/.test(v.trim()); }
-function validatePin(v)   { return /^[0-9]{6}$/.test(v.trim()); }
-function validateAge(dobStr, minAge = 18) {
-    const dob = new Date(dobStr);
-    const now = new Date();
-    const age = now.getFullYear() - dob.getFullYear() - (
-        now < new Date(now.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0
-    );
-    return age >= minAge;
-}
-
-function fieldVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
-
-// ── Merchant form submit ─────────────────────────────────────
-document.getElementById('merchantForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    // Collect and validate
-    const email   = fieldVal('m-email');
-    const bName   = fieldVal('m-businessName');
-    const oName   = fieldVal('m-ownerName');
-    const dob     = fieldVal('m-dob');
-    const pwd     = fieldVal('m-password');
-    const cpwd    = fieldVal('m-confirmPassword');
-
-    let valid = true;
-    ['m-email','m-businessName','m-ownerName','m-dob','m-password','m-confirmPassword']
-        .forEach(id => clearErr(id));
-
-    if (!bName)  { setErr('m-businessName', 'Business name is required.'); valid = false; }
-    if (!oName)  { setErr('m-ownerName',    'Owner name is required.');    valid = false; }
-    if (!email)  { setErr('m-email', 'Email is required.'); valid = false; }
-    else if (!validateEmail(email)) { setErr('m-email', 'Enter a valid email address.'); valid = false; }
-    if (!dob)    { setErr('m-dob', 'Date of birth is required.'); valid = false; }
-    else if (!validateAge(dob)) { setErr('m-dob', 'Owner must be at least 18 years old.'); valid = false; }
-    if (!pwd)    { setErr('m-password', 'Password is required.'); valid = false; }
-    else if (pwd.length < 6) { setErr('m-password', 'Min 6 characters required.'); valid = false; }
-    if (!cpwd)   { setErr('m-confirmPassword', 'Please confirm your password.'); valid = false; }
-    else if (pwd !== cpwd) { setErr('m-confirmPassword', 'Passwords do not match.'); valid = false; }
-
-    if (!valid) return;
-
-    const btn = document.getElementById('m-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
-    document.getElementById('m-global-err').style.display = 'none';
-
-    try {
-        const payload = {
-            email,
-            password: pwd,
-            businessName: bName,
-            ownerName: oName,
-            dob  // ISO string YYYY-MM-DD — Spring LocalDate parses this
-        };
-
-        const res = await API.auth.registerMerchant(payload);
-        Auth.login(res.accessToken, res.refreshToken || "", "MERCHANT", res.userId);
-
-        // Show success
-        document.getElementById('merchantForm').style.display = 'none';
-        document.getElementById('m-success').classList.add('show');
-        showToast('Account created successfully!', 'success', 'Welcome to BillMe');
-
-    } catch (err) {
-        const errBox = document.getElementById('m-global-err');
-        errBox.textContent = err.message || 'Registration failed. Please try again.';
-        errBox.style.display = 'flex';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-rocket"></i> Create Merchant Account';
-    }
-});
-
-document.getElementById('m-go-dashboard').addEventListener('click', () => {
-    window.location.href = '../dashboard/merchant.html';
-});
-
-// ── Customer Step Navigation ─────────────────────────────────
-function setCustomerStep(step) {
-    document.getElementById('c-step-1').classList.toggle('active', step === 1);
-    document.getElementById('c-step-2').classList.toggle('active', step === 2);
-
-    document.querySelectorAll('#c-step-indicator .step-indicator__item').forEach(el => {
-        const s = parseInt(el.dataset.step);
-        el.classList.toggle('active', s === step);
-        el.classList.toggle('done',   s < step);
-    });
-
-    if (step === 2) startCamera();
-}
-
-document.getElementById('c-to-step1').addEventListener('click', () => {
-    setCustomerStep(1);
-    stopCamera();
-});
-
-document.getElementById('c-to-step2').addEventListener('click', () => {
-    if (!validateCustomerStep1()) return;
-    setCustomerStep(2);
-});
-
-function validateCustomerStep1() {
-    let valid = true;
-    const checks = [
-        ['c-name', v => v, 'Full name is required.'],
-        ['c-email', v => v && validateEmail(v), !fieldVal('c-email') ? 'Email is required.' : 'Enter a valid email.'],
-        ['c-password', v => v && v.length >= 6, !fieldVal('c-password') ? 'Password required.' : 'Min 6 characters.'],
-        ['c-confirmPassword', v => v === fieldVal('c-password'), 'Passwords do not match.'],
-        ['c-dob', v => v && validateAge(v), !fieldVal('c-dob') ? 'Date of birth is required.' : 'Must be 18+ years old.'],
-        ['c-contactNumber', v => validatePhone(v), 'Enter a valid phone number.'],
-        ['c-address', v => v, 'Address is required.'],
-        ['c-city', v => v, 'City is required.'],
-        ['c-state', v => v, 'State is required.'],
-        ['c-pinCode', v => validatePin(v), 'Enter a valid 6-digit PIN code.'],
-    ];
-    checks.forEach(([id, test, msg]) => {
-        clearErr(id);
-        if (!test(fieldVal(id))) {
-            setErr(id, msg);
-            valid = false;
+        // ── Password toggle ──────────────────────────────────────────
+        function initPwdToggle(toggleId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            if (!toggle || !input) return;
+            toggle.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                toggle.classList.toggle('fa-eye', !show);
+                toggle.classList.toggle('fa-eye-slash', show);
+            });
         }
-    });
-    return valid;
-}
+        initPwdToggle('m-pwd-toggle', 'm-password');
+        initPwdToggle('m-cpwd-toggle', 'm-confirmPassword');
+        initPwdToggle('c-pwd-toggle', 'c-password');
+        initPwdToggle('c-cpwd-toggle', 'c-confirmPassword');
 
-// ── Face capture ─────────────────────────────────────────────
-const POSES = [
-    { key: 'straight', label: 'Straight',    icon: 'fa-face-smile' },
-    { key: 'left',     label: 'Turn Left',   icon: 'fa-arrow-left' },
-    { key: 'right',    label: 'Turn Right',  icon: 'fa-arrow-right' },
-    { key: 'up',       label: 'Look Up',     icon: 'fa-arrow-up' },
-    { key: 'down',     label: 'Look Down',   icon: 'fa-arrow-down' },
-    { key: 'blink',    label: 'Eyes Close',  icon: 'fa-eye-slash' },
-];
+        // ── Validation helpers ───────────────────────────────────────
+        function setErr(fieldId, msg) {
+            const el = document.getElementById(fieldId + '-err');
+            if (!el) return;
+            el.textContent = msg;
+        }
+        function clearErr(fieldId) { setErr(fieldId, ''); }
 
-let videoStream  = null;
-let capturedPoses = {};  // key → imageDataUrl
-let currentPoseIdx = 0;
-
-// Build pose grid
-const poseGrid = document.getElementById('poseGrid');
-POSES.forEach(p => {
-    const cell = document.createElement('div');
-    cell.className = 'pose-cell';
-    cell.id = `pose-${p.key}`;
-    cell.innerHTML = `<i class="fas ${p.icon} pose-icon"></i><span class="pose-label">${p.label}</span>`;
-    poseGrid.appendChild(cell);
-});
-
-function updateInstruction() {
-    const pose = POSES[currentPoseIdx];
-    if (!pose) {
-        document.getElementById('faceInstruction').textContent =
-            '✅ All poses captured! Click Complete Registration.';
-        document.getElementById('captureBtn').disabled = true;
-        return;
-    }
-    document.getElementById('faceInstruction').textContent =
-        `Now: ${pose.label} — then click Capture`;
-}
-
-async function startCamera() {
-    try {
-        const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
-        document.getElementById('faceInstruction').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading AI Models...';
-        
-        await Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-        ]);
-
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        document.getElementById('faceVideo').srcObject = videoStream;
-        updateInstruction();
-    } catch(err) {
-        console.error(err);
-        showToast('Camera or AI Model error.', 'error');
-    }
-}
-
-function stopCamera() {
-    if (videoStream) {
-        videoStream.getTracks().forEach(t => t.stop());
-        videoStream = null;
-    }
-}
-
-document.getElementById('captureBtn').addEventListener('click', async () => {
-    const pose = POSES[currentPoseIdx];
-    if (!pose) return;
-
-    const video = document.getElementById('faceVideo');
-    const captureBtn = document.getElementById('captureBtn');
-    
-    // UI state
-    captureBtn.disabled = true;
-    captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-
-    const canvas = document.createElement('canvas');
-    canvas.width  = video.videoWidth  || 320;
-    canvas.height = video.videoHeight || 240;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-    try {
-        const detection = await faceapi.detectSingleFace(canvas).withFaceLandmarks().withFaceDescriptor();
-        
-        if (!detection) {
-            showToast('No face detected. Please adjust lighting or position.', 'warning');
-            captureBtn.disabled = false;
-            captureBtn.innerHTML = '<i class="fas fa-camera"></i> Capture';
-            return;
+        function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+        function validatePhone(v) {
+            const cleaned = v.replace(/\D/g, '');
+            return cleaned.length === 10;
+        }
+        function validatePin(v) { return /^[0-9]{6}$/.test(v.trim()); }
+        function validateAge(dobStr, minAge = 18) {
+            const dob = new Date(dobStr);
+            const now = new Date();
+            const age = now.getFullYear() - dob.getFullYear() - (
+                now < new Date(now.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0
+            );
+            return age >= minAge;
         }
 
-        // Store the numerical descriptor, not the image URL
-        capturedPoses[pose.key] = Array.from(detection.descriptor);
+        function fieldVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
 
-        const cell = document.getElementById(`pose-${pose.key}`);
-        cell.classList.add('captured');
-        cell.innerHTML = `<img src="${dataUrl}" alt="${pose.label}"><span class="pose-label">${pose.label} ✓</span>`;
+        // ── Merchant form submit ─────────────────────────────────────
+        document.getElementById('merchantForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-        currentPoseIdx++;
-        updateInstruction();
-        
-    } catch (err) {
-        console.error(err);
-        showToast('Processing error. Try again.', 'error');
-    } finally {
-        if (currentPoseIdx < POSES.length) {
-            captureBtn.disabled = false;
-            captureBtn.innerHTML = '<i class="fas fa-camera"></i> Capture';
-        } else {
-            captureBtn.disabled = true;
-            captureBtn.innerHTML = '<i class="fas fa-check"></i> All Captured';
+            // Collect and validate
+            const email = fieldVal('m-email');
+            const bName = fieldVal('m-businessName');
+            const oName = fieldVal('m-ownerName');
+            const dob = fieldVal('m-dob');
+            const pwd = fieldVal('m-password');
+            const cpwd = fieldVal('m-confirmPassword');
+
+            let valid = true;
+            ['m-email', 'm-businessName', 'm-ownerName', 'm-dob', 'm-password', 'm-confirmPassword']
+                .forEach(id => clearErr(id));
+
+            if (!bName) { setErr('m-businessName', 'Business name is required.'); valid = false; }
+            if (!oName) { setErr('m-ownerName', 'Owner name is required.'); valid = false; }
+            if (!email) { setErr('m-email', 'Email is required.'); valid = false; }
+            else if (!validateEmail(email)) { setErr('m-email', 'Enter a valid email address.'); valid = false; }
+            if (!dob) { setErr('m-dob', 'Date of birth is required.'); valid = false; }
+            else if (!validateAge(dob)) { setErr('m-dob', 'Owner must be at least 18 years old.'); valid = false; }
+            if (!pwd) { setErr('m-password', 'Password is required.'); valid = false; }
+            else if (pwd.length < 6) { setErr('m-password', 'Min 6 characters required.'); valid = false; }
+            if (!cpwd) { setErr('m-confirmPassword', 'Please confirm your password.'); valid = false; }
+            else if (pwd !== cpwd) { setErr('m-confirmPassword', 'Passwords do not match.'); valid = false; }
+
+            if (!valid) return;
+
+            const btn = document.getElementById('m-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+            document.getElementById('m-global-err').style.display = 'none';
+
+            try {
+                const payload = {
+                    email,
+                    password: pwd,
+                    businessName: bName,
+                    ownerName: oName,
+                    dob  // ISO string YYYY-MM-DD — Spring LocalDate parses this
+                };
+
+                const res = await API.auth.registerMerchant(payload);
+                Auth.login(res.accessToken, res.refreshToken || "", "MERCHANT", res.userId);
+
+                // Show success
+                document.getElementById('merchantForm').style.display = 'none';
+                document.getElementById('m-success').classList.add('show');
+                showToast('Account created successfully!', 'success', 'Welcome to BillMe');
+
+            } catch (err) {
+                const errBox = document.getElementById('m-global-err');
+                errBox.textContent = err.message || 'Registration failed. Please try again.';
+                errBox.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = 'Create Merchant Account';
+            }
+        });
+
+        document.getElementById('m-go-dashboard').addEventListener('click', () => {
+            window.location.href = '../dashboard/merchant.html';
+        });
+
+        // ── Customer Step Navigation ─────────────────────────────────
+        function setCustomerStep(step) {
+            document.getElementById('c-step-1').classList.toggle('active', step === 1);
+            document.getElementById('c-step-2').classList.toggle('active', step === 2);
+
+            document.querySelectorAll('#c-step-indicator .step-indicator__item').forEach(el => {
+                const s = parseInt(el.dataset.step);
+                el.classList.toggle('active', s === step);
+                el.classList.toggle('done', s < step);
+            });
+
+            if (step === 2) startCamera();
         }
-    }
-});
 
-document.getElementById('restartCapture').addEventListener('click', () => {
-    capturedPoses = {};
-    currentPoseIdx = 0;
-    POSES.forEach(p => {
-        const cell = document.getElementById(`pose-${p.key}`);
-        cell.className = 'pose-cell';
-        cell.innerHTML = `<i class="fas ${p.icon} pose-icon"></i><span class="pose-label">${p.label}</span>`;
-    });
-    document.getElementById('captureBtn').disabled = false;
-    updateInstruction();
-});
+        document.getElementById('c-to-step1').addEventListener('click', () => {
+            setCustomerStep(1);
+            stopCamera();
+        });
 
-// ── Customer form submit ─────────────────────────────────────
-document.getElementById('customerForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+        document.getElementById('c-to-step2').addEventListener('click', () => {
+            if (!validateCustomerStep1()) return;
+            setCustomerStep(2);
+        });
 
-    if (Object.keys(capturedPoses).length < 6) {
-        showToast('Please capture all 6 face poses before completing registration.', 'warning');
-        return;
-    }
+        function validateCustomerStep1() {
+            let valid = true;
+            const checks = [
+                ['c-name', v => v, 'Full name is required.'],
+                ['c-email', v => v && validateEmail(v), !fieldVal('c-email') ? 'Email is required.' : 'Enter a valid email.'],
+                ['c-password', v => v && v.length >= 6, !fieldVal('c-password') ? 'Password required.' : 'Min 6 characters.'],
+                ['c-confirmPassword', v => v === fieldVal('c-password'), 'Passwords do not match.'],
+                ['c-dob', v => v && validateAge(v), !fieldVal('c-dob') ? 'Date of birth is required.' : 'Must be 18+ years old.'],
+                ['c-contactNumber', v => validatePhone(v), 'Enter a valid phone number.'],
+                ['c-address', v => v, 'Address is required.'],
+                ['c-city', v => v, 'City is required.'],
+                ['c-state', v => v, 'State is required.'],
+                ['c-pinCode', v => validatePin(v), 'Enter a valid 6-digit PIN code.'],
+            ];
+            checks.forEach(([id, test, msg]) => {
+                clearErr(id);
+                if (!test(fieldVal(id))) {
+                    setErr(id, msg);
+                    valid = false;
+                }
+            });
+            return valid;
+        }
 
-    const btn = document.getElementById('c-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
-    document.getElementById('c-global-err').style.display = 'none';
+        // ── Face capture ─────────────────────────────────────────────
+        const POSES = [
+            { key: 'straight', label: 'Straight', icon: 'fa-face-smile' },
+            { key: 'left', label: 'Turn Left', icon: 'fa-arrow-left' },
+            { key: 'right', label: 'Turn Right', icon: 'fa-arrow-right' },
+            { key: 'up', label: 'Look Up', icon: 'fa-arrow-up' },
+            { key: 'down', label: 'Look Down', icon: 'fa-arrow-down' },
+            { key: 'blink', label: 'Eyes Close', icon: 'fa-eye-slash' },
+        ];
 
-    try {
-        // Average the 6 poses for a robust biometric template
-        const poses = Object.values(capturedPoses);
-        const dimension = poses[0].length; // should be 128
-        const avgDescriptor = new Float32Array(dimension).fill(0);
+        let videoStream = null;
+        let capturedPoses = {};  // key → imageDataUrl
+        let currentPoseIdx = 0;
 
-        for (const desc of poses) {
-            for (let i = 0; i < dimension; i++) {
-                avgDescriptor[i] += desc[i];
+        // Build pose grid
+        const poseGrid = document.getElementById('poseGrid');
+        POSES.forEach(p => {
+            const cell = document.createElement('div');
+            cell.className = 'pose-cell';
+            cell.id = `pose-${p.key}`;
+            cell.innerHTML = `<i class="fas ${p.icon} pose-icon"></i><span class="pose-label">${p.label}</span>`;
+            poseGrid.appendChild(cell);
+        });
+
+        function updateInstruction() {
+            const pose = POSES[currentPoseIdx];
+            if (!pose) {
+                document.getElementById('faceInstruction').textContent =
+                    '✅ All poses captured! Click Complete Registration.';
+                document.getElementById('captureBtn').disabled = true;
+                return;
+            }
+            document.getElementById('faceInstruction').textContent =
+                `Now: ${pose.label} — then click Capture`;
+        }
+
+        async function startCamera() {
+            try {
+                const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+                document.getElementById('faceInstruction').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading AI Models...';
+
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                ]);
+
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                document.getElementById('faceVideo').srcObject = videoStream;
+                updateInstruction();
+            } catch (err) {
+                console.error(err);
+                showToast('Camera or AI Model error.', 'error');
             }
         }
-        for (let i = 0; i < dimension; i++) {
-            avgDescriptor[i] /= poses.length;
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(t => t.stop());
+                videoStream = null;
+            }
         }
 
-        const faceEmbeddings = JSON.stringify(Array.from(avgDescriptor));
+        document.getElementById('captureBtn').addEventListener('click', async () => {
+            const pose = POSES[currentPoseIdx];
+            if (!pose) return;
 
-        const payload = {
-            email:         fieldVal('c-email'),
-            password:      fieldVal('c-password'),
-            name:          fieldVal('c-name'),
-            dob:           fieldVal('c-dob'),
-            contactNumber: fieldVal('c-contactNumber'),
-            address:       fieldVal('c-address'),
-            state:         fieldVal('c-state'),
-            city:          fieldVal('c-city'),
-            pinCode:       fieldVal('c-pinCode'),
-            faceEmbeddings
-        };
+            const video = document.getElementById('faceVideo');
+            const captureBtn = document.getElementById('captureBtn');
 
-        const res = await API.auth.registerCustomer(payload);
-        Auth.login(res.accessToken, res.refreshToken || "", "CUSTOMER", res.userId);
+            // UI state
+            captureBtn.disabled = true;
+            captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
 
-        stopCamera();
-        document.getElementById('customerForm').style.display = 'none';
-        document.getElementById('c-success').classList.add('show');
-        showToast('Account created! You can now use FacePay.', 'success', 'Welcome!');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
 
-    } catch (err) {
-        const errBox = document.getElementById('c-global-err');
-        errBox.textContent = err.message || 'Registration failed. Please try again.';
-        errBox.style.display = 'flex';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check"></i> Complete Registration';
-    }
-});
+            try {
+                const detection = await faceapi.detectSingleFace(canvas).withFaceLandmarks().withFaceDescriptor();
 
-document.getElementById('c-go-dashboard').addEventListener('click', () => {
-    window.location.href = '../dashboard/customer.html';
-});
+                if (!detection) {
+                    showToast('No face detected. Please adjust lighting or position.', 'warning');
+                    captureBtn.disabled = false;
+                    captureBtn.innerHTML = '<i class="fas fa-camera"></i> Capture';
+                    return;
+                }
 
-</script>
+                // Store the numerical descriptor, not the image URL
+                capturedPoses[pose.key] = Array.from(detection.descriptor);
+
+                const cell = document.getElementById(`pose-${pose.key}`);
+                cell.classList.add('captured');
+                cell.innerHTML = `<img src="${dataUrl}" alt="${pose.label}"><span class="pose-label">${pose.label} ✓</span>`;
+
+                currentPoseIdx++;
+                updateInstruction();
+
+            } catch (err) {
+                console.error(err);
+                showToast('Processing error. Try again.', 'error');
+            } finally {
+                if (currentPoseIdx < POSES.length) {
+                    captureBtn.disabled = false;
+                    captureBtn.innerHTML = '<i class="fas fa-camera"></i> Capture';
+                } else {
+                    captureBtn.disabled = true;
+                    captureBtn.innerHTML = '<i class="fas fa-check"></i> All Captured';
+                }
+            }
+        });
+
+        document.getElementById('restartCapture').addEventListener('click', () => {
+            capturedPoses = {};
+            currentPoseIdx = 0;
+            POSES.forEach(p => {
+                const cell = document.getElementById(`pose-${p.key}`);
+                cell.className = 'pose-cell';
+                cell.innerHTML = `<i class="fas ${p.icon} pose-icon"></i><span class="pose-label">${p.label}</span>`;
+            });
+            document.getElementById('captureBtn').disabled = false;
+            updateInstruction();
+        });
+
+        // ── Customer form submit ─────────────────────────────────────
+        document.getElementById('customerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (Object.keys(capturedPoses).length < 6) {
+                showToast('Please capture all 6 face poses before completing registration.', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('c-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            document.getElementById('c-global-err').style.display = 'none';
+
+            try {
+                // Average the 6 poses for a robust biometric template
+                const poses = Object.values(capturedPoses);
+                const dimension = poses[0].length; // should be 128
+                const avgDescriptor = new Float32Array(dimension).fill(0);
+
+                for (const desc of poses) {
+                    for (let i = 0; i < dimension; i++) {
+                        avgDescriptor[i] += desc[i];
+                    }
+                }
+                for (let i = 0; i < dimension; i++) {
+                    avgDescriptor[i] /= poses.length;
+                }
+
+                const faceEmbeddings = JSON.stringify(Array.from(avgDescriptor));
+
+                const payload = {
+                    email: fieldVal('c-email'),
+                    password: fieldVal('c-password'),
+                    name: fieldVal('c-name'),
+                    dob: fieldVal('c-dob'),
+                    contactNumber: fieldVal('c-contactNumber'),
+                    address: fieldVal('c-address'),
+                    state: fieldVal('c-state'),
+                    city: fieldVal('c-city'),
+                    pinCode: fieldVal('c-pinCode'),
+                    faceEmbeddings
+                };
+
+                const res = await API.auth.registerCustomer(payload);
+                Auth.login(res.accessToken, res.refreshToken || "", "CUSTOMER", res.userId);
+
+                stopCamera();
+                document.getElementById('customerForm').style.display = 'none';
+                document.getElementById('c-success').classList.add('show');
+                showToast('Account created! You can now use FacePay.', 'success', 'Welcome!');
+
+            } catch (err) {
+                const errBox = document.getElementById('c-global-err');
+                errBox.textContent = err.message || 'Registration failed. Please try again.';
+                errBox.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Complete Registration';
+            }
+        });
+
+        document.getElementById('c-go-dashboard').addEventListener('click', () => {
+            window.location.href = '../dashboard/customer.html';
+        });
+
+    </script>
 </body>
+
 </html>
