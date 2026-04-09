@@ -13,6 +13,8 @@ import com.billme.transaction.TransactionType;
 import com.billme.wallet.Wallet;
 import com.billme.notification.NotificationService;
 import com.billme.email.InvoiceEmailService;
+import org.springframework.context.ApplicationEventPublisher;
+import com.billme.invoice.events.InvoicePaidEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,7 @@ public class PaymentSettlementService {
     private final InvoiceRepository invoiceRepository;
     private final NotificationService notificationService;
     private final InvoiceEmailService invoiceEmailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void settlePayment(Long invoiceId, String externalRef) {
@@ -117,5 +120,8 @@ public class PaymentSettlementService {
         
         // 6. Trigger Payment Success Email
         invoiceEmailService.sendPaymentSuccessEmail(invoice);
+        
+        // 7. Fire Async Inventory Deductions
+        eventPublisher.publishEvent(new InvoicePaidEvent(this, invoice));
     }
 }

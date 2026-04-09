@@ -267,6 +267,9 @@ public class InvoiceService {
 
             BigDecimal lineTotal = baseAmount.add(itemGst);
 
+            BigDecimal costPrice = product.getCostPrice() != null ? product.getCostPrice() : BigDecimal.ZERO;
+            BigDecimal cogsTotal = costPrice.multiply(quantity);
+
             // ================= 🚨 FIX HERE =================
             InvoiceItem item = InvoiceItem.builder()
                     .invoice(invoice)
@@ -282,6 +285,8 @@ public class InvoiceService {
                     .sgstAmount(itemSgst)
                     .igstAmount(itemIgst)
                     .totalPrice(lineTotal)
+                    .costPriceSnapshot(costPrice)
+                    .cogsTotal(cogsTotal)
                     .build();
 
             invoice.getItems().add(item);
@@ -494,6 +499,11 @@ public class InvoiceService {
                 )
                 .paidAt(invoice.getPaidAt())
                 .refundWindowExpiry(invoice.getRefundWindowExpiry())
+                .refundReason(invoice.getRefundReason())
+                .refundCategory(invoice.getRefundCategory())
+                .refundStatus(invoice.getRefundStatus())
+                .refundRequestedAt(invoice.getRefundRequestedAt())
+                .refundProcessedAt(invoice.getRefundProcessedAt())
                 .items(
                         invoice.getItems().stream()
                                 .map(item ->

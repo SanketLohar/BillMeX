@@ -820,6 +820,9 @@
                     <li class="nav-item" data-section="profile">
                         <a href="#"><i class="fas fa-id-card"></i><span data-i18n="dash_profile">My Profile</span></a>
                     </li>
+                    <li class="nav-item" data-section="banks">
+                        <a href="#"><i class="fas fa-building-columns"></i><span>Bank Accounts</span></a>
+                    </li>
                     <li class="nav-item" data-section="products">
                         <a href="#"><i class="fas fa-box"></i><span data-i18n="dash_products">Products</span></a>
                     </li>
@@ -833,8 +836,10 @@
                                 data-i18n="dash_transactions">Transactions</span></a>
                     </li>
                     <li class="nav-item" data-section="balance">
-                        <a href="#"><i class="fas fa-scale-balanced"></i><span data-i18n="dash_balance">Balance
-                                Sheet</span></a>
+                        <a href="#"><i class="fas fa-scale-balanced"></i><span data-i18n="dash_balance">Balance Sheet</span></a>
+                    </li>
+                    <li class="nav-item" data-section="reports">
+                        <a href="#"><i class="fas fa-file-export"></i><span>Reports & Statement</span></a>
                     </li>
                 </ul>
             </nav>
@@ -920,10 +925,15 @@
                             <div class="stat-val" id="stat-revenue">₹0.00</div>
                             <div class="stat-label" data-i18n="dash_revenue">Total Revenue</div>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" style="position:relative;">
                             <div class="stat-icon icon-green"><i class="fas fa-wallet"></i></div>
                             <div class="stat-val" id="stat-balance">₹0.00</div>
                             <div class="stat-label" data-i18n="dash_wallet_balance">Wallet Balance</div>
+                            <button id="openWithdrawModalBtn" class="btn btn-primary btn-sm"
+                                style="margin-top:10px;width:100%;font-size:12px;padding:6px 8px;"
+                                title="Withdraw funds to your bank account">
+                                <i class="fas fa-arrow-circle-up"></i> Withdraw
+                            </button>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon icon-orange"><i class="fas fa-vault"></i></div>
@@ -1060,6 +1070,9 @@
                             <span class="psc-status" id="psc-bank-status">Incomplete</span>
                         </div>
                         <div class="psc-body">
+                            <div class="alert alert-warning mb-3" style="background:#fff3e0; border-color:#ffe0b2; color:#e65100; padding:12px; border-radius:8px; font-size:13px;">
+                                <i class="fas fa-info-circle"></i> This section is now strictly read-only. To manage your funds across multiple connected accounts, please use the new <a href="#" onclick="document.querySelector('[data-section=\'banks\'] a').click(); return false;" style="font-weight:700; color:#e65100; text-decoration:underline;">Bank Accounts section</a>.
+                            </div>
                             <div class="grid-2">
                                 <div class="form-group">
                                     <label class="form-label">UPI ID</label>
@@ -1137,6 +1150,11 @@
                                     min="0">
                             </div>
                             <div class="form-group">
+                                <label class="form-label">Cost Price (₹) <span class="required">*</span></label>
+                                <input type="number" id="prod-costPrice" class="form-input" placeholder="7.50" step="0.01"
+                                    min="0">
+                            </div>
+                            <div class="form-group">
                                 <label class="form-label">GST Rate</label>
                                 <select id="prod-gstRate" class="form-input" disabled>
                                     <option value="0">0%</option>
@@ -1150,6 +1168,10 @@
                             <div class="form-group">
                                 <label class="form-label">Barcode (optional)</label>
                                 <input type="text" id="prod-barcode" class="form-input" placeholder="PEN12345">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Initial Stock</label>
+                                <input type="number" id="prod-quantity" class="form-input" placeholder="100" min="0" value="0">
                             </div>
                         </div>
                         <div class="alert alert-warning" id="prod-gst-warning" style="display:none;">
@@ -1170,14 +1192,16 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Price</th>
+                                        <th>Selling Price</th>
+                                        <th>Cost Price</th>
+                                        <th>Stock</th>
                                         <th>GST Rate</th>
                                         <th>Barcode</th>
                                         <th>Actions</th>
                                 </thead>
                                 <tbody id="productsBody">
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted" style="padding:32px;">Loading
+                                        <td colspan="7" class="text-center text-muted" style="padding:32px;">Loading
                                             products...</td>
                                     </tr>
                                 </tbody>
@@ -1265,13 +1289,14 @@
                                         <th>Invoice No</th>
                                         <th>Amount</th>
                                         <th>Method</th>
+                                        <th>Reason</th>
                                         <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="refundRequestsBody">
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted" style="padding:16px;">No refund
+                                        <td colspan="6" class="text-center text-muted" style="padding:16px;">No refund
                                             requests currently.</td>
                                     </tr>
                                 </tbody>
@@ -1397,7 +1422,160 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- ══ BANK ACCOUNTS SECTION ══ -->
+                <div class="section-page" id="sec-banks">
+                    <div class="section-header-row">
+                        <h2><i class="fas fa-building-columns" style="color:var(--primary)"></i> Bank Accounts</h2>
+                        <button class="btn btn-primary" id="addBankBtn"><i class="fas fa-plus"></i> Add Bank</button>
+                    </div>
+                    <div class="dash-card">
+                        <div id="banksListContainer">
+                            <div class="text-center text-muted" style="padding: 20px;">Loading bank accounts...</div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- ══ REPORTS & STATEMENT SECTION ══ -->
+                <div class="section-page" id="sec-reports">
+                    <div class="section-header-row">
+                        <h2><i class="fas fa-file-export" style="color:var(--primary)"></i> Reports & Statement</h2>
+                    </div>
+                    <div class="grid-2">
+                        <div class="dash-card">
+                            <h3 style="margin-bottom: 12px; font-size: 16px;">Profit & Loss Report</h3>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Download your comprehensive P&L analytics, featuring revenue, COGS, and margins.</p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary btn-sm rpt-export-btn" data-rpt-type="pnl" data-rpt-format="pdf" id="exportPnlPdfBtn"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                                <button class="btn btn-secondary btn-sm rpt-export-btn" data-rpt-type="pnl" data-rpt-format="excel" id="exportPnlExcelBtn"><i class="fas fa-file-excel"></i> Export Excel</button>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <h3 style="margin-bottom: 12px; font-size: 16px;">Merchant Statement</h3>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Export a bank-style running balance statement capturing all wallet debits and credits.</p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary btn-sm rpt-export-btn" data-rpt-type="statement" data-rpt-format="pdf" id="exportStatementPdfBtn"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                                <button class="btn btn-secondary btn-sm rpt-export-btn" data-rpt-type="statement" data-rpt-format="excel" id="exportStatementExcelBtn"><i class="fas fa-file-excel"></i> Export Excel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ════════════════════════════════════════════════════
+                         ANALYTICS BLOCK — Isolated. All IDs prefixed rpt-
+                         Lazy-loaded only when Reports section is opened.
+                         ════════════════════════════════════════════════════ -->
+                    <div id="rpt-analytics-block" style="margin-top: 8px;">
+
+                        <!-- ── KPI Summary Cards ── -->
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:24px;">
+                            <div class="stat-card" id="rpt-kpi-revenue">
+                                <div class="stat-icon icon-blue"><i class="fas fa-indian-rupee-sign"></i></div>
+                                <div class="stat-val" id="rpt-val-revenue">—</div>
+                                <div class="stat-label">Total Revenue</div>
+                            </div>
+                            <div class="stat-card" id="rpt-kpi-cogs">
+                                <div class="stat-icon icon-orange"><i class="fas fa-box-open"></i></div>
+                                <div class="stat-val" id="rpt-val-cogs">—</div>
+                                <div class="stat-label">Cost of Goods</div>
+                            </div>
+                            <div class="stat-card" id="rpt-kpi-gross">
+                                <div class="stat-icon icon-green"><i class="fas fa-chart-line"></i></div>
+                                <div class="stat-val" id="rpt-val-gross">—</div>
+                                <div class="stat-label">Gross Profit</div>
+                            </div>
+                            <div class="stat-card" id="rpt-kpi-margin">
+                                <div class="stat-icon icon-purple"><i class="fas fa-percent"></i></div>
+                                <div class="stat-val" id="rpt-val-margin">—</div>
+                                <div class="stat-label">Gross Margin</div>
+                            </div>
+                            <div class="stat-card" id="rpt-kpi-invoices">
+                                <div class="stat-icon icon-blue"><i class="fas fa-file-invoice"></i></div>
+                                <div class="stat-val" id="rpt-val-invoices">—</div>
+                                <div class="stat-label">Total Invoices</div>
+                            </div>
+                        </div>
+
+                        <!-- ── Range Selector ── -->
+                        <div class="dash-card" style="margin-bottom:0;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+                                <div>
+                                    <div class="dash-card__title" style="margin-bottom:2px;">Revenue & Activity Over Time</div>
+                                    <div class="dash-card__sub" style="margin-bottom:0;">Time-based analytics for your business performance</div>
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;" id="rpt-range-group">
+                                    <button class="btn btn-secondary btn-sm rpt-range-btn" data-rpt-range="daily" id="rpt-btn-daily">Daily</button>
+                                    <button class="btn btn-secondary btn-sm rpt-range-btn" data-rpt-range="weekly" id="rpt-btn-weekly">Weekly</button>
+                                    <button class="btn btn-primary btn-sm rpt-range-btn" data-rpt-range="monthly" id="rpt-btn-monthly">Monthly</button>
+                                    <button class="btn btn-secondary btn-sm rpt-range-btn" data-rpt-range="quarterly" id="rpt-btn-quarterly">Quarterly</button>
+                                    <button class="btn btn-secondary btn-sm rpt-range-btn" data-rpt-range="yearly" id="rpt-btn-yearly">Yearly</button>
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-primary btn-sm rpt-export-btn" data-rpt-type="summary" data-rpt-format="pdf" id="rpt-summary-export-pdf">
+                                        <i class="fas fa-file-pdf"></i> Export Analytics PDF
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm rpt-export-btn" data-rpt-type="summary" data-rpt-format="excel" id="rpt-summary-export-excel">
+                                        <i class="fas fa-file-excel"></i> Export Analytics Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Loading / Error States -->
+                            <div id="rpt-loading" style="display:none; text-align:center; padding:40px 0;">
+                                <div class="spinner" style="margin:0 auto 12px;"></div>
+                                <div style="color:var(--text-secondary); font-size:13px;">Loading analytics...</div>
+                            </div>
+                            <div id="rpt-error" style="display:none; text-align:center; padding:40px 0; color:var(--text-secondary);">
+                                <i class="fas fa-triangle-exclamation" style="font-size:32px; display:block; margin-bottom:8px; color:#fbbc04;"></i>
+                                <span id="rpt-error-msg">No data available for this period.</span>
+                            </div>
+
+                            <!-- Chart Grid -->
+                            <div id="rpt-charts-area" style="display:none;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                                    <div>
+                                        <div style="font-weight:600; font-size:14px; margin-bottom:12px; color:var(--text-primary);">
+                                            <i class="fas fa-chart-bar" style="color:var(--primary);"></i> Revenue Trend
+                                        </div>
+                                        <div class="chart-box" style="height:220px;">
+                                            <canvas id="rpt-chart-revenue"></canvas>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600; font-size:14px; margin-bottom:12px; color:var(--text-primary);">
+                                            <i class="fas fa-chart-pie" style="color:var(--primary);"></i> Invoice Status Mix
+                                        </div>
+                                        <div class="chart-box" style="height:220px;">
+                                            <canvas id="rpt-chart-status"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- P&L Detail Table -->
+                                <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+                                    <div style="font-weight:600; font-size:14px; margin-bottom:12px; color:var(--text-primary);">
+                                        <i class="fas fa-table" style="color:var(--primary);"></i> P&amp;L Breakdown
+                                    </div>
+                                    <div class="data-table-wrapper">
+                                        <table class="data-table" id="rpt-pnl-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Metric</th>
+                                                    <th class="text-right">Amount (₹)</th>
+                                                    <th class="text-right">Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="rpt-pnl-tbody">
+                                                <tr><td colspan="3" class="text-center text-muted" style="padding:20px;">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ── END ANALYTICS BLOCK ── -->
+
+                </div>
             </div><!-- /.page-area -->
 
             <!-- Final Footer -->
@@ -1424,6 +1602,82 @@
                 <button class="btn btn-secondary btn-sm" onclick="closeModal('invoiceModal')">Close</button>
                 <button class="btn btn-primary btn-sm" id="modalDownloadBtn"><i class="fas fa-download"></i> Download
                     PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Bank Modal -->
+    <div class="modal-backdrop" id="addBankModal" style="display:none;">
+        <div class="modal-box" style="max-width:500px;">
+            <div class="modal-header-row">
+                <h3>Add Bank Account</h3>
+                <button class="modal-close" onclick="document.getElementById('addBankModal').style.display='none'">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Bank Name <span class="required">*</span></label>
+                    <input type="text" id="newBankName" class="form-input" placeholder="e.g. State Bank of India">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Holder Name <span class="required">*</span></label>
+                    <input type="text" id="newBankHolder" class="form-input" placeholder="Full name as per bank">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Number <span class="required">*</span></label>
+                    <input type="text" id="newBankAcc" class="form-input" placeholder="e.g. 1234567890">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">IFSC Code <span class="required">*</span></label>
+                    <input type="text" id="newBankIfsc" class="form-input" placeholder="e.g. SBIN0001234">
+                </div>
+            </div>
+            <div class="modal-footer-row">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('addBankModal').style.display='none'">Cancel</button>
+                <button class="btn btn-primary btn-sm" id="submitNewBankBtn"><i class="fas fa-save"></i> Save Bank Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ WITHDRAW MODAL ══ -->
+    <div class="modal-backdrop" id="withdrawModal" style="display:none;">
+        <div class="modal-box" style="max-width:460px;">
+            <div class="modal-header-row">
+                <h3><i class="fas fa-arrow-circle-up" style="color:var(--primary)"></i> Withdraw Funds</h3>
+                <button class="modal-close" onclick="closeModal('withdrawModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Available Balance Display -->
+                <div style="background:var(--primary-light);border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">Available Balance</span>
+                    <span id="withdrawAvailableBalance" style="font-size:22px;font-weight:800;color:var(--primary);">₹0.00</span>
+                </div>
+                <!-- Amount Input -->
+                <div class="form-group">
+                    <label class="form-label">Withdrawal Amount (₹) <span class="required">*</span></label>
+                    <input type="number" id="withdrawAmount" class="form-input"
+                        placeholder="Minimum ₹100" min="100" step="0.01"
+                        style="font-size:18px;font-weight:700;">
+                    <div class="form-hint" id="withdrawAmountHint" style="color:var(--danger);font-weight:500;"></div>
+                </div>
+                <!-- Bank Dropdown -->
+                <div class="form-group">
+                    <label class="form-label">Select Bank Account <span class="required">*</span></label>
+                    <select id="withdrawBankSelect" class="form-input">
+                        <option value="">— Loading bank accounts... —</option>
+                    </select>
+                    <div class="form-hint">The selected account will receive the payout.</div>
+                </div>
+                <!-- Info Note -->
+                <div class="alert alert-info" style="font-size:13px;margin-top:4px;">
+                    <i class="fas fa-info-circle"></i>
+                    A small platform fee will be deducted. Funds locked under active refund windows are not withdrawable.
+                </div>
+            </div>
+            <div class="modal-footer-row">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('withdrawModal')">Cancel</button>
+                <button class="btn btn-primary btn-sm" id="submitWithdrawBtn">
+                    <i class="fas fa-paper-plane"></i> Withdraw
+                </button>
             </div>
         </div>
     </div>

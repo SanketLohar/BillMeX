@@ -11,19 +11,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const amountEl = document.getElementById('paid-amount');
     const returnBtn = document.getElementById('return-btn');
 
-    const safeRoute = `${window.location.origin}/src/login.html`;
-
     // 🔥 NEW: Determine redirect properly
     const redirectRoute = getRedirectRoute(tokenParam);
 
-    // Button text
-    returnBtn.innerText = redirectRoute === safeRoute
-        ? "Return to Login"
-        : "Go to Dashboard";
+    // 🛡️ ZERO-REGRESSION: Safe Route Fallback
+    const fallbackRoute = `${window.location.origin}/src/login.html`;
 
-    returnBtn.addEventListener('click', () => {
-        window.location.href = redirectRoute;
-    });
+    // Button UI & Action
+    if (redirectRoute) {
+        returnBtn.innerText = "Go to Dashboard";
+        returnBtn.addEventListener('click', () => {
+            window.location.href = redirectRoute;
+        });
+    } else {
+        returnBtn.innerText = "Return to Login";
+        returnBtn.addEventListener('click', () => {
+            window.location.href = fallbackRoute;
+        });
+    }
 
     if (!invoiceNumber) {
         showError("Invalid Link", "No invoice reference was provided.");
@@ -41,10 +46,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingState.style.display = 'none';
             successState.style.display = 'block';
 
-            // 🔥 Redirect ONLY after success verification
-            setTimeout(() => {
-                window.location.href = redirectRoute;
-            }, 3000);
+            // 🔥 ZERO-REGRESSION: Redirect ONLY if internal dashboard flow
+            if (redirectRoute) {
+                setTimeout(() => {
+                    window.location.href = redirectRoute;
+                }, 3000);
+            }
 
         } else {
             showError(
@@ -70,29 +77,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (desc) document.getElementById('error-desc').innerText = desc;
     }
 
-    // ✅ FINAL CORRECT ROUTING LOGIC
+    // ✅ FINAL V4 CORRECT ROUTING LOGIC (Priority Based)
     function getRedirectRoute(tokenParam) {
+        // 🛡️ Priority 1: Email source (Always stay on page)
+        if (tokenParam) {
+            console.log("[Success] Email-based payment detected. Auto-redirect disabled.");
+            return null;
+        }
 
+        // 🛡️ Priority 2: Session-based dashboard flow
         const token = localStorage.getItem('billme_token');
         const role = (localStorage.getItem('billme_role') || '').toUpperCase();
 
-        // 🔥 CASE 1: PUBLIC FLOW (email)
-        if (tokenParam) {
-            return safeRoute; // NEVER go to dashboard
-        }
-
-        // 🔥 CASE 2: LOGGED-IN CUSTOMER FLOW
         if (token && role === 'CUSTOMER') {
             return `${window.location.origin}/dashboard/customer.html`;
         }
-
-        // ⚠️ CASE 3: Wrong session (merchant/admin leftover)
-        if (token && (role === 'MERCHANT' || role === 'ADMIN')) {
-            console.warn("Unexpected role in payment flow:", role);
-            return safeRoute;
+        if (token && role === 'MERCHANT') {
+            return `${window.location.origin}/dashboard/merchant.html`;
         }
 
-        // 🔐 DEFAULT
-        return safeRoute;
+        // 🔐 Default: No auto-redirect
+        return null;
     }
 });

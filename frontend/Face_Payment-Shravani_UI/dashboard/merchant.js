@@ -9,6 +9,7 @@ let productList = [];
 let invoiceList = [];
 let txPage = 0;
 let txTotalPages = 1;
+let isPopulatingProfile = false; // Guard for programmatic updates
 let currentInvId = null;  // for modal
 
 // ── Chart instances ──────────────────────────────────────────
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     bindNav();
     bindSidebarToggle();
     bindProfileForm();
+    bindProfileDirtyCheck();
     bindProductForm();
     bindInvoiceForm();
     bindTransactions();
@@ -72,11 +74,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.applyTranslations(lang);
     }
 
-    // 🔄 Auto-refresh dashboard stats every 60 seconds for "real-time" feel
-    setInterval(() => {
-        console.log("🔄 Auto-refreshing dashboard stats...");
-        loadDashboard();
-    }, 60000);
+    // 🔄 Auto-refresh dashboard stats every 60 seconds (Singleton Guarded)
+    if (!window.pollingIntervalId) {
+        window.pollingIntervalId = setInterval(() => {
+            console.log("🔄 Auto-refreshing financial stats...");
+            refreshWalletStats();
+        }, 60000);
+    }
 });
 
 // ── Error Handling Utilities ──────────────────────────────────
@@ -101,7 +105,7 @@ async function loadDashboard() {
             API.merchant.getProfile().catch(() => null),
             API.merchant.getProducts().catch(() => []),
             API.merchant.getInvoices().catch(() => []),
-            API.wallet.getBalanceSheet().catch(() => null),
+            API.wallet.getSummary({ range: 'monthly' }).catch(() => null),
             API.wallet.getWallet().catch(() => ({ balance: 0, escrowBalance: 0 })),
             API.merchant.getPaymentMethods().catch(() => ({ UPI: 0, FACE_PAY: 0, CARD: 0 }))
         ]);
@@ -380,6 +384,7 @@ chartPayment = new Chart(paymentCanvas, {
 // ── Profile form ─────────────────────────────────────────────
 function populateProfile(profile) {
     if (!profile) return;
+    isPopulatingProfile = true; try {
     const fields = ['email', 'businessName', 'ownerName', 'phone', 'address', 'city', 'state', 'pinCode',
         'upiId', 'bankName', 'accountHolderName', 'accountNumber', 'ifscCode'];
 
@@ -387,21 +392,17 @@ function populateProfile(profile) {
         const el = document.getElementById(`p-${k}`);
         if (!el) return;
 
+        // 🛡️ ZERO-REGRESSION: Protect unsaved user input (Dirty Check)
+        if (el.dataset.dirty === "true" && el.value) return;
+
         el.value = profile[k] || '';
 
         const nonEditableFields = ["email", "businessName"];
-        const bankLockedFields = ["accountNumber", "ifscCode"];
+        const bankLockedFields = ["bankName", "accountHolderName", "accountNumber", "ifscCode"];
 
-        const hasValue = profile[k] !== null && profile[k] !== '';
-
-        if (nonEditableFields.includes(k)) {
+        if (nonEditableFields.includes(k) || bankLockedFields.includes(k)) {
             el.disabled = true;
-        }
-        // 🔐 lock bank fields ONLY if already filled
-        else if (bankLockedFields.includes(k) && hasValue) {
-            el.disabled = true;
-        }
-        else {
+        } else {
             el.disabled = false;
         }
     });
@@ -415,6 +416,7 @@ function populateProfile(profile) {
     if (gstinEl) gstinEl.value = profile.gstin || '';
 
     updateProfileSectionStatuses(profile);
+    } finally { isPopulatingProfile = false; }
 }
 
 function updateProfileSectionStatuses(profile) {
@@ -468,8 +470,33 @@ function bindProfileForm() {
                 gstRegistered: document.getElementById('p-gstRegistered').checked,
                 gstin: document.getElementById('p-gstin').value.trim() || null,
             };
+
+            // 🛡️ ZERO-REGRESSION: Non-destructive Validation
+            const phoneRegex = /^\d{10,13}$/;
+            const accRegex = /^\d+$/;
+            const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/i;
+
+            if (payload.phone && !phoneRegex.test(payload.phone)) {
+                showToast("Please enter a valid phone number (10-13 digits).", "warning");
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                return;
+            }
+            if (payload.accountNumber && !accRegex.test(payload.accountNumber)) {
+                showToast("Account number must contain only digits.", "warning");
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                return;
+            }
+            if (payload.ifscCode && !ifscRegex.test(payload.ifscCode)) {
+                showToast("Invalid IFSC format (e.g., SBIN0001234).", "warning");
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                return;
+            }
             const updated = await API.merchant.updateProfile(payload);
             merchantProfile = updated;
+            
+            // ✅ SUCCESS: Reset dirty state
+            document.querySelectorAll('#sec-profile .form-input').forEach(el => el.dataset.dirty = "");
+            
             renderSidebar(updated);
             renderProfileBanner(updated);
             updateProfileSectionStatuses(updated);
@@ -482,17 +509,42 @@ function bindProfileForm() {
     });
 }
 
+/**
+ * Tracks user input to avoid overwriting modified fields during API sync.
+ */
+function bindProfileDirtyCheck() {
+    console.log("[Merchant] Binding Profile dirty-check listeners...");
+    const inputs = document.querySelectorAll('#sec-profile .form-input');
+    inputs.forEach(el => {
+        el.addEventListener('input', () => {
+            if (!isPopulatingProfile) {
+                el.dataset.dirty = "true";
+            }
+        });
+    });
+}
+
 // ── Products ─────────────────────────────────────────────────
 function renderProducts() {
     const tbody = document.getElementById('productsBody');
     if (!productList.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:32px;"><i class="fas fa-box" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.3;"></i>No products yet. Click "Add Product" to get started.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:32px;"><i class="fas fa-box" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.3;"></i>No products yet. Click "Add Product" to get started.</td></tr>';
         return;
     }
-    tbody.innerHTML = productList.map(p => `
+    tbody.innerHTML = productList.map(p => {
+        const stockQty = p.stockQuantity !== undefined ? p.stockQuantity : (p.quantity || 0);
+        let stockHtml = `<span>${stockQty}</span>`;
+        if (stockQty < 5) {
+            stockHtml = `<span style="color:var(--danger);font-weight:700;">${stockQty} <i class="fas fa-circle-exclamation" title="Critical Stock"></i></span>`;
+        } else if (stockQty < 10) {
+            stockHtml = `<span style="color:#e67e22;font-weight:600;">${stockQty} <i class="fas fa-triangle-exclamation" title="Low Stock"></i></span>`;
+        }
+        return `
         <tr>
             <td><strong>${esc(p.name)}</strong></td>
             <td>₹${(p.price || 0).toFixed(2)}</td>
+            <td>₹${(p.costPrice || 0).toFixed(2)}</td>
+            <td>${stockHtml}</td>
             <td><span class="badge badge-info">${p.gstRate || 0}%</span></td>
             <td>${p.barcode ? esc(p.barcode) : '<span class="text-muted">—</span>'}</td>
             <td>
@@ -501,7 +553,7 @@ function renderProducts() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function bindProductForm() {
@@ -548,27 +600,32 @@ function applyGstRuleToProductForm() {
 async function saveProduct() {
     const name = document.getElementById('prod-name').value.trim();
     const price = parseFloat(document.getElementById('prod-price').value);
+    const costPrice = parseFloat(document.getElementById('prod-costPrice').value);
     const barcode = document.getElementById('prod-barcode').value.trim();
+    const quantity = parseInt(document.getElementById('prod-quantity').value) || 0;
     const gstRate = merchantProfile?.gstRegistered
         ? parseInt(document.getElementById('prod-gstRate').value)
         : 0;
 
     if (!name) { showToast('Product name is required', 'warning'); return; }
     if (isNaN(price) || price < 0) { showToast('Enter a valid price', 'warning'); return; }
+    if (isNaN(costPrice) || costPrice < 0) { showToast('Enter a valid cost price', 'warning'); return; }
 
     const btn = document.getElementById('saveProdBtn');
     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     try {
-        const payload = { name, price, barcode: barcode || null, gstRate };
+        const payload = { name, price, costPrice, quantity, stockQuantity: quantity, barcode: barcode || null, gstRate };
         const newProd = await API.merchant.createProduct(payload);
         productList.push(newProd);
         renderProducts();
         document.getElementById('stat-products').textContent = productList.length;
         document.getElementById('addProductForm').style.display = 'none';
-        ['prod-name', 'prod-price', 'prod-barcode'].forEach(id => {
+        ['prod-name', 'prod-price', 'prod-costPrice', 'prod-barcode'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
+        const qtyEl = document.getElementById('prod-quantity');
+        if (qtyEl) qtyEl.value = '0';
         const gstSelect = document.getElementById('prod-gstRate');
         if (gstSelect) gstSelect.value = '0';
         showToast('Product created!', 'success');
@@ -627,7 +684,7 @@ function renderRefundRequests() {
 
     const reqs = invoiceList.filter(inv => inv.status === 'REFUND_REQUESTED');
     if (!reqs.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:16px;">No pending refund requests.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:16px;">No pending refund requests.</td></tr>';
         return;
     }
 
@@ -639,7 +696,8 @@ function renderRefundRequests() {
             <td><strong>${esc(inv.invoiceNumber || '#' + id)}</strong></td>
             <td>₹${(inv.amount || 0).toFixed(2)}</td>
             <td>${inv.paymentMethod || '—'}</td>
-            <td>${inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString() : '—'}</td>
+            <td>${esc(inv.refundReason || '—')}</td>
+            <td>${inv.refundRequestedAt ? new Date(inv.refundRequestedAt).toLocaleDateString() : (inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString() : '—')}</td>
             <td>
                 <button class="btn btn-success btn-sm" style="margin-right: 5px;" onclick="approveRefund('${id}')">Approve</button>
                 <button class="btn btn-danger btn-sm" onclick="rejectRefund('${id}')">Reject</button>
@@ -724,7 +782,7 @@ async function refreshWalletStats() {
     try {
         console.log("[Merchant] [API] Refreshing wallet stats...");
         const [bs, wl] = await Promise.all([
-            API.wallet.getBalanceSheet().catch(() => null),
+            API.wallet.getSummary({ range: 'monthly' }).catch(() => null),
             API.wallet.getWallet().catch(() => ({ balance: 0, escrowBalance: 0 }))
         ]);
         renderStatCards(productList, invoiceList, bs, wl);
@@ -783,12 +841,7 @@ async function downloadInvoicePdf(id, invNum) {
     try {
         showToast('Downloading PDF...', 'info');
         const blob = await API.merchant.downloadInvoicePdf(id);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `invoice-${invNum}.pdf`;
-        document.body.appendChild(a); a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        window.triggerBlobDownload(blob, `invoice-${invNum}.pdf`);
         showToast('PDF downloaded!', 'success');
     } catch (e) {
         showToast(e.message || 'PDF download failed', 'error');
@@ -842,6 +895,7 @@ function bindInvoiceForm() {
             showToast(e.message || 'Export failed', 'error');
         }
     });
+
 }
 
 function renderInvoiceItemRow() {
@@ -1168,6 +1222,13 @@ function bindNav() {
             if (section === 'transactions') {
                 loadTransactions();
             }
+
+            // 📊 LAZY-LOAD REPORTS ANALYTICS (only when Reports tab opened)
+            if (section === 'reports') {
+                if (window.ReportsAnalytics && typeof window.ReportsAnalytics.initOnce === 'function') {
+                    window.ReportsAnalytics.initOnce();
+                }
+            }
         });
     });
 
@@ -1235,6 +1296,8 @@ function bindMisc() {
         window.location.href = '../index.html';
     });
     document.getElementById('refreshBtn')?.addEventListener('click', () => {
+        // 🛡️ V5 SAFETY: Manual refresh acts as an escape hatch to clear stale local state.
+        document.querySelectorAll('#sec-profile .form-input').forEach(el => el.dataset.dirty = "");
         loadDashboard();
     });
 }
@@ -1336,3 +1399,716 @@ window.payInvoice = payInvoice;
 window.deleteProduct = deleteProduct;
 window.approveRefund = approveRefund;
 window.rejectRefund = rejectRefund;
+
+// ── Phase 2: Bank Accounts Logic ──
+let bankAccountsList = [];
+
+async function loadBankAccounts() {
+    try {
+        const banks = await API.merchant.getBankAccounts();
+        bankAccountsList = banks || [];
+        renderBankAccounts();
+    } catch (e) {
+        console.error("Failed to load bank accounts:", e);
+    }
+}
+
+function renderBankAccounts() {
+    const container = document.getElementById('banksListContainer');
+    if (!container) return;
+    
+    // Build the final HTML string in memory to avoid multiple DOM updates/re-parsing
+    let finalHtml = '';
+    
+    // 1. User Bank Accounts Section (TOP)
+    finalHtml += generateUserBanksHtml(bankAccountsList);
+    
+    // 2. Divider & "Add Another Bank" Header
+    // (Correct Order: Existing banks TOP, Divider, Add Another BOTTOM)
+    finalHtml += `
+        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+            <div style="font-size:15px; font-weight:700; margin-bottom:12px; color:var(--text-primary);">
+                <i class="fas fa-plus-circle" style="color:var(--primary); margin-right:6px;"></i> Add Another Bank
+            </div>
+            <div style="border:1px dashed var(--border); border-radius:12px; padding:16px; background:#fafafa;">
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">Select a preset or add a custom bank:</div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm bank-preset-btn" data-bank-name="HDFC">HDFC</button>
+                    <button class="btn btn-outline btn-sm bank-preset-btn" data-bank-name="SBI">SBI</button>
+                    <button class="btn btn-outline btn-sm bank-preset-btn" data-bank-name="ICICI">ICICI</button>
+                    <button class="btn btn-outline btn-sm bank-preset-btn" data-bank-name="Axis">Axis</button>
+                    <button class="btn btn-secondary btn-sm bank-preset-btn" data-bank-name="">Add Custom Bank</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // ── SINGLE RENDER POINT (CRITICAL) ──
+    // This preserves the container reference and prevents nested innerHTML += wipeouts.
+    container.innerHTML = finalHtml;
+}
+
+function generateUserBanksHtml(banks) {
+    let html = `
+        <div style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-primary);">
+            <i class="fas fa-university" style="color:var(--secondary); margin-right:6px;"></i> Your Bank Accounts
+        </div>
+    `;
+
+    if (!banks || banks.length === 0) {
+        return html + '<div class="text-center text-muted" style="padding: 20px 0; font-size: 13px; border:1px solid var(--border); border-radius:12px; border-style:dashed;">No bank accounts added yet.</div>';
+    }
+
+    return html + banks.map(bank => `
+        <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: ${bank.isDefault ? 'var(--bg)' : '#fff'};">
+            <div>
+                <div style="font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-building-columns" style="color:var(--text-secondary)"></i> 
+                    ${esc(bank.bankName)}
+                    ${bank.isDefault ? '<span class="badge badge-success" style="font-size: 10px;">DEFAULT</span>' : ''}
+                </div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+                    Account: ${esc(bank.accountNumber)} | IFSC: ${esc(bank.ifsc || 'N/A')}
+                </div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+                    Holder: ${esc(bank.accountHolderName)}
+                </div>
+            </div>
+            <div>
+                ${!bank.isDefault ? `<button class="btn btn-secondary btn-sm" onclick="setDefaultBank(${bank.id})">Set Default</button>` : ''}
+                <button class="btn btn-outline-danger btn-sm" onclick="deleteBank(${bank.id})"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.setDefaultBank = async function(id) {
+    try {
+        await API.merchant.setDefaultBankAccount(id);
+        showToast('Default bank updated', 'success');
+        loadBankAccounts();
+    } catch (e) {
+        showToast(e.message || 'Failed to set default bank', 'error');
+    }
+};
+
+window.deleteBank = async function(id) {
+    if(!confirm("Are you sure you want to remove this bank account?")) return;
+    try {
+        await API.merchant.deleteBankAccount(id);
+        showToast('Bank account removed', 'success');
+        loadBankAccounts();
+    } catch (e) {
+        showToast(e.message || 'Failed to remove bank account', 'error');
+    }
+};
+
+// ── EVENT DELEGATION (CRITICAL) ──
+// This listener remains active even when the internal bank items are re-rendered.
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.bank-preset-btn');
+    if (!btn) return;
+    
+    const bankName = btn.dataset.bankName || '';
+    console.log("🚀 Bank preset clicked:", bankName);
+    
+    if (typeof window.openAddBankModalWithPrefill === 'function') {
+        window.openAddBankModalWithPrefill(bankName);
+    } else {
+        console.error("❌ openAddBankModalWithPrefill is not globally available");
+    }
+});
+
+window.openAddBankModalWithPrefill = function(bankName) {
+    console.log("📂 Opening Add Bank Modal with prefill:", bankName);
+    const modal = document.getElementById('addBankModal');
+    if (!modal) {
+        console.error("❌ addBankModal NOT FOUND in DOM");
+        return;
+    }
+
+    // Prefill fields
+    const nameEl = document.getElementById('newBankName');
+    if (nameEl) nameEl.value = bankName || '';
+    
+    // Clear other fields
+    ['newBankHolder', 'newBankAcc', 'newBankIfsc'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // Open using existing openModal helper
+    if (typeof window.openModal === 'function') {
+        window.openModal('addBankModal');
+    } else {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+};
+
+document.getElementById('submitNewBankBtn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('submitNewBankBtn');
+    const payload = {
+        bankName: document.getElementById('newBankName').value.trim(),
+        accountHolderName: document.getElementById('newBankHolder').value.trim(),
+        accountNumber: document.getElementById('newBankAcc').value.trim(),
+        ifsc: document.getElementById('newBankIfsc').value.trim(),
+        isDefault: bankAccountsList.length === 0 // default to true if it's the first bank
+    };
+    
+    if(!payload.bankName || !payload.accountHolderName || !payload.accountNumber || !payload.ifsc) {
+        showToast('Please fill all bank details', 'warning');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    try {
+        await API.merchant.addBankAccount(payload);
+        showToast('Bank account added!', 'success');
+        document.getElementById('addBankModal').style.display = 'none';
+        loadBankAccounts();
+    } catch (e) {
+        showToast(e.message || 'Failed to add bank', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Bank Account';
+    }
+});
+
+// ── SAFE FIX: '+ Add Bank' Button Handler ──
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById('addBankBtn');
+
+    if (btn) {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("🚀 + Add Bank button clicked");
+            if (typeof window.openAddBankModalWithPrefill === 'function') {
+                window.openAddBankModalWithPrefill("");
+            } else {
+                console.error("❌ openAddBankModalWithPrefill not found");
+            }
+        });
+    } else {
+        console.warn("⚠️ #addBankBtn not found for direct binding");
+    }
+});
+
+// Hook into loadDashboard or call directly
+setTimeout(() => {
+    loadBankAccounts();
+}, 1000);
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── WITHDRAWAL UI MODULE (Phase 3) ─────────────────────────────────────
+// Zero-regression: no existing function modified.
+// Reuses: bankAccountsList, openModal, closeModal, refreshWalletStats,
+//         loadTransactions, showToast, safeErrorMessage, esc.
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Opens the Withdraw modal, pre-filling balance and bank dropdown.
+ * Reads wallet balance directly from the DOM — no extra API call.
+ * Reads bankAccountsList (already in memory from loadBankAccounts).
+ */
+function openWithdrawModal() {
+    // 1. Parse current balance from stat card (always up-to-date after renderStatCards)
+    const balEl = document.getElementById('stat-balance');
+    const balText = balEl ? balEl.textContent.replace(/[₹,\s]/g, '') : '0';
+    const currentBalance = parseFloat(balText) || 0;
+
+    // 2. Show available balance in modal header
+    const availEl = document.getElementById('withdrawAvailableBalance');
+    if (availEl) {
+        availEl.textContent = `₹${currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    }
+
+    // 3. Populate bank dropdown from in-memory bankAccountsList (no re-fetch)
+    const sel = document.getElementById('withdrawBankSelect');
+    if (sel) {
+        if (!bankAccountsList || bankAccountsList.length === 0) {
+            sel.innerHTML = '<option value="">— No bank accounts linked. Please add one first. —</option>';
+        } else {
+            sel.innerHTML = bankAccountsList.map(b =>
+                `<option value="${b.id}" ${b.isDefault ? 'selected' : ''}>
+                    ${esc(b.bankName)} — ****${String(b.accountNumber || '').slice(-4)}
+                    ${b.isDefault ? ' (Default)' : ''}
+                </option>`
+            ).join('');
+        }
+    }
+
+    // 4. Reset amount field and hint
+    const amtEl = document.getElementById('withdrawAmount');
+    const hint = document.getElementById('withdrawAmountHint');
+    if (amtEl) amtEl.value = '';
+    if (hint) hint.textContent = '';
+
+    openModal('withdrawModal');
+}
+
+/**
+ * Submits the withdrawal request.
+ * Validates: amount > 0, amount >= 100, amount <= balance, bank selected.
+ * After success: runs lightweight refresh (refreshWalletStats + loadTransactions).
+ */
+async function submitWithdrawal() {
+    const btn      = document.getElementById('submitWithdrawBtn');
+    const amtInput = document.getElementById('withdrawAmount');
+    const bankSel  = document.getElementById('withdrawBankSelect');
+    const hint     = document.getElementById('withdrawAmountHint');
+
+    const amount        = parseFloat(amtInput?.value);
+    const bankAccountId = bankSel?.value ? parseInt(bankSel.value, 10) : null;
+
+    // Current balance from DOM
+    const balEl        = document.getElementById('stat-balance');
+    const balText      = balEl ? balEl.textContent.replace(/[₹,\s]/g, '') : '0';
+    const currentBalance = parseFloat(balText) || 0;
+
+    // ── Client-side validation (server also validates — this is UX only) ──
+    if (!amtInput?.value || isNaN(amount) || amount <= 0) {
+        if (hint) { hint.textContent = 'Enter a valid withdrawal amount greater than ₹0.'; }
+        amtInput?.focus();
+        return;
+    }
+    if (amount < 100) {
+        if (hint) { hint.textContent = 'Minimum withdrawal amount is ₹100.'; }
+        amtInput?.focus();
+        return;
+    }
+    if (amount > currentBalance) {
+        if (hint) {
+            hint.textContent = `Amount exceeds available balance of ₹${currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}.`;
+        }
+        amtInput?.focus();
+        return;
+    }
+    if (!bankSel?.value) {
+        showToast('Please select a bank account to receive the payout.', 'warning');
+        return;
+    }
+
+    // Clear hint if all validations pass
+    if (hint) hint.textContent = '';
+
+    // ── Disable button during API call ─────────────────────────────────
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    try {
+        const payload = { amount };
+        if (bankAccountId) payload.bankAccountId = bankAccountId;
+
+        await API.wallet.withdraw(payload);
+
+        showToast('Withdrawal initiated successfully! Your wallet will update shortly.', 'success');
+        closeModal('withdrawModal');
+
+        // ── Lightweight state sync — no full loadDashboard() ───────────
+        await refreshWalletStats();
+        if (typeof loadTransactions === 'function') {
+            await loadTransactions();
+        }
+
+    } catch (e) {
+        console.error('[Merchant] [Withdraw] Failed:', e);
+        showToast(safeErrorMessage(e), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Withdraw';
+    }
+}
+
+// ── Bind Withdrawal Modal Triggers ─────────────────────────────────────
+document.getElementById('openWithdrawModalBtn')?.addEventListener('click', openWithdrawModal);
+document.getElementById('submitWithdrawBtn')?.addEventListener('click', submitWithdrawal);
+
+// Close on backdrop click (consistent with existing modal pattern)
+document.getElementById('withdrawModal')?.addEventListener('click', function (e) {
+    if (e.target === this) closeModal('withdrawModal');
+});
+
+// Expose for potential inline access
+window.openWithdrawModal  = openWithdrawModal;
+window.submitWithdrawal   = submitWithdrawal;
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── REPORTS ANALYTICS MODULE (Phase 2) ─────────────────────────────────
+// Scope: STRICTLY isolated to #sec-reports & rpt-* DOM elements.
+// Zero interference with: loadDashboard, bindNav, charts (chartStatus,
+// chartPayment, chartActivity), or any existing variable/function.
+// All chart instances stored in local closure — NO global pollution.
+// Lazy-load: initOnce() is a singleton — API called only on first open.
+// Fallback: All API errors show "No data available" — never throws or
+// breaks the page.
+// ═══════════════════════════════════════════════════════════════════════
+;(function () {
+    'use strict';
+
+    // ── Module-private state ──────────────────────────────────────────
+    let _initialized  = false;       // singleton guard
+    let _currentRange = 'monthly';   // active range
+    let _rptChartRevenue = null;     // Chart.js instance for revenue trend
+    let _rptChartStatus  = null;     // Chart.js instance for invoice status
+    let _isLoading    = false;       // re-entrancy guard
+
+    // ── Helpers ──────────────────────────────────────────────────────
+    const fmt = (n) => '₹' + (Number(n) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    const pct = (n) => (Number(n) || 0).toFixed(1) + '%';
+    const rptEl = (id) => document.getElementById(id); // shorthand
+
+    function _setLoading(on) {
+        const lo = rptEl('rpt-loading');
+        const ch = rptEl('rpt-charts-area');
+        const er = rptEl('rpt-error');
+        if (lo) lo.style.display = on ? 'block' : 'none';
+        if (ch) ch.style.display = on ? 'none' : (ch.dataset.rptVisible === '1' ? 'block' : 'none');
+        if (er && on) er.style.display = 'none';
+    }
+
+    function _showError(msg) {
+        const lo = rptEl('rpt-loading');
+        const ch = rptEl('rpt-charts-area');
+        const er = rptEl('rpt-error');
+        const em = rptEl('rpt-error-msg');
+        if (lo) lo.style.display = 'none';
+        if (ch) ch.style.display = 'none';
+        if (er) er.style.display = 'block';
+        if (em) em.textContent = msg || 'No data available for this period.';
+    }
+
+    function _showCharts() {
+        const lo = rptEl('rpt-loading');
+        const ch = rptEl('rpt-charts-area');
+        const er = rptEl('rpt-error');
+        if (lo) lo.style.display = 'none';
+        if (er) er.style.display = 'none';
+        if (ch) { ch.style.display = 'block'; ch.dataset.rptVisible = '1'; }
+    }
+
+    // ── Active range button styling ───────────────────────────────────
+    function _updateRangeButtons(activeRange) {
+        document.querySelectorAll('.rpt-range-btn').forEach(btn => {
+            const r = btn.getAttribute('data-rpt-range');
+            btn.className = 'btn btn-sm rpt-range-btn ' +
+                (r === activeRange ? 'btn-primary' : 'btn-secondary');
+        });
+    }
+
+    // ── KPI Cards ─────────────────────────────────────────────────────
+    function _renderKpis(pnl) {
+        if (!pnl) { return; }
+        const rv = rptEl('rpt-val-revenue');  if (rv) rv.textContent = fmt(pnl.totalRevenue);
+        const cg = rptEl('rpt-val-cogs');     if (cg) cg.textContent = fmt(pnl.cogs || pnl.totalCogs || 0);
+        const gp = rptEl('rpt-val-gross');    if (gp) gp.textContent = fmt(pnl.grossProfit);
+        const gm = rptEl('rpt-val-margin');   if (gm) gm.textContent = pct(pnl.grossMarginPercent || pnl.grossMargin || 0);
+        const iv = rptEl('rpt-val-invoices'); if (iv) iv.textContent = (pnl.totalInvoices || pnl.invoiceCount || '—');
+    }
+
+    // ── P&L Breakdown Table ───────────────────────────────────────────
+    function _renderPnlTable(pnl) {
+        const tbody = rptEl('rpt-pnl-tbody');
+        if (!tbody) return;
+        if (!pnl) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted" style="padding:16px;">No data available.</td></tr>';
+            return;
+        }
+
+        const totalRevenue = Number(pnl.totalRevenue || 0);
+        const totalCogs = Number(pnl.totalCogs || 0);
+        const processingFees = Number(pnl.totalProcessingFees || 0);
+        const grossProfit = Number(pnl.grossProfit || 0);
+        const unknownImpact = Number(pnl.unknownCogsRevenue || 0);
+        const unknownCount = Number(pnl.unknownCogsCount || 0);
+        const rows = [
+            { label: 'Gross Revenue',               val: totalRevenue,                  note: 'Sum of all PAID invoices' },
+            { label: 'Cost of Goods (COGS)',      val: -totalCogs,                    note: 'COGS from known cost profiles' },
+            { label: 'Processing Fees',           val: -processingFees,               note: 'Platform/processing charges' },
+            { label: 'Gross Profit',              val: grossProfit,                  note: 'Revenue – Fees – COGS', bold: true },
+            { label: 'Unknown COGS Impact (Excluded Revenue)', val: -unknownImpact, note: unknownCount > 0 ? `${unknownCount} invoices excluded due to missing cost data.` : 'No exclusions' },
+            { label: 'Net Profit',                val: Number(pnl.netProfit || 0), note: 'Gross Profit – Processing Fees', bold: true },
+        ];
+        tbody.innerHTML = rows.map(r => {
+            const amt = Number(r.val) || 0;
+            const color = amt >= 0 ? 'var(--secondary)' : 'var(--danger)';
+            return `<tr style="${r.bold ? 'background:var(--primary-light);font-weight:700;' : ''}">
+                <td>${r.label}</td>
+                <td class="text-right" style="color:${color};font-weight:600;">${fmt(Math.abs(amt))} ${amt < 0 ? '(deduction)' : ''}</td>
+                <td class="text-right" style="color:var(--text-secondary);font-size:12px;">${r.note}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ── Charts ────────────────────────────────────────────────────────
+    function _renderRevenueChart(summary) {
+        const canvas = rptEl('rpt-chart-revenue');
+        if (!canvas) return;
+
+        // Destroy previous instance safely
+        if (_rptChartRevenue) { try { _rptChartRevenue.destroy(); } catch(e) {} _rptChartRevenue = null; }
+
+        const revenueTrend = summary?.revenueTrend || [];
+        const withdrawalTrend = summary?.withdrawalTrend || [];
+
+        const revMap = new Map(revenueTrend.map(d => [d.label, Number(d.value || 0)]));
+        const wdMap = new Map(withdrawalTrend.map(d => [d.label, Number(d.value || 0)]));
+
+        const labels = [];
+        revenueTrend.forEach(d => { if (!labels.includes(d.label)) labels.push(d.label); });
+        withdrawalTrend.forEach(d => { if (!labels.includes(d.label)) labels.push(d.label); });
+
+        const revenueVals = labels.map(l => revMap.get(l) || 0);
+        const withdrawalVals = labels.map(l => wdMap.get(l) || 0);
+
+        const hasData = revenueVals.some(v => v > 0) || withdrawalVals.some(v => v > 0);
+
+        _rptChartRevenue = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: hasData ? labels : ['No data'],
+                datasets: [
+                    {
+                        label: 'Revenue',
+                        data: hasData ? revenueVals : [0],
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26,115,232,0.1)',
+                        fill: true,
+                        pointRadius: 3,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Withdrawals',
+                        data: hasData ? withdrawalVals : [0],
+                        borderColor: '#34a853',
+                        backgroundColor: 'rgba(52,168,83,0.1)',
+                        fill: true,
+                        pointRadius: 3,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${fmt(ctx.raw)}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (val) => '₹' + Number(val).toLocaleString('en-IN')
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function _renderStatusChart() {
+        const canvas = rptEl('rpt-chart-status');
+        if (!canvas) return;
+
+        if (_rptChartStatus) { try { _rptChartStatus.destroy(); } catch(e) {} _rptChartStatus = null; }
+
+        const statusMap = { PAID: 0, PENDING: 0, UNPAID: 0, CANCELLED: 0, REFUND_REQUESTED: 0, REFUNDED: 0 };
+        const invs = Array.isArray(invoiceList) ? invoiceList : [];
+        invs.forEach(inv => {
+            const s = (inv?.status || 'UNPAID').toUpperCase();
+            if (s in statusMap) statusMap[s] += 1;
+        });
+
+        const hasData = Object.values(statusMap).some(v => v > 0);
+
+        _rptChartStatus = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: hasData ? Object.keys(statusMap) : ['No data'],
+                datasets: [{
+                    data: hasData ? Object.values(statusMap) : [1],
+                    backgroundColor: hasData
+                        ? ['#34a853', '#fbbc04', '#ea4335', '#9aa0a6', '#4285f4', '#8e24aa']
+                        : ['#e0e0e0'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // ── Shared Date Logic ────────────────────────────────────────────
+    function _calculateDates(range) {
+        const end = new Date();
+        const start = new Date();
+        
+        switch (range.toLowerCase()) {
+            case 'weekly':  start.setDate(end.getDate() - 84);  break; // 12 weeks
+            case 'monthly': start.setMonth(end.getMonth() - 12); break; // 12 months
+            case 'yearly':  start.setMonth(0, 1); start.setHours(0, 0, 0, 0); break; // current calendar year
+            case 'quarterly': start.setMonth(end.getMonth() - 12); break; // last 4 quarters
+            default:        start.setDate(end.getDate() - 30); break; // 30 days
+        }
+        
+        return {
+            endDate: end.toISOString(),
+            startDate: start.toISOString()
+        };
+    }
+
+    // ── Secure Authenticated Download ─────────────────────────────────
+    async function _triggerAuthDownload(apiFn, filename, params) {
+        try {
+            showToast('Preparing your report...', 'info');
+            const blob = await apiFn(params);
+            window.triggerBlobDownload(blob, filename);
+            showToast('Download complete', 'success');
+        } catch (err) {
+            console.error('[ReportsAnalytics] Download failed:', err);
+            showToast('Failed to download report. Check permissions.', 'error');
+        }
+    }
+
+    // ── Main data fetch & render ──────────────────────────────────────
+    async function _loadAnalytics(range) {
+        if (_isLoading) return;
+        _isLoading = true;
+        _setLoading(true);
+
+        try {
+            const [pnl, summary] = await Promise.all([
+                API.wallet.getPnl({ range }).catch(e => {
+                    console.warn('[ReportsAnalytics] PnL fetch failed:', e.message);
+                    return null;
+                }),
+                API.wallet.getSummary({ range }).catch(e => {
+                    console.warn('[ReportsAnalytics] Summary fetch failed:', e.message);
+                    return null;
+                })
+            ]);
+
+            // If BOTH failed — show error state, do not crash
+            if (!pnl && !summary) {
+                _showError('No analytics data available. Try again later.');
+                return;
+            }
+
+            // 🛡️ KPI CARD MAPPING (V8 Precision)
+            const setMoney = (id, n) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerText = '₹' + (Number(n) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            };
+            setMoney('rpt-val-revenue', summary?.totalRevenue || 0);
+            setMoney('rpt-val-withdrawals', summary?.totalWithdrawals || 0);
+            setMoney('rpt-val-cogs', pnl?.totalCogs || 0);
+            setMoney('rpt-val-gross', pnl?.grossProfit || 0);
+
+            // Margin calculation
+            const totalRevenue = Number(pnl?.totalRevenue || 0);
+            const grossProfit = Number(pnl?.grossProfit || 0);
+            const margin = totalRevenue > 0 ? (grossProfit / totalRevenue * 100) : 0;
+            const marginEl = document.getElementById('rpt-val-margin');
+            if (marginEl) marginEl.innerText = margin.toFixed(1) + '%';
+
+            const invoicesEl = document.getElementById('rpt-val-invoices');
+            if (invoicesEl) invoicesEl.innerText = String((Array.isArray(invoiceList) ? invoiceList.length : 0) || 0);
+
+            _renderPnlTable(pnl);
+            _renderRevenueChart(summary);
+            _renderStatusChart();
+            _showCharts();
+
+        } catch (err) {
+            console.error('[ReportsAnalytics] Unexpected error:', err);
+            _showError('Failed to load analytics. No data available.');
+        } finally {
+            _isLoading = false;
+        }
+    }
+
+    // ── Bind range buttons ────────────────────────────────────────────
+    function _bindRangeButtons() {
+        document.querySelectorAll('.rpt-range-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const range = this.getAttribute('data-rpt-range');
+                if (!range || range === _currentRange) return;
+                _currentRange = range;
+                _updateRangeButtons(range);
+                // Reset and reload
+                _isLoading = false;
+                _loadAnalytics(range);
+            });
+        });
+
+        // 🛡️ BIND AUTHENTICATED EXPORTS
+        const exportReport = async ({ type, format, range }) => {
+            const exporters = {
+                pnl: {
+                    api: API.wallet.exportPnl,
+                    fileBase: 'ProfitLoss'
+                },
+                statement: {
+                    api: API.wallet.exportStatement,
+                    fileBase: 'Statement'
+                },
+                summary: {
+                    api: API.wallet.exportSummary,
+                    fileBase: 'AnalyticsSummary'
+                }
+            };
+            const entry = exporters[type];
+            if (!entry) {
+                throw new Error(`Unsupported export type: ${type}`);
+            }
+            const extension = format === 'excel' ? 'xlsx' : 'pdf';
+            await _triggerAuthDownload(
+                entry.api,
+                `${entry.fileBase}_${range}_${format}.${extension}`,
+                { format, range }
+            );
+        };
+
+        document.querySelectorAll('.rpt-export-btn').forEach(btn => {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const type = this.getAttribute('data-rpt-type'); // 'pnl' | 'statement' | 'summary'
+                const format = this.getAttribute('data-rpt-format'); // 'pdf' or 'excel'
+                await exportReport({ type, format, range: _currentRange });
+            });
+        });
+    }
+
+    // ── Public API ───────────────────────────────────────────────────
+    /**
+     * initOnce() — singleton init. Safe to call multiple times.
+     * First call: binds buttons + fires API. Subsequent calls: no-op.
+     */
+    function initOnce() {
+        if (_initialized) {
+            console.log('[ReportsAnalytics] Already initialized — skipping.');
+            return;
+        }
+        _initialized = true;
+        console.log('[ReportsAnalytics] First open — initializing analytics.');
+        _bindRangeButtons();
+        _updateRangeButtons(_currentRange);
+        _loadAnalytics(_currentRange);
+    }
+
+    // ── Expose on window ─────────────────────────────────────────────
+    window.ReportsAnalytics = { initOnce };
+
+})();
+// ── END REPORTS ANALYTICS MODULE ──────────────────────────────────────────

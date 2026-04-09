@@ -19,15 +19,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("""
 SELECT DISTINCT t FROM Transaction t
+LEFT JOIN FETCH t.senderWallet sw
+LEFT JOIN FETCH sw.user su
+LEFT JOIN FETCH t.receiverWallet rw
+LEFT JOIN FETCH rw.user ru
 LEFT JOIN FETCH t.invoice i
-LEFT JOIN FETCH i.customer c
-LEFT JOIN FETCH i.merchant m
-WHERE 
-(
-    (t.senderWallet.user.id = :userId)
-    OR (t.receiverWallet.user.id = :userId)
-    OR (t.invoice IS NOT NULL AND t.senderWallet IS NULL AND t.invoice.customer.user.id = :userId)
-    OR (t.invoice IS NOT NULL AND t.receiverWallet IS NULL AND t.invoice.merchant.user.id = :userId)
+WHERE (
+    (sw IS NOT NULL AND su.id = :userId)
+    OR
+    (rw IS NOT NULL AND ru.id = :userId)
 )
 AND (:type IS NULL OR t.transactionType = :type)
 AND (:status IS NULL OR t.status = :status)
@@ -143,4 +143,74 @@ ORDER BY t.createdAt DESC
         ORDER BY t.createdAt DESC
     """)
     List<Transaction> findAllWithInvoiceDetails();
+
+    @Query("""
+SELECT DISTINCT t FROM Transaction t
+LEFT JOIN FETCH t.senderWallet sw
+LEFT JOIN FETCH sw.user su
+LEFT JOIN FETCH t.receiverWallet rw
+LEFT JOIN FETCH rw.user ru
+LEFT JOIN FETCH t.invoice i
+WHERE (
+    (sw IS NOT NULL AND su.id = :userId)
+    OR
+    (rw IS NOT NULL AND ru.id = :userId)
+)
+AND t.createdAt BETWEEN :startDate AND :endDate
+ORDER BY t.createdAt ASC
+""")
+    List<Transaction> findMerchantStatementTransactions(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("""
+SELECT COALESCE(SUM(
+    CASE 
+        WHEN t.receiverWallet IS NOT NULL AND t.receiverWallet.user.id = :userId THEN t.amount
+        WHEN t.senderWallet IS NOT NULL AND t.senderWallet.user.id = :userId THEN -t.amount
+        ELSE 0
+    END
+), 0)
+FROM Transaction t
+WHERE 
+(
+    (t.senderWallet IS NOT NULL AND t.senderWallet.user.id = :userId)
+    OR 
+    (t.receiverWallet IS NOT NULL AND t.receiverWallet.user.id = :userId)
+)
+AND t.createdAt < :fromDate
+AND t.status = com.billme.transaction.TransactionStatus.SUCCESS
+""")
+    BigDecimal calculateOpeningBalance(
+            @Param("userId") Long userId,
+            @Param("fromDate") LocalDateTime fromDate
+    );
+
+    // 🛡️ FINANCIAL ANALYTICS: Bucketed Withdrawal Trends (Source: Transactions Table)
+    // Using processed_at for business finality and IST (+05:30) for day boundaries.
+
+    @Query(value = "SELECT DATE(CONVERT_TZ(processed_at, '+00:00', '+05:30')) as bucket, COALESCE(SUM(amount), 0) as total FROM transactions " +
+                   "WHERE sender_wallet_id = :walletId AND transaction_type = 'WITHDRAWAL' AND status = 'SUCCESS' " +
+                   "AND processed_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findDailyWithdrawalTrends(@Param("walletId") Long walletId, 
+                                            @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query(value = "SELECT DATE_FORMAT(CONVERT_TZ(processed_at, '+00:00', '+05:30'), '%x-W%v') as bucket, COALESCE(SUM(amount), 0) as total FROM transactions " +
+                   "WHERE sender_wallet_id = :walletId AND transaction_type = 'WITHDRAWAL' AND status = 'SUCCESS' " +
+                   "AND processed_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findWeeklyWithdrawalTrends(@Param("walletId") Long walletId, 
+                                             @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query(value = "SELECT DATE_FORMAT(CONVERT_TZ(processed_at, '+00:00', '+05:30'), '%Y-%m') as bucket, COALESCE(SUM(amount), 0) as total FROM transactions " +
+                   "WHERE sender_wallet_id = :walletId AND transaction_type = 'WITHDRAWAL' AND status = 'SUCCESS' " +
+                   "AND processed_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findMonthlyWithdrawalTrends(@Param("walletId") Long walletId, 
+                                              @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query(value = "SELECT YEAR(CONVERT_TZ(processed_at, '+00:00', '+05:30')) as bucket, COALESCE(SUM(amount), 0) as total FROM transactions " +
+                   "WHERE sender_wallet_id = :walletId AND transaction_type = 'WITHDRAWAL' AND status = 'SUCCESS' " +
+                   "AND processed_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findYearlyWithdrawalTrends(@Param("walletId") Long walletId, 
+                                             @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

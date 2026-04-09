@@ -31,4 +31,9 @@ public class CustomerInvoiceResponse {
     private String customerName;
     private String customerEmail;
     private LocalDateTime refundWindowExpiry;
+    private String refundReason;
+    private String refundCategory;
+    private String refundStatus;
+    private LocalDateTime refundRequestedAt;
+    private LocalDateTime refundProcessedAt;
 }

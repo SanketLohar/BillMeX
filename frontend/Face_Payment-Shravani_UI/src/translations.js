@@ -1,4 +1,4 @@
-﻿window.translations = {
+window.translations = {
     en: {
         branding_name: "BillMe",
         // Nav
@@ -411,7 +411,7 @@
         // Contact Page
         con_hero_t: "Get in Touch",
         con_hero_d: "Have questions about BillMe? Our team is here to help you scale your business with modern billing infrastructure.",
-        con_c1_t: "Customer Support",
+        con_c1_t: "Basic Information",
         con_c1_d: "Need help with your account or technical issues?",
         con_c2_t: "Sales Inquiries",
         con_c2_d: "Interested in our enterprise solutions or a custom demo?",

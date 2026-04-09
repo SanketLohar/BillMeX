@@ -20,7 +20,7 @@ public class WithdrawalController {
     public ResponseEntity<String> withdraw(
             @RequestBody WithdrawalRequest request) {
 
-        withdrawalService.withdraw(request.getAmount());
+        withdrawalService.withdraw(request.getAmount(), request.getBankAccountId());
 
         return ResponseEntity.ok("Withdrawal successful (Simulated)");
     }

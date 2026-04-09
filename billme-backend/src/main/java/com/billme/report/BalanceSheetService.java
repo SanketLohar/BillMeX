@@ -19,8 +19,11 @@ public class BalanceSheetService {
 
     private final InvoiceRepository invoiceRepository;
     private final TransactionRepository transactionRepository;
+    private final com.billme.repository.WalletRepository walletRepository;
 
     public BalanceSheetResponse generateBalanceSheet(MerchantProfile merchant) {
+        com.billme.wallet.Wallet wallet = walletRepository.findByUser(merchant.getUser())
+                .orElse(null);
         
         BigDecimal totalRevenue = invoiceRepository.sumAmountByMerchantIdAndStatus(merchant.getId(), InvoiceStatus.PAID);
         if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
@@ -28,14 +31,18 @@ public class BalanceSheetService {
         BigDecimal platformFees = invoiceRepository.sumProcessingFeeByMerchantIdAndStatus(merchant.getId(), InvoiceStatus.PAID);
         if (platformFees == null) platformFees = BigDecimal.ZERO;
 
-        BigDecimal totalRefunds = transactionRepository.getTotalWithdrawn(merchant.getUser().getWallet(), TransactionType.REFUND);
+        BigDecimal totalRefunds = wallet != null 
+            ? transactionRepository.getTotalWithdrawn(wallet, TransactionType.REFUND)
+            : BigDecimal.ZERO;
         if (totalRefunds == null) totalRefunds = BigDecimal.ZERO;
 
-        BigDecimal withdrawals = transactionRepository.getTotalWithdrawn(merchant.getUser().getWallet(), TransactionType.WITHDRAWAL);
+        BigDecimal withdrawals = wallet != null 
+            ? transactionRepository.getTotalWithdrawn(wallet, TransactionType.WITHDRAWAL)
+            : BigDecimal.ZERO;
         if (withdrawals == null) withdrawals = BigDecimal.ZERO;
 
-        BigDecimal walletBalance = merchant.getUser().getWallet() != null 
-            ? merchant.getUser().getWallet().getBalance() 
+        BigDecimal walletBalance = wallet != null 
+            ? wallet.getBalance() 
             : BigDecimal.ZERO;
         BigDecimal netEarnings = totalRevenue.subtract(totalRefunds);
 

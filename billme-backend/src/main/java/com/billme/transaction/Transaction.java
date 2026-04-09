@@ -54,7 +54,20 @@ public class Transaction {
     @Column(name = "external_reference")
     private String externalReference; // for UPI txn id
 
+    /**
+     * Snapshot of the bank account used for this WITHDRAWAL.
+     * Nullable — only populated on WITHDRAWAL transactions.
+     * bankName is stored as a snapshot so statements are accurate even if bank account is later deleted.
+     */
+    @Column(name = "bank_account_id")
+    private Long bankAccountId;
+
+    @Column(name = "bank_name")
+    private String bankName;
+
     private LocalDateTime createdAt;
+    private LocalDateTime processedAt; // ✅ NEW: Track moment of settlement success
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

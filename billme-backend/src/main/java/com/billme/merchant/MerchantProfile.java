@@ -34,6 +34,7 @@ public class MerchantProfile {
     private String accountNumber;
     private String ifscCode;
 
+    @Builder.Default
     private boolean profileCompleted = false;
 
     private LocalDateTime createdAt;
@@ -49,7 +50,12 @@ public class MerchantProfile {
     private String state;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean gstRegistered = false;
+
+    @Column(name = "allow_negative_stock", nullable = false)
+    @Builder.Default
+    private boolean allowNegativeStock = true;
 
     @PrePersist
     public void prePersist() {

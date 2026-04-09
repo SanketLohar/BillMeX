@@ -610,6 +610,44 @@
                 </div>
             </div>
 
+            <!-- Refund Reason Modal -->
+            <div id="refundReasonModal" class="modal"
+                style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2500; align-items:center; justify-content:center; padding:20px;">
+                <div class="modal-content"
+                    style="background:#fff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,0.25);">
+                    <div class="modal-header"
+                        style="padding:16px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; font-size:18px;">Request Refund</h3>
+                        <button id="refundModalCloseBtn" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+                    </div>
+                    <div style="padding:20px;">
+                        <div class="form-group mb-2">
+                            <label class="form-label">Refund Category (optional)</label>
+                            <select id="refundCategory" class="form-input">
+                                <option value="">Select Category</option>
+                                <option value="Damaged">Damaged</option>
+                                <option value="Wrong Item">Wrong Item</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Reason <span class="required">*</span></label>
+                            <textarea id="refundReason" class="form-input" rows="4"
+                                placeholder="Please provide the refund reason..." style="resize:vertical;"></textarea>
+                            <div id="refundReasonError" style="display:none; color:var(--danger); font-size:12px; margin-top:6px;">
+                                Refund reason is required.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding:14px 20px; border-top:1px solid #eee; display:flex; justify-content:flex-end; gap:10px;">
+                        <button class="btn btn-secondary btn-sm" id="refundCancelBtn">Cancel</button>
+                        <button class="btn btn-primary btn-sm" id="refundSubmitBtn">
+                            <i class="fas fa-paper-plane"></i> Submit Refund Request
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="page-area">
                 <!--══ OVERVIEW SECTION ══ -->
                 <div class="section-page active" id="sec-overview">

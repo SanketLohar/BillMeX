@@ -45,4 +45,14 @@ public class ProductController {
         productService.deleteProduct(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<ProductResponse> updateStock(
+            @PathVariable Long id,
+            @Valid @RequestBody com.billme.product.dto.UpdateStockRequest request,
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                productService.updateStock(id, request.getStockQuantity(), authentication.getName())
+        );
+    }
 }

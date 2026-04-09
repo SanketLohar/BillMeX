@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +34,8 @@ public class RefundController {
 
     @PostMapping("/request/{invoiceId}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public String requestRefund(@PathVariable Long invoiceId) {
-        refundService.requestRefund(invoiceId);
+    public String requestRefund(@PathVariable Long invoiceId, @RequestBody Map<String, String> request) {
+        refundService.requestRefund(invoiceId, request.get("refundReason"), request.get("refundCategory"));
         return "Refund requested successfully";
     }
 

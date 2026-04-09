@@ -8,6 +8,7 @@ import com.billme.repository.WalletRepository;
 import com.billme.user.User;
 import com.billme.wallet.Wallet;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ public class MerchantProfileService {
     private final MerchantProfileRepository merchantProfileRepository;
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
+    @Lazy
+    private final MerchantBankAccountService merchantBankAccountService;
 
     // ================= GET AUTHENTICATED USER =================
     private User getLoggedInUser() {
@@ -178,6 +181,10 @@ public class MerchantProfileService {
         profile.setProfileCompleted(profileCompleted);
 
         merchantProfileRepository.save(profile);
+
+        // Forward-sync: ensure profile bank is visible in merchant_bank_accounts
+        // (withdrawal UI, bank dropdown). Idempotent — safe on every save.
+        merchantBankAccountService.syncFromProfile(profile);
 
         return mapToResponse(profile);
     }

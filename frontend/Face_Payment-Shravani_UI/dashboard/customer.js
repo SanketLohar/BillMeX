@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize Logout
         setupLogout();
+        bindRefundModal();
 
     } catch (err) {
         console.error('Failed to load dashboard:', err);
@@ -54,6 +55,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+let pendingRefundInvoiceId = null;
 
 function setupNavigation() {
     console.log('[Customer] setupNavigation() called');
@@ -361,16 +364,7 @@ window.downloadInvoice = async function (invoiceId) {
     try {
         if (window.API && window.API.showToast) window.API.showToast('Preparing download...', 'info');
         const blob = await window.API.merchant.downloadInvoicePdf(invoiceId);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `invoice_${invoiceId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-            a.remove();
-        }, 100);
+        window.triggerBlobDownload(blob, `invoice_${invoiceId}.pdf`);
         if (window.API && window.API.showToast) window.API.showToast('Download started', 'success');
     } catch (err) {
         console.error('Download error:', err);
@@ -412,58 +406,101 @@ window.retryPayment = async function (invoiceId) {
     }
 };
 
-window.requestRefund = async function (invoiceId) {
+window.requestRefund = function (invoiceId) {
     if (!invoiceId || invoiceId === 'undefined') {
         if (window.API && window.API.showToast) window.API.showToast('Invalid Invoice ID', 'error');
         return;
     }
-    if (!confirm('Are you sure you want to request a refund for this invoice?')) return;
+    pendingRefundInvoiceId = invoiceId.toString();
+    const modal = document.getElementById('refundReasonModal');
+    const reason = document.getElementById('refundReason');
+    const category = document.getElementById('refundCategory');
+    const err = document.getElementById('refundReasonError');
 
-    // Snapshot for rollback: deep copy
+    if (reason) reason.value = '';
+    if (category) category.value = '';
+    if (err) err.style.display = 'none';
+    if (modal) modal.style.display = 'flex';
+};
+
+function closeRefundModal() {
+    const modal = document.getElementById('refundReasonModal');
+    if (modal) modal.style.display = 'none';
+    pendingRefundInvoiceId = null;
+}
+
+function bindRefundModal() {
+    document.getElementById('refundCancelBtn')?.addEventListener('click', closeRefundModal);
+    document.getElementById('refundModalCloseBtn')?.addEventListener('click', closeRefundModal);
+    document.getElementById('refundReasonModal')?.addEventListener('click', (e) => {
+        if (e.target?.id === 'refundReasonModal') closeRefundModal();
+    });
+    document.getElementById('refundSubmitBtn')?.addEventListener('click', submitRefundRequest);
+}
+
+async function submitRefundRequest() {
+    const invoiceId = pendingRefundInvoiceId;
+    if (!invoiceId) return;
+
+    const reasonInput = document.getElementById('refundReason');
+    const categoryInput = document.getElementById('refundCategory');
+    const errorEl = document.getElementById('refundReasonError');
+    const submitBtn = document.getElementById('refundSubmitBtn');
+
+    const refundReason = reasonInput?.value?.trim() || '';
+    const refundCategory = categoryInput?.value || '';
+
+    if (!refundReason) {
+        if (errorEl) errorEl.style.display = 'block';
+        reasonInput?.focus();
+        return;
+    }
+    if (errorEl) errorEl.style.display = 'none';
+
     const previousInvoices = JSON.parse(JSON.stringify(window._customerInvoiceList || []));
     const targetId = invoiceId.toString();
 
     try {
-        // ✅ CONTROLLED OPTIMISTIC UPDATE: Direct mutation + re-render
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        }
+
         if (window._customerInvoiceList) {
             const index = window._customerInvoiceList.findIndex(inv =>
                 (inv.id || inv.invoiceId)?.toString() === targetId
             );
             if (index !== -1) {
                 window._customerInvoiceList[index].status = 'REFUND_REQUESTED';
-                console.log("[Customer] Optimistic status updated for:", targetId);
+                window._customerInvoiceList[index].refundReason = refundReason;
+                window._customerInvoiceList[index].refundCategory = refundCategory || null;
                 renderInvoices(window._customerInvoiceList);
                 updateAnalytics(window._customerInvoiceList);
-            } else {
-                console.warn("[Customer] Invoice for refund not found in local state:", targetId);
             }
         }
 
         if (window.API && window.API.showToast) window.API.showToast('Initiating refund request...', 'info');
-
-        // Execute API call
-        await window.API.payment.requestRefund(invoiceId);
-
+        await window.API.payment.requestRefund(invoiceId, { refundReason, refundCategory });
+        closeRefundModal();
         if (window.API && window.API.showToast) window.API.showToast('Refund request submitted successfully', 'success');
 
-        // 🔄 FORCE CONSISTENCY SYNC: Wait 2s then refresh from server to ensure state matches
         setTimeout(() => {
-            console.log("[Customer] Background sync started...");
-            loadCustomerData().catch(e => console.warn("[Customer] Sync failed, but UI remains optimistic."));
-        }, 2000);
-
+            loadCustomerData().catch(() => {});
+        }, 1500);
     } catch (err) {
         console.error('[Customer] Refund request failed:', err);
-
-        // 🔙 ROLLBACK: Restore previous state if API fails
         window._customerInvoiceList = previousInvoices;
         renderInvoices(window._customerInvoiceList);
-
         if (window.API && window.API.showToast) {
             window.API.showToast(err.message || 'Failed to request refund', 'error');
         }
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Refund Request';
+        }
     }
-};
+}
 
 
 // Internal helpers
