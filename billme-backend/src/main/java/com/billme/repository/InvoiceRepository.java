@@ -5,6 +5,7 @@ import com.billme.invoice.InvoiceStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +40,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             Long userId,
             InvoiceStatus status
     );
+
+    @EntityGraph(attributePaths = {"items"})
+    List<Invoice> findByMerchant_IdAndStatusInAndPaidAtBetween(
+            Long merchantId, 
+            List<InvoiceStatus> statuses, 
+            java.time.LocalDateTime startDate, 
+            java.time.LocalDateTime endDate
+    );
+
     @EntityGraph(attributePaths = {"items", "merchant"})
     List<Invoice> findByCustomerUserEmail(String email);
     @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Invoice i WHERE i.merchant.id = :merchantId AND i.status = :status")
@@ -54,6 +64,30 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
        AND i.refundWindowExpiry > CURRENT_TIMESTAMP
        """)
     BigDecimal sumLockedAmount();
+
+    @Query(value = "SELECT DATE(CONVERT_TZ(paid_at, '+00:00', '+05:30')) as bucket, COALESCE(SUM(amount), 0) as total FROM invoices " +
+                   "WHERE merchant_id = :merchantId AND status = 'PAID' " +
+                   "AND paid_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findDailyRevenue(@Param("merchantId") Long merchantId,
+                                  @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query(value = "SELECT DATE_FORMAT(CONVERT_TZ(paid_at, '+00:00', '+05:30'), '%x-W%v') as bucket, COALESCE(SUM(amount), 0) as total FROM invoices " +
+                   "WHERE merchant_id = :merchantId AND status = 'PAID' " +
+                   "AND paid_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findWeeklyRevenue(@Param("merchantId") Long merchantId, 
+                                   @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query(value = "SELECT DATE_FORMAT(CONVERT_TZ(paid_at, '+00:00', '+05:30'), '%Y-%m') as bucket, COALESCE(SUM(amount), 0) as total FROM invoices " +
+                   "WHERE merchant_id = :merchantId AND status = 'PAID' " +
+                   "AND paid_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findMonthlyRevenue(@Param("merchantId") Long merchantId, 
+                                    @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query(value = "SELECT YEAR(CONVERT_TZ(paid_at, '+00:00', '+05:30')) as bucket, COALESCE(SUM(amount), 0) as total FROM invoices " +
+                   "WHERE merchant_id = :merchantId AND status = 'PAID' " +
+                   "AND paid_at BETWEEN :start AND :end GROUP BY bucket ORDER BY bucket ASC", nativeQuery = true)
+    List<Object[]> findYearlyRevenue(@Param("merchantId") Long merchantId, 
+                                   @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 
     Optional<Invoice> findByInvoiceNumberAndPaymentToken(String invoiceNumber, String paymentToken);
 }

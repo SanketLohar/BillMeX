@@ -31,66 +31,109 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners
     document.getElementById('refreshBtn')?.addEventListener('click', loadBalanceSheet);
     
-    // Period Toggle listeners
+    // Period Toggle listeners (Legacy fallback)
     document.querySelectorAll('input[name="period"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            console.log(`Period changed to: ${radio.value}`);
+            console.log(`Period changed to (legacy): ${radio.value}`);
             loadBalanceSheet();
         });
     });
 
+    // New Production Range Selector
+    document.getElementById('reportRange')?.addEventListener('change', loadBalanceSheet);
+
+
     // Fallback for the hidden select dropdown (if it's still used by some legacy logic)
     document.getElementById('periodFilter')?.addEventListener('change', loadBalanceSheet);
+
+    // Export Listeners
+    document.getElementById('exportPnlExcel')?.addEventListener('click', (e) => { e.preventDefault(); downloadReport('PNL', 'EXCEL'); });
+    document.getElementById('exportPnlPdf')?.addEventListener('click', (e) => { e.preventDefault(); downloadReport('PNL', 'PDF'); });
+    document.getElementById('exportSummaryExcel')?.addEventListener('click', (e) => { e.preventDefault(); downloadReport('SUMMARY', 'EXCEL'); });
+    document.getElementById('exportSummaryPdf')?.addEventListener('click', (e) => { e.preventDefault(); downloadReport('SUMMARY', 'PDF'); });
 });
+
+async function downloadReport(type, format) {
+    const rangeSelect = document.getElementById('reportRange');
+    const period = rangeSelect ? rangeSelect.value : (document.querySelector('input[name="period"]:checked')?.value || 'monthly');
+
+    try {
+        window.showToast?.(`Generating ${type} ${format}...`, 'info');
+        let blob;
+        if (type === 'PNL') {
+            blob = await API.wallet.exportPnl({ format, range: period });
+        } else {
+            blob = await API.wallet.exportSummary({ format, range: period });
+        }
+
+        window.triggerBlobDownload(
+            blob,
+            `BillMeX_${type}_${period}_${new Date().toISOString().split('T')[0]}.${format === 'EXCEL' ? 'xlsx' : 'pdf'}`
+        );
+        window.showToast?.('Report downloaded successfully', 'success');
+    } catch (err) {
+        console.error('Export failed:', err);
+        window.showToast?.('Failed to export report', 'error');
+    }
+}
 
 async function loadBalanceSheet() {
     toggleLoader(true);
     
     try {
-        // ── 1. Identify Period (for future API support) ──
-        const period = document.querySelector('input[name="period"]:checked')?.value || 'monthly';
+        console.log("[Analytics] Initializing analytics engine...");
+        
+        // Correctly initialize period from UI selection (New Select > Legacy Radio)
+        const rangeSelect = document.getElementById('reportRange');
+        const period = rangeSelect ? rangeSelect.value : (document.querySelector('input[name="period"]:checked')?.value || 'monthly');
+        console.log(`[Analytics] Current range: ${period}`);
 
-        // ── 2. Attempt wallet/balance-sheet APIs (graceful stubs return null) ──
-        // Note: The backend might not support ?period=... yet, but we prepare the request structure.
-        const [balanceSheet, wallet, ledger] = await Promise.all([
-            API.wallet.getBalanceSheet().catch(() => null),
-            API.wallet.getWallet().catch(() => null),
-            API.wallet.getTransactions({ limit: 1 }).catch(() => null), // stub for ledger activity
+
+        // ── 2. Fetch Data (Legacy API + New Reporting APIs) ──
+        const [wallet, pnl, summary] = await Promise.all([
+            API.wallet.getWallet().catch(e => { console.error("Wallet error:", e); return null; }),
+            API.wallet.getPnl({ range: period }).catch(e => { console.error("PNL error:", e); return null; }),
+            API.wallet.getSummary({ range: period }).catch(e => { console.error("Summary error:", e); return null; })
         ]);
 
-        // ── 3. Financial Metrics Strategy (Safe Fallbacks) ──
+        if (!pnl && !summary) {
+            window.showToast?.('Failed to load analytics', 'error');
+            console.error("Critical: Both PNL and Summary failed to load.");
+        }
+
+
+        // ── 3. Financial Metrics Strategy (Deterministic Sources) ──
         
-        // Revenue Source: preferring balance-sheet over wallet balance
-        const grossRevenue = balanceSheet?.totalRevenue || balanceSheet?.revenue || 0;
+        // As requested:
+        // summary.totalRevenue -> Revenue card
+        // summary.totalWithdrawals -> Withdrawals
+        // pnl.grossProfit -> Profit 
+        const revenue = summary?.totalRevenue || 0;
+        const withdrawals = summary?.totalWithdrawals || 0;
+        const profit = pnl?.grossProfit || 0;
         
-        // Refunds: Fallback to 0 if not supported by current API
-        const refunds      = balanceSheet?.totalRefunds || 0; 
-
-        // Fees: Processing fees are usually provided; Platform fees fallback to 0
-        const processingFees = balanceSheet?.processingFees || wallet?.platformFee || 0;
-        const platformFees   = balanceSheet?.platformFees || 0;
-        const totalFees      = processingFees + platformFees;
-
-        // Balance & Escrow
-        const walletBalance  = wallet?.balance || wallet?.currentBalance || 0;
-        const escrowBalance  = balanceSheet?.escrow || wallet?.escrowBalance || 0;
-        const withdrawals    = balanceSheet?.withdrawals || wallet?.totalWithdrawn || 0;
-
-        // Net Settlement Computation: revenue - fees - refunds
-        const netSettlement  = grossRevenue - totalFees - refunds;
+        // Other fallback mappings
+        const escrowBalance  = wallet?.escrowBalance || 0;
+        const totalFees      = pnl?.totalProcessingFees || 0;
 
         // ── 4. Render UI Elements ──
-        renderSummaryCards(grossRevenue, refunds, totalFees, netSettlement);
-        renderLegacyCards(grossRevenue, escrowBalance, withdrawals, totalFees, netSettlement);
+        renderSummaryCards(revenue, pnl?.totalRefunds || 0, totalFees, profit);
+        renderLegacyCards(revenue, escrowBalance, withdrawals, totalFees, profit);
+        setUnknownCogsAlert(pnl);
         
         // Update Timestamp
         const timeEl = document.getElementById('lastUpdated');
         if (timeEl) timeEl.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
 
-        // ── 5. Invoice counts (Secondary metrics) ──
-        const invoices = await API.merchant.getInvoices().catch(() => []);
+        // ── 5. Invoice counts & Payment Methods ──
+        const [invoices, paymentMethods] = await Promise.all([
+            API.merchant.getInvoices().catch(() => []),
+            API.merchant.getPaymentMethods().catch(() => ({}))
+        ]);
+        
         renderInvoiceCounts(invoices);
-        renderCharts(invoices);
+        renderCharts(invoices, summary, paymentMethods);
+
 
     } catch (err) {
         console.error('Balance Sheet Refresh Failed:', err);
@@ -163,70 +206,86 @@ function renderInvoiceCounts(invoices) {
     set('ic-unpaid', unpaid);
 }
 
-function renderCharts(invoices) {
-    // ── Monthly activity (last 12 months) ──
-    const monthLabels = [], monthData = {};
-    const now = new Date();
-    for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        monthLabels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
-        monthData[key] = 0;
+function setUnknownCogsAlert(pnl) {
+    const alert = document.getElementById('unknownCogsAlert');
+    const text  = document.getElementById('unknownCogsText');
+    if (!alert) return;
+
+    if (pnl && pnl.unknownCogsCount > 0) {
+        alert.style.display = 'block';
+        if (text) text.textContent = `Report contains ${pnl.unknownCogsCount} invoices with missing cost data (Impact: ${formatCurrency(pnl.unknownCogsRevenue)} excluded).`;
+    } else {
+        alert.style.display = 'none';
     }
-    invoices.forEach(inv => {
-        const dateStr = inv.issuedAt || inv.createdAt;
-        if (!dateStr) return;
-        const d = new Date(dateStr);
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        if (key in monthData) monthData[key]++;
-    });
+}
 
-    // ── Status counts ──
-    const sc = { PAID: 0, PENDING: 0, UNPAID: 0, CANCELLED: 0 };
-    invoices.forEach(i => {
-        const s = (i.status || 'UNPAID').toUpperCase();
-        if (s in sc) sc[s]++;
-        else sc.UNPAID++;
-    });
+function renderCharts(invoices, summary, paymentMethods) {
+    // ── 1. Revenue & Withdrawal Trend (REAL DATA) ──
+    const ctxTrend = document.getElementById('chartMonthly');
+    if (ctxTrend && summary) {
+        if (chartMonthly) chartMonthly.destroy();
+        
+        const revTrend = summary.revenueTrend || [];
+        const wdTrend  = summary.withdrawalTrend || [];
 
-    // ── Method counts ──
-    const mc = { UPI: 0, FACEPAY: 0, CARD: 0, OTHER: 0 };
-    invoices.forEach(i => {
-        const m = (i.paymentMethod || 'OTHER').toUpperCase();
-        if (m in mc) mc[m]++;
-        else if (m === 'FACE_PAY') mc.FACEPAY++;
-        else mc.OTHER++;
-    });
-
-    // Destroy old charts to prevent ghosting
-    if (chartMonthly) chartMonthly.destroy();
-    if (chartStatus) chartStatus.destroy();
-    if (chartMethods) chartMethods.destroy();
-
-    const ctxMonthly = document.getElementById('chartMonthly');
-    if (ctxMonthly) {
-        chartMonthly = new Chart(ctxMonthly, {
-            type: 'bar',
+        chartMonthly = new Chart(ctxTrend, {
+            type: 'line',
             data: {
-                labels: monthLabels,
-                datasets: [{
-                    label: 'Invoices',
-                    data: Object.values(monthData),
-                    backgroundColor: 'rgba(26,115,232,0.75)',
-                    borderRadius: 5
-                }]
+                labels: revTrend.map(d => d.label),
+                datasets: [
+                    {
+                        label: 'Gross Revenue',
+                        data: revTrend.map(d => d.value),
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26,115,232,0.1)',
+                        fill: true,
+                        pointRadius: 4,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Withdrawals',
+                        data: wdTrend.map(d => d.value),
+                        borderColor: '#34a853',
+                        backgroundColor: 'rgba(52,168,83,0.1)',
+                        fill: true,
+                        pointRadius: 4,
+                        tension: 0.3
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`
+                        }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { callback: (val) => '₹' + val.toLocaleString('en-IN') }
+                    } 
+                }
             }
         });
     }
 
+    // ── 2. Invoice Status Distribution ──
     const ctxStatus = document.getElementById('chartStatus');
     if (ctxStatus) {
+        if (chartStatus) chartStatus.destroy();
+        
+        const sc = { PAID: 0, PENDING: 0, UNPAID: 0, CANCELLED: 0 };
+        invoices.forEach(i => {
+            const s = (i.status || 'UNPAID').toUpperCase();
+            if (s in sc) sc[s]++;
+            else sc.UNPAID++;
+        });
+
         chartStatus = new Chart(ctxStatus, {
             type: 'doughnut',
             data: {
@@ -247,15 +306,21 @@ function renderCharts(invoices) {
         });
     }
 
+    // ── 3. Payment Methods (REAL DATA) ──
     const ctxMethods = document.getElementById('chartMethods');
     if (ctxMethods) {
+        if (chartMethods) chartMethods.destroy();
+        
+        const labels = paymentMethods ? Object.keys(paymentMethods) : ['UPI', 'FACE_PAY', 'CARD'];
+        const values = paymentMethods ? Object.values(paymentMethods) : [0, 0, 0];
+
         chartMethods = new Chart(ctxMethods, {
             type: 'pie',
             data: {
-                labels: ['UPI', 'FacePay', 'Card', 'Other'],
+                labels: labels.map(l => l.replace('_', ' ')),
                 datasets: [{
-                    data: [mc.UPI, mc.FACEPAY, mc.CARD, mc.OTHER],
-                    backgroundColor: ['#1a73e8', '#34a853', '#fbbc04', '#9aa0a6'],
+                    data: values,
+                    backgroundColor: ['#1a73e8', '#34a853', '#fbbc04', '#ea4335', '#9aa0a6'],
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -263,8 +328,16 @@ function renderCharts(invoices) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.label}: ${ctx.raw} Invoices`
+                        }
+                    }
+                }
             }
         });
     }
 }
+

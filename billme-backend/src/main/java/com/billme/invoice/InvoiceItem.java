@@ -61,4 +61,10 @@ public class InvoiceItem {
 
     @Column(precision = 19, scale = 2)
     private BigDecimal igstAmount;
+
+    @Column(name = "cost_price_snapshot", precision = 19, scale = 2)
+    private BigDecimal costPriceSnapshot;
+
+    @Column(name = "cogs_total", precision = 19, scale = 2)
+    private BigDecimal cogsTotal;
 }

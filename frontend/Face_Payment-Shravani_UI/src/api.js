@@ -192,12 +192,53 @@ async function apiDownload(endpoint) {
   }
 
   if (!response.ok) {
-
     throw new Error(`Download failed (${response.status})`);
-
   }
 
-  return response.blob();
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("Content-Disposition") || response.headers.get("content-disposition");
+  const filename = getFilenameFromContentDisposition(contentDisposition);
+  blob.downloadFilename = filename || null;
+  blob.contentDisposition = contentDisposition || null;
+  return blob;
+}
+
+function getFilenameFromContentDisposition(headerValue) {
+  if (!headerValue) return null;
+
+  // RFC 5987: filename*=UTF-8''encoded-name.ext
+  const utf8Match = headerValue.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match && utf8Match[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1].trim().replace(/["']/g, ""));
+    } catch (_) {
+      return utf8Match[1].trim().replace(/["']/g, "");
+    }
+  }
+
+  // Basic: filename="name.ext" or filename=name.ext
+  const basicMatch = headerValue.match(/filename=([^;]+)/i);
+  if (!basicMatch || !basicMatch[1]) return null;
+  return basicMatch[1].trim().replace(/["']/g, "");
+}
+
+function triggerBlobDownload(fileBlob, fallbackFilename) {
+  if (!(fileBlob instanceof Blob)) {
+    throw new Error("Invalid download payload");
+  }
+  const filename = fileBlob.downloadFilename || fallbackFilename || `download-${Date.now()}`;
+  const url = window.URL.createObjectURL(fileBlob);
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  // Delayed revoke avoids browser races where download doesn't start.
+  setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }, 1500);
 }
 
 /* ===========================================================
@@ -275,7 +316,13 @@ const API = {
         body: data,
       }),
     downloadInvoicePdf: (id) => apiDownload(`/invoice/${id}/pdf`),
-    getPaymentMethods: () => apiCall("/api/merchant/reports/payment-methods"),
+    getPaymentMethods: () => apiCall("/api/v1/merchant/reports/payment-methods"),
+    
+    // Bank Accounts API
+    getBankAccounts: () => apiCall("/api/v1/merchant/bank-accounts"),
+    addBankAccount: (data) => apiCall("/api/v1/merchant/bank-accounts", { method: "POST", body: data }),
+    setDefaultBankAccount: (id) => apiCall(`/api/v1/merchant/bank-accounts/${id}/default`, { method: "PUT" }),
+    deleteBankAccount: (id) => apiCall(`/api/v1/merchant/bank-accounts/${id}`, { method: "DELETE" }),
   },
 
   /* ======================
@@ -320,9 +367,10 @@ const API = {
       apiCall(`/api/refund/${invoiceId}`, {
         method: "POST",
       }),
-    requestRefund: (invoiceId) =>
+    requestRefund: (invoiceId, data) =>
       apiCall(`/api/refund/request/${invoiceId}`, {
-        method: "POST"
+        method: "POST",
+        body: data
       }),
     approveRefund: (invoiceId) =>
       apiCall(`/api/refund/${invoiceId}`, {
@@ -344,7 +392,7 @@ const API = {
 
   wallet: {
     getWallet: () => apiCall("/api/merchant/wallet"),
-    getBalanceSheet: () => apiCall("/api/merchant/reports/balance-sheet"),
+    getBalanceSheet: () => apiCall("/api/v1/merchant/reports/balance-sheet"),
     getTransactions: (params) => {
       let query = "";
       if (params) {
@@ -357,14 +405,70 @@ const API = {
       }
       return apiCall(`/transactions${query}`);
     },
+    /**
+     * Initiate a withdrawal.
+     * @param {{ amount: number, bankAccountId?: number }} data
+     * bankAccountId is optional — omit to use the merchant's default bank.
+     */
+    withdraw: (data) =>
+      apiCall("/api/merchant/withdraw", { method: "POST", body: data }),
     exportTransactions: () => apiDownload("/api/merchant/reports/export"),
     exportBalanceSheet: () => apiDownload("/api/merchant/reports/balance-sheet/export"),
+    getPnl: (params = {}) => {
+      const cleanParams = {
+        range: params.range || "monthly"
+      };
+      const query = "?" + new URLSearchParams(cleanParams).toString();
+      console.log("[API FIX] getPnl:", query);
+      return apiCall(`/api/v1/merchant/profit-loss${query}`);
+    },
+
+    exportPnl: (params = {}) => {
+      const cleanParams = {
+        format: params.format || "pdf",
+        range: params.range || "monthly"
+      };
+      const query = new URLSearchParams(cleanParams).toString();
+      console.log("[API FIX] exportPnl:", query);
+      return apiDownload(`/api/v1/merchant/reports/pnl/export?${query}`);
+    },
+
+    getSummary: (params = {}) => {
+      const cleanParams = {
+        range: params.range || "monthly"
+      };
+      const query = "?" + new URLSearchParams(cleanParams).toString();
+      console.log("[API FIX] getSummary:", query);
+      return apiCall(`/api/v1/merchant/reports/summary${query}`);
+    },
+
+    exportSummary: (params = {}) => {
+      const cleanParams = {
+        format: params.format || "pdf",
+        range: params.range || "monthly"
+      };
+      const query = new URLSearchParams(cleanParams).toString();
+      console.log("[API FIX] exportSummary:", query);
+      return apiDownload(`/api/v1/merchant/reports/summary/export?${query}`);
+    },
+
+    exportStatement: (params = {}) => {
+      const cleanParams = {
+        format: params.format || "pdf",
+        range: params.range || "monthly"
+      };
+      const query = new URLSearchParams(cleanParams).toString();
+      console.log("[API FIX] exportStatement:", query);
+      return apiDownload(`/api/v1/merchant/reports/statement/export?${query}`);
+    },
+
     sendReportEmail: (data) =>
       apiCall("/api/merchant/reports/email", {
         method: "POST",
         body: data,
       }),
   },
+
 
   /* ======================
      CHATBOT
@@ -493,3 +597,4 @@ window.getRole = getRole;
 window.clearAuth = clearAuth;
 
 window.showToast = showToast;
+window.triggerBlobDownload = triggerBlobDownload;

@@ -39,12 +39,23 @@
                     <p class="text-muted" style="font-size:14px;">Your financial position at a glance</p>
                 </div>
                 <div class="d-flex gap-1">
-                    <div class="period-toggle">
-                        <input type="radio" name="period" id="p-today" value="today"><label for="p-today">Today</label>
+                    <!-- Legacy Toggle kept for backward compatibility (HIDDEN) -->
+                    <div class="period-toggle" style="display:none;">
+                        <input type="radio" name="period" id="p-daily" value="daily"><label for="p-daily">Daily</label>
                         <input type="radio" name="period" id="p-weekly" value="weekly"><label for="p-weekly">Weekly</label>
                         <input type="radio" name="period" id="p-monthly" value="monthly" checked><label for="p-monthly">Monthly</label>
-                        <input type="radio" name="period" id="p-all" value="all"><label for="p-all">All Time</label>
+                        <input type="radio" name="period" id="p-yearly" value="yearly"><label for="p-yearly">Yearly</label>
                     </div>
+
+                    <!-- New Production Range Selector -->
+                    <select id="reportRange" class="form-input range-select">
+                        <option value="daily">Daily View (Last 30d)</option>
+                        <option value="weekly">Weekly View (Last 12w)</option>
+                        <option value="monthly" selected>Monthly View (Last 12m)</option>
+                        <option value="yearly">Yearly View (Last 5y)</option>
+                    </select>
+                </div>
+
                     <select id="periodFilter" class="form-input" style="width:auto; display:none;">
                         <option value="all">All Time</option>
                         <option value="month">This Month</option>
@@ -54,14 +65,14 @@
                 </div>
             </div>
 
-            <!-- Financial data notice -->
-            <div class="alert alert-warning mb-3" id="apiNotice">
-                <i class="fas fa-triangle-exclamation"></i>
+            <!-- Financial data notice / Audit Transparency -->
+            <div class="alert alert-danger mb-3" id="unknownCogsAlert" style="display:none;">
+                <i class="fas fa-circle-exclamation"></i>
                 <span>
-                    <strong>Awaiting wallet &amp; ledger APIs.</strong>
-                    Revenue, escrow, and fee data will populate once
-                    <code>GET /api/merchant/balance-sheet</code>, <code>GET /api/wallet</code>, and <code>GET /api/ledger</code>
-                    are available. All values currently show <strong>₹0.00</strong> as safe defaults.
+                    <strong>Audit Transparency Alert:</strong>
+                    <span id="unknownCogsText">Report contains invoices with missing cost data.</span>
+                    <br>
+                    <small>Revenue from these invoices is excluded from Profit & Loss to ensure calculation integrity.</small>
                 </span>
             </div>
 
@@ -94,7 +105,21 @@
             <div class="card mb-3" id="financialSummarySection">
                 <div class="card-header">
                     <h3 style="font-size:16px;"><i class="fas fa-file-invoice-dollar" style="color:var(--primary);"></i> Performance Overview</h3>
-                    <div id="lastUpdated" style="font-size:12px;color:var(--text-secondary);">Last updated: Just now</div>
+                    <div class="d-flex gap-1">
+                        <div class="dropdown">
+                            <button class="btn btn-outline btn-xs dropdown-toggle">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <div class="dropdown-content">
+                                <a href="#" id="exportPnlExcel"><i class="far fa-file-excel"></i> P&L (Excel)</a>
+                                <a href="#" id="exportPnlPdf"><i class="far fa-file-pdf"></i> P&L (PDF)</a>
+                                <hr>
+                                <a href="#" id="exportSummaryExcel"><i class="fas fa-file-excel"></i> Analytics (Excel)</a>
+                                <a href="#" id="exportSummaryPdf"><i class="fas fa-file-pdf"></i> Analytics (PDF)</a>
+                            </div>
+                        </div>
+                        <div id="lastUpdated" style="font-size:12px;color:var(--text-secondary);align-self:center;">Last updated: Just now</div>
+                    </div>
                 </div>
                 <div class="financial-summary-grid">
                     <div class="financial-card revenue">
@@ -113,7 +138,7 @@
                         <i class="fas fa-percentage f-icon"></i>
                     </div>
                     <div class="financial-card settlement">
-                        <div class="f-card-label">Net Settlement</div>
+                        <div class="f-card-label">Profit</div>
                         <div class="f-card-value" id="fs-net">₹0.00</div>
                         <i class="fas fa-wallet f-icon"></i>
                     </div>
@@ -137,7 +162,7 @@
                             <tr><td>Withdrawals</td><td class="text-right fw-600" id="st-wd">0.00</td></tr>
                             <tr><td>Processing Fees</td><td class="text-right fw-600" id="st-fees">0.00</td></tr>
                             <tr style="background:var(--primary-light);">
-                                <td><strong>Net Settlement</strong></td>
+                                <td><strong>Profit</strong></td>
                                 <td class="text-right fw-700" id="st-net">0.00</td>
                             </tr>
                         </tbody>
@@ -148,14 +173,14 @@
                     </div>
                 </div>
 
-                <!-- Invoice activity chart -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 style="font-size:16px;"><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Invoice Activity</h3>
-                        <span class="badge badge-info">Invoice counts only</span>
+                        <h3 style="font-size:16px;"><i class="fas fa-chart-line" style="color:var(--primary);"></i> Revenue & Withdrawal Trend</h3>
+                        <span class="badge badge-success">Financial Trends</span>
                     </div>
                     <div class="chart-box"><canvas id="chartMonthly"></canvas></div>
                 </div>
+
             </div>
 
             <div class="grid-2">

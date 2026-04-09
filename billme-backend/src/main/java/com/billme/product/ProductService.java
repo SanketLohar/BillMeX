@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.billme.product.dto.CreateProductRequest;
 import com.billme.product.dto.ProductResponse;
-import java.util.List;
 import com.billme.repository.ProductRepository;
+import com.billme.repository.StockMovementRepository;
+import com.billme.product.StockMovement;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final MerchantProfileRepository merchantProfileRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     @Transactional
     public ProductResponse createProduct(CreateProductRequest request, String email) {
@@ -39,6 +43,16 @@ public class ProductService {
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setBarcode(request.getBarcode());
+        
+        if (request.getStockQuantity() != null) {
+            product.setStockQuantity(request.getStockQuantity());
+        }
+        if (request.getCostPrice() != null) {
+            product.setCostPrice(request.getCostPrice());
+        }
+        if (request.getLowStockThreshold() != null) {
+            product.setLowStockThreshold(request.getLowStockThreshold());
+        }
 
 
         if(request.getGstRate() == null){
@@ -75,6 +89,11 @@ public class ProductService {
         res.setPrice(product.getPrice());
         res.setGstRate(product.getGstRate());
         res.setBarcode(product.getBarcode());
+        
+        res.setStockQuantity(product.getStockQuantity());
+        res.setCostPrice(product.getCostPrice());
+        res.setLowStockThreshold(product.getLowStockThreshold());
+        
         return res;
     }
     @Transactional
@@ -90,5 +109,35 @@ public class ProductService {
 
         // Soft delete
         product.setActive(false);
+    }
+
+    @Transactional
+    public ProductResponse updateStock(Long id, Integer newStock, String email) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getMerchant().getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        int currentStock = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
+        int difference = newStock - currentStock;
+        
+        product.setStockQuantity(newStock);
+        productRepository.save(product);
+
+        if (difference != 0) {
+            StockMovement movement = StockMovement.builder()
+                    .product(product)
+                    .quantity(Math.abs(difference))
+                    .movementType(difference > 0 ? StockMovement.MovementType.IN : StockMovement.MovementType.OUT)
+                    .referenceId("MANUAL-" + System.currentTimeMillis() + "-P" + product.getId())
+                    .reason("MANUAL_ADJUSTMENT")
+                    .createdAt(java.time.LocalDateTime.now())
+                    .build();
+            stockMovementRepository.save(movement);
+        }
+
+        return mapToResponse(product);
     }
 }

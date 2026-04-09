@@ -16,6 +16,8 @@ import com.billme.wallet.WalletService;
 import com.billme.notification.NotificationService;
 import com.billme.notification.NotificationType;
 import com.billme.email.RefundEmailService;
+import org.springframework.context.ApplicationEventPublisher;
+import com.billme.invoice.events.InvoiceRefundedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.billme.repository.UserRepository;
-import com.billme.repository.WalletRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class RefundService {
     private final RefundTokenService refundTokenService;
     private final NotificationService notificationService;
     private final RefundEmailService refundEmailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void validateAndProcessRefund(Long invoiceId, Long merchantId, boolean approve) {
@@ -69,7 +71,7 @@ public class RefundService {
     }
 
     @Transactional
-    public void requestRefund(Long invoiceId) {
+    public void requestRefund(Long invoiceId, String refundReason, String refundCategory) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
@@ -82,8 +84,16 @@ public class RefundService {
                 invoice.getRefundWindowExpiry().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Refund window expired. This invoice is no longer eligible for a refund.");
         }
+        if (refundReason == null || refundReason.trim().isEmpty()) {
+            throw new RuntimeException("Refund reason is required");
+        }
 
         invoice.setStatus(InvoiceStatus.REFUND_REQUESTED);
+        invoice.setRefundReason(refundReason.trim());
+        invoice.setRefundCategory(refundCategory != null ? refundCategory.trim() : null);
+        invoice.setRefundStatus("REQUESTED");
+        invoice.setRefundRequestedAt(LocalDateTime.now());
+        invoice.setRefundProcessedAt(null);
         invoiceRepository.save(invoice);
 
         // 🔔 Centralized Notifications (In-App)
@@ -121,6 +131,8 @@ public class RefundService {
         }
 
         invoice.setStatus(InvoiceStatus.REFUND_REJECTED);
+        invoice.setRefundStatus("REJECTED");
+        invoice.setRefundProcessedAt(LocalDateTime.now());
         invoiceRepository.save(invoice);
 
         // 💰 ESCROW RELEASE: Return funds to merchant wallet balance
@@ -173,6 +185,10 @@ public class RefundService {
 
         BigDecimal amount = invoice.getTotalPayable();
         String ref = "REFUND-" + invoice.getInvoiceNumber();
+        Wallet merchantWallet = walletService.getWalletByUser(invoice.getMerchant().getUser());
+        Wallet customerWallet = invoice.getCustomer() != null
+                ? walletService.getWalletByUser(invoice.getCustomer().getUser())
+                : null;
 
         // 3. Branch Refund Logic by Payment Method
         if (invoice.getPaymentMethod() == PaymentMethod.FACE_PAY) {
@@ -204,8 +220,8 @@ public class RefundService {
 
         // 4. Create Refund Ledger Transaction
         Transaction refundTx = Transaction.builder()
-                .senderWallet(null)
-                .receiverWallet(null)
+                .senderWallet(merchantWallet)
+                .receiverWallet(customerWallet)
                 .invoice(invoice)
                 .amount(amount)
                 .transactionType(TransactionType.REFUND)
@@ -218,12 +234,17 @@ public class RefundService {
 
         // 5. Finalize Invoice Status
         invoice.setStatus(InvoiceStatus.REFUNDED);
+        invoice.setRefundStatus("APPROVED");
+        invoice.setRefundProcessedAt(LocalDateTime.now());
         invoiceRepository.saveAndFlush(invoice);
 
         log.info("✅ [REFUND SUCCESS] Invoice: {} | Method: {}", invoice.getInvoiceNumber(), invoice.getPaymentMethod());
 
         // 6. Notifications
         notificationService.sendRefundSuccessNotifications(invoice);
+        
+        // 7. Fire Async Inventory Restocking
+        eventPublisher.publishEvent(new InvoiceRefundedEvent(this, invoice));
     }
 
     @Transactional(readOnly = true)

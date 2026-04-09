@@ -14,4 +14,8 @@ public class WithdrawalResponse {
     private String status;
     private LocalDateTime createdAt;
     private String reference;
+
+    /** Bank account that received this payout — null for legacy withdrawals */
+    private Long bankAccountId;
+    private String bankName;
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        @page {
+            margin: 20mm;
+            @bottom-center {
+                content: element(footer);
+            }
+        }
+        body { font-family: 'NotoSans', Arial, sans-serif; font-size: 14px; color: #333; margin-bottom: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .merchant-title { font-size: 24px; color: #1a73e8; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; page-break-inside: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .amount { text-align: right; }
+        .highlight { font-weight: bold; color: #0d47a1; background-color: #e3f2fd; }
+        .footer { position: running(footer); width: 100%; text-align: center; font-size: 10px; color: #777; }
+        .section-title { margin-top: 30px; font-size: 18px; border-bottom: 2px solid #1a73e8; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="merchant-title" th:text="${merchantName}">Merchant Name</div>
+        <div th:text="'GSTIN: ' + (${gstin} != null ? gstin : 'N/A')">GSTIN</div>
+        <h3 th:text="'Summary Analytics Report - ' + ${summary.range.toUpperCase()}">Summary Analytics Report</h3>
+    </div>
+
+    <div class="section-title">Trends</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Bucket/Date</th>
+                <th class="amount">Revenue (INR)</th>
+                <th class="amount">Withdrawals (INR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="rev, iter : ${summary.revenueTrend}">
+                <td th:text="${rev.label}">Bucket</td>
+                <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(rev.value, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal((iter.index < #lists.size(summary.withdrawalTrend) ? summary.withdrawalTrend[iter.index].value : 0), 1, 'COMMA', 2, 'POINT')}">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Financial Summary</div>
+    <table>
+        <tr>
+            <th>Total Revenue</th>
+            <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(summary.totalRevenue, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+        </tr>
+        <tr>
+            <th>Total Withdrawals</th>
+            <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(summary.totalWithdrawals, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+        </tr>
+        <tr class="highlight">
+            <th>Net Cash Flow</th>
+            <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(summary.netCashFlow, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+        </tr>
+    </table>
+
+    <div th:if="${summary.unknownCogsImpact > 0}">
+        <div class="section-title" style="color: #d32f2f; border-bottom-color: #d32f2f;">Audit Transparency</div>
+        <p style="font-size: 12px; color: #555;" th:text="${summary.transparencyNote}">Notice: Some data has unknown impact.</p>
+        <table>
+            <tr>
+                <th>Unknown COGS Impact (Excluded Revenue)</th>
+                <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(summary.unknownCogsImpact, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Generated securely by BillMeX &#8226; Report Range: <span th:text="${summary.range.toUpperCase()}"></span>
+    </div>
+
+</body>
+</html>

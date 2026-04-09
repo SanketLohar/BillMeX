@@ -115,6 +115,21 @@ public class Invoice {
     @Column(name = "refund_window_expiry")
     private LocalDateTime refundWindowExpiry;
 
+    @Column(name = "refund_reason", columnDefinition = "TEXT")
+    private String refundReason;
+
+    @Column(name = "refund_category", length = 32)
+    private String refundCategory;
+
+    @Column(name = "refund_status")
+    private String refundStatus;
+
+    @Column(name = "refund_requested_at")
+    private LocalDateTime refundRequestedAt;
+
+    @Column(name = "refund_processed_at")
+    private LocalDateTime refundProcessedAt;
+
     @Column(name = "payment_started_at")
     private LocalDateTime paymentStartedAt;
 
@@ -131,5 +146,9 @@ public class Invoice {
     private Boolean paymentInProgress = false;
 
     private LocalDate dueDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selected_bank_account_id")
+    private com.billme.merchant.MerchantBankAccount selectedBankAccount;
 
 }
