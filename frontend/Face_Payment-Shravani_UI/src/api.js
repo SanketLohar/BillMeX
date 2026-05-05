@@ -7,7 +7,7 @@ const API_BASE_URL = (() => {
   if (host === "localhost" || host === "127.0.0.1") {
     return "http://localhost:8080";
   }
-  return "https://billmex-production.up.railway.app";
+  return "https://billmex.onrender.com";
 })();
 window.API_BASE_URL = API_BASE_URL;
 console.log("🚀 [BillMeX] [API] Using base URL: " + API_BASE_URL);
